@@ -1,0 +1,155 @@
+
+
+.field {
+    display: table;
+    width: auto;
+    border: 2px solid #1C6EA4;
+    background: white;
+}
+
+.row {
+    display: table-row;
+    width: auto;
+}
+
+.cell {
+    display: table-column;
+    float: left;
+    border: 2px solid #1C6EA4;
+    background-size: cover;
+
+    font-family: tahoma, serif;
+    font-weight: bold;
+    font-size: 22px;
+    user-select: none;
+}
+
+.songname {
+    height: 75%;
+    text-align:center;
+
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.cutname {
+    float: left;
+    padding-left: 3%;
+}
+
+.diffname {
+    text-align: right;
+    padding-right: 5%;
+}
+
+.filler {
+    position: absolute;
+    width: 150px;
+    height: 105px;
+    display: none;
+}
+
+.blue {
+    background-color: #0d96ff96;
+}
+
+.red {
+    background-color: #e71d308a;
+}
+
+.selected {
+    background-color: #4e4e4e75;
+}
+
+.makeinprogress {
+    background-color: #02915699;
+}
+
+.inprogress {
+    width: 0;
+    height: 0;
+    border-top: 40px solid transparent;
+    border-left: 70px solid #02915699;
+    border-bottom: 40px solid transparent;
+    margin-top: 12px;
+    margin-left: 40px;
+}
+
+.draw {
+    background: linear-gradient(35deg, #e71d308a 0%, #e71d308a 50%, #0d96ff96 50%, #0d96ff96 100%);
+}
+
+.center {
+    display: block;
+    background: linear-gradient(35deg, #e71d30a8 0%, #e71d30a8 50%, #0d96ffa8 50%, #0d96ffa8 100%);
+}
+
+#settings {
+    display: none;
+    border: 2px solid #1C6EA4;
+    float: left;
+    padding: 5px;
+    background: white;
+}
+
+#percents {
+    padding: 5px;
+}
+
+#managerbuttons button {
+    float: left;
+    width: 100px;
+    margin-left: 15px
+}
+
+input[type='number'] {
+    width: 40px;
+}
+
+.p1 {
+    font-size: 70px;
+    display: flex;
+    justify-content: flex-end;
+    margin-left: -0.07em;
+    margin-top: -0.21em;
+}
+
+.p2 {
+    font-size: 70px;
+    display: flex;
+    align-items: flex-end;
+    margin-top: 0.14em;
+}
+
+
+.gradient-border {
+    margin-top: -109px;
+    margin-left: -4px;
+    position: absolute;
+    content: "";
+    z-index: 0;
+    width: 158px;
+    height: 113px;
+    background: linear-gradient(60deg, #5f86f2, #a65ff2, #f25fd0, #f25f61, #f2cb5f, #abf25f, #5ff281, #5ff2f0);
+    background-size: 300% 300%;
+    background-position: 0 50%;
+    animation: moveGradient 4s alternate infinite;
+}
+
+.cellinfo {
+    height: 100%;
+    background-color: rgba(255, 255, 255, 0.75);
+}
+
+@keyframes moveGradient {
+    50% {
+        background-position: 100% 50%;
+    }
+}
+
+@keyframes moveGradient {
+    50% {
+        background-position: 100% 50%;
+    }
+}

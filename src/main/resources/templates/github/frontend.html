@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html>
+<head>
+
+  <title>Visual GitHub</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.1.3/css/bootstrap.min.css"
+        integrity="sha384-MCw98/SFnGE8fJT3GXwEOngsV7Zt27NXFoaoApmYm81iuXoPkFOJwJ8ERdknLPMO" crossorigin="anonymous">
+  <link rel="stylesheet" type="text/css" href="/github/css/main.css"/>
+  <link rel="stylesheet" type="text/css" href="/github/css/w3.css"/>
+  <script th:inline="javascript">
+    const wspath = [[${wsPath}]];
+    audio_files = null;
+  </script>
+  <script src="https://code.jquery.com/jquery-3.3.1.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.3/umd/popper.min.js"
+          integrity="sha384-ZMP7rVo3mIykV+2+9J3UJ46jBk0WLaUAdn689aCwoqbBJiSnjAK/l8WvCWPIPm49" crossorigin="anonymous"></script>
+  <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.1.3/js/bootstrap.min.js"
+          integrity="sha384-ChfqqxuZUCnJSK3+MXmPNIyE6ZbWh2IMqE241rYiqJxyMiZ6OW/JmZQ5stwEULTy" crossorigin="anonymous"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/howler/2.0.15/howler.min.js"></script>
+  <script src="/github/js/displayFig.js"></script>
+  <script src="/github/js/main.js"></script>
+  <link rel='stylesheet' href='/github/css/displayFig.css'>
+</head>
+<body>
+
+<div id="id01" class="w3-modal">
+  <div class="w3-modal-content">
+    <div class="w3-container">
+          <span onclick="document.getElementById('id01').style.display='none'"
+                class="w3-button w3-display-topright">&times;</span>
+      <p align="center">This is Visual GitHub Activity project, creatred by students of St.Petersburg's Electrotechnical University:</p>
+      <p align="center">Turov Vladimir</p>
+      <p align="center">Ivanov Vladimir</p>
+      <p align="center">Piskunov Yaroslav</p>
+      <p align="center">Zyl Sergey</p>
+      <p align="center">Matushina Marina</p>
+      <p align="center">For more information see the <a href="https://github.com/moevm/mse_voice_acting_of_activity_on_the_github" target="_blank">repository</a></p>
+    </div>
+  </div>
+</div>
+<nav id="navbar" class="navbar navbar-expand-lg navbar-light fixed-top" >
+  <div id="VA" class="navbar-brand" >Visual activity on GitHub</div>
+  <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNavDropdown" aria-controls="navbarNavDropdown"  aria-expanded="false" aria-label="Toggle navigation">
+    <span class="navbar-toggler-icon"></span>
+  </button>
+  <div class="collapse navbar-collapse" id="navbarNavDropdown">
+    <ul class="navbar-nav ml-auto">
+      <li class="nav-item">
+        <div class="my-3 w3-large" id="soundslabel">Sounds: </div>
+      </li>
+      <li class="nav-item">
+        <div>
+          <select id ="selectsound" class="w3-btn"></select>
+        </div>
+      </li>
+      <li class="nav-item my-mx-3" >
+        <div>
+          <button class=" w3-btn  w3-black" onclick="changecolrs()" id ="changecolors">Go to Dark</button>
+        </div>
+      </li>
+      <li class="nav-item">
+        <div>
+          <div id="bar" class="" style="" >Volume<br> <label><input class="slider" id="volinp" type="range" min="0" max="100" step="1" value="20"></label></div>
+        </div>
+      </li>
+      <li class="nav-item ">
+        <div class="" >
+          <button class="w3-btn w3-green " style="width:114px" id="aboutbutton" onclick="document.getElementById('id01').style.display='block'">About</button>
+        </div>
+      </li>
+    </ul>
+  </div>
+</nav>
+<div align="center">
+  <div id="displaydiv" style="margin-top: 5vh;"></div>
+  <p id="IE" align="center" style="font-size: x-large">Info about events</p>
+  <input type="image" id="filt_0" src="/github/icons/all.png" class="w3-white w3-round-xlarge filterMain" value="all" onclick="use_all_filters_flags();">
+  <input type="image" id="filt_1" src="/github/icons/pull_request.png" class="black w3-round-xlarge filtercheck" value="pull_request" onclick="filterChange('1');">
+  <input type="image" id="filt_2" src="/github/icons/push.png" class="w3-white w3-round-xlarge filtercheck" value="push" onclick="filterChange('2');">
+  <input type="image" id="filt_3" src="/github/icons/issue.png" class="w3-white w3-round-xlarge filtercheck" value="issue" onclick="filterChange('3');">
+  <input type="image" id="filt_4" src="/github/icons/fork_repo.png" class="w3-white w3-round-xlarge filtercheck" value="fork_repo"  onclick="filterChange('4');">
+  <input type="image" id="filt_5" src="/github/icons/wiki_page.png" class="w3-white w3-round-xlarge filtercheck" value="wiki_page" onclick="filterChange('5');">
+  <input type="image" id="filt_6" src="/github/icons/release.png" class="w3-white w3-round-xlarge filtercheck" value="release" onclick="filterChange('6');">
+  <input type="image" id="filt_7" src="/github/icons/pull_request_review.png" class="w3-white w3-round-xlarge filtercheck" value="pull_request_review" onclick="filterChange('7');">
+  <input type="image" id="filt_8" src="/github/icons/commit_comment.png" class="w3-white w3-round-xlarge filtercheck" value="commit_comment" onclick="filterChange('8');">
+  <input type="image" id="filt_9" src="/github/icons/issue_comment.png" class="w3-white w3-round-xlarge filtercheck" value="issue_comment" onclick="filterChange('9');">
+  <!-- <button class="w3-btn w3-green w3-margin-bottom" id="pushOnly" onclick="filter_push()">Switch Pushes only</button>
+   <button class="w3-btn w3-green w3-margin-bottom" id="pullOnly" onclick="filter_pull()">Swith Pull requests only</button>  -->
+  <div>
+    <p id="OR" style="font-size: x-large">Special Organization and/or Repository</p>
+    <input class="w3-padding-small w3-round-large" placeholder="owner" id="organization" type="text">
+    <b id="slash">/</b> <input class="w3-padding-small w3-round-large" placeholder="repository" id="repos">
+  </div>
+  <br>
+  <div class="w3-padding" id="eventfield"></div>
+</div>
+</body>
+</html>

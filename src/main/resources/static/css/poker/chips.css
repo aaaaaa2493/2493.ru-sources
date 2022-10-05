@@ -1,0 +1,118 @@
+/* chipstacks represents all 8 chipstacks */
+#chipstacks * , #dealer{
+    position: absolute;
+}
+
+#ch0{
+    margin: -180px 0 0 310px;
+}
+
+#ch1{
+    margin: -85px 0 0 310px;
+}
+
+#ch2{
+    margin: -110px 0 0 110px;
+}
+
+#ch3{
+    margin: -200px 0 0 70px;
+}
+
+#ch4{
+    margin: -290px 0 0 75px;
+}
+
+#ch5{
+    margin: -380px 0 0 140px;
+}
+
+#ch6{
+    margin: -380px 0 0 480px;
+}
+
+#ch7{
+    margin: -290px 0 0 545px;
+}
+
+#ch8{
+    margin: -200px 0 0 550px;
+}
+
+#ch9{
+    margin: -100px 0 0 510px;
+}
+
+#chipstacks > * > :nth-child(1){ /* for row 1 of chipstacks */
+    margin-top: 0;
+}
+
+#chipstacks > * > :nth-child(2){ /* for row 2 of chipstacks */
+    margin-top: 30px;
+}
+
+#chipstacks > * > * > :nth-child(1){ /* for column 1 of chipstacks */
+    margin-left: 0;
+}
+
+#chipstacks > * > * > :nth-child(2){ /* for column 2 of chipstacks */
+    margin-left: 40px;
+}
+
+#chipstacks > * > * > :nth-child(3){ /* for column 3 of chipstacks */
+    margin-left: 80px;
+}
+
+#chipstacks > * > * > :nth-child(4){ /* for column 4 of chipstacks */
+    margin-left: 120px;
+}
+
+/* chips are inside chipstacks */
+.chip{
+    width: 40px;
+    float: left;
+}
+
+#dealer[data-pos='1']{
+    margin: -55px 0 0 265px;
+}
+
+#dealer[data-pos='2']{
+    margin: -105px 0 0 65px;
+}
+
+#dealer[data-pos='3']{
+    margin: -175px 0 0 25px;
+}
+
+#dealer[data-pos='4']{
+    margin: -292px 0 0 33px;
+}
+
+#dealer[data-pos='5']{
+    margin: -363px 0 0 97px;
+}
+
+#dealer[data-pos='6']{
+    margin: -387px 0 0 435px;
+}
+
+#dealer[data-pos='7']{
+    margin: -295px 0 0 700px;
+}
+
+#dealer[data-pos='8']{
+    margin: -175px 0 0 717px;
+}
+
+#dealer[data-pos='9']{
+    margin: -110px 0 0 683px;
+}
+
+.move_to_main, .main_chips{
+    margin: -180px 0 0 310px !important;
+}
+
+.move_to_main, .move_from_main{
+    transition: margin 500ms cubic-bezier(.8, 0, .2, 1);
+}

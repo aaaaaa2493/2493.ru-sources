@@ -1,0 +1,744 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Pump it Up Randomizer</title>
+    <link rel="stylesheet" type="text/css" href="/css/piu/random.css">
+</head>
+<body>
+
+<div id="field" class="field">
+    <div th:each="row : ${#numbers.sequence(0, rows - 1, 1)}" th:id="${row}" class="row">
+        <div th:each="col : ${#numbers.sequence(0, columns - 1, 1)}"
+             th:id="${row + '' + col}" class="cell" onclick="clicked(this.id)">
+
+            <div th:id="${row + '' + col + 'bluewin'}" class="filler blue"></div>
+            <div th:id="${row + '' + col + 'redwin'}"  class="filler red"></div>
+            <div th:id="${row + '' + col + 'draw'}" class="filler draw"></div>
+            <div th:id="${row + '' + col + 'selected'}" class="filler selected"></div>
+            <div th:id="${row + '' + col + 'inprogress'}" class="filler inprogress"></div>
+
+            <div th:id="${row + '' + col + 'info'}" class="cellinfo">
+                <div th:id="${row + '' + col + 'song'}" class="songname"></div>
+                <div th:id="${row + '' + col + 'cut'}" class="cutname"></div>
+                <div th:id="${row + '' + col + 'diff'}" class="diffname"></div>
+            </div>
+
+        </div>
+    </div>
+</div>
+
+<br>
+
+<div style="float: left; width: 90px;">
+    <button id="random" onclick="randomize()" style="float: left; width: 100%">
+        Randomize!
+    </button>
+
+    <button onclick="switch_settings()" style="float: left; margin-top: 10px; width: 100%">
+        Settings
+    </button>
+</div>
+
+<div id="settings" style="margin-left: 10px">
+    <div style="float: left">
+        Min: <input id="mindiff" type="number" value="15" min="1" max="28" onchange="update_percents()">
+        Max: <input id="maxdiff" type="number" value="18" min="1" max="28" onchange="update_percents()">
+        <div id="percents"></div>
+    </div>
+
+    <div style="float: left; padding-left: 15px">
+        <input id="issingle" type="checkbox" checked onclick="update_modes()">Single<br>
+        <input id="isdouble" type="checkbox" checked onclick="update_modes()">Double<br>
+
+        <div id="sdperc">
+            S <input id="sperc" type="number" min="0" max="100" value="1"
+                     onchange="update_modes_descriptions()">
+            <span id="spercdesc"></span><br>
+            D <input id="dperc" type="number" min="0" max="100" value="1"
+                     onchange="update_modes_descriptions()">
+            <span id="dpercdesc"></span>
+        </div>
+    </div>
+
+    <div style="float: left; padding-left: 15px">
+        <input id="iscoop" type="checkbox" onclick="update_misc()">Coop<br>
+        <input id="isperformance" type="checkbox" checked onclick="update_misc()">Performance<br>
+        <input id="isallperformance" type="checkbox" onclick="update_misc()">Perf. only<br>
+    </div>
+
+    <div style="float: left; padding-left: 15px">
+        <input id="isarcade" type="checkbox" checked onclick="update_misc()">Arcade<br>
+        <input id="isfullsong" type="checkbox" checked onclick="update_misc()">Full Song<br>
+        <input id="isshortcut" type="checkbox" checked onclick="update_misc()">Short Cut<br>
+        <input id="isremix" type="checkbox" checked onclick="update_misc()">Remix
+        <br><br>
+        <button onclick="clearTable()" style="margin-left: 20px">Clear</button>
+    </div>
+
+</div>
+
+<div id="managerbuttons" style="padding-left: 15px">
+    <button id="makeinprogress" class="makeinprogress" onclick="changeCellState('inprogress')">In progress</button>
+    <button id="makeredwin" class="red" onclick="changeCellState('redwin')">Red wins</button>
+    <button id="makebluewin" class="blue" onclick="changeCellState('bluewin')">Blue wins</button>
+    <button id="makedraw" class="draw" onclick="changeCellState('draw')">Draw</button>
+    <button id="resetcell" onclick="changeCellState()">Reset</button>
+</div>
+</body>
+
+<script type="text/javascript" th:inline="javascript">
+
+    const rows = [[${rows}]];
+    const columns = [[${columns}]];
+    const width = [[${width}]];
+    const height = [[${height}]];
+
+    for (let r = 0; r < rows; r++) {
+        for (let c = 0; c < columns; c++) {
+            let e = document.getElementById(r + '' + c);
+            //e.style["margin-left"] = (size * c) + "px";
+            //e.style["margin-top"] = (size * r) + "px";
+            e.style["width"] = width + "px";
+            e.style["height"] = height + "px";
+
+            if (r === 2  && c === 2) {
+                let center = document.getElementById(r + '' + c + "draw");
+                center.classList.add("center");
+
+                e.innerHTML =
+                    '<div id="22p1name" class="filler p1">T</div>' +
+                    '<div id="22p2name" class="filler p2">2</div>' + e.innerHTML;
+            }
+        }
+    }
+
+    const songs = [[${songs}]];
+</script>
+
+<script>
+    const shortened = {
+        "Can-can ~Orpheus in The Party Mix~": "Can-Can ~OiTPM~",
+        "FOUR SEASONS OF LONELINESS verβ feat. sariyajin": "FOUR SEASONS OF LONELINESS",
+        "DESTRUCIMATE": "DESTRUCI- MATE",
+        "The Quick Brown Fox Jumps Over The Lazy Dog": "TQBFJOTLD",
+        "Hypnosis(SynthWulf Mix)": "Hypnosis (SynthWulf Mix)",
+        "Nakakapagpabagabag": "Nakakapag- pabagabag"
+    }
+
+    const fontchange = {
+        "Turkey March -Minimal Tunes-": "21px",
+        "Meteo5cience": "21px",
+        "Love is a danger zone (try to B.P.M.)": "21px",
+        "Reminiscence": "21px",
+        "Blaze emotion (Band version)": "21px",
+        "Repeatorment Remix": "20px",
+        "Indestructible": "21px",
+    }
+
+    let selectedCharts = [];
+    let cellsToCharts = {};
+    let chartIdToChart = {};
+    let percents = {};
+    let minDifficulty = 0;
+    let maxDifficulty = 0;
+    let isSingle = true;
+    let isDouble = true;
+    let singlePercentage = 0;
+    let doublePercentage = 0;
+    let isCoop = false;
+    let isPerformance = true;
+    let isOnlyPerformance = false;
+    let isArcade = true;
+    let isFullSong = true;
+    let isShortCut = true;
+    let isRemix = true;
+
+    let initialRandomize = true;
+
+    function randomize() {
+
+        for (let r = 0; r < rows; r++) {
+            for (let c = 0; c < columns; c++) {
+                let cellId = r + '' + c;
+                if (!isCellSelected(cellId)) {
+                    continue;
+                }
+                makeNewCell(cellId);
+            }
+        }
+
+        let cellsToChange = [];
+
+        for (let r = 0; r < rows; r++) {
+            for (let c = 0; c < columns; c++) {
+                if (r === 2 && c === 2) {
+                    continue;
+                }
+
+                let cellId = r + '' + c;
+
+                let songname = document.getElementById(cellId + "song");
+
+                if (songname.innerHTML === '') {
+                    cellsToChange.push(cellId);
+                }
+            }
+        }
+
+        let candidates = [];
+
+        if (candidates.length === 0) {
+            for (let song of songs) {
+                for (let chart of song.charts) {
+
+                    if (selectedCharts.includes(chart.chartId)) {
+                        continue;
+                    }
+
+                    let songCut = song.song.cut;
+                    if (songCut === "Arcade") {
+                        if (!isArcade) {
+                            continue;
+                        }
+                        songCut = '';
+
+                    } else if (songCut === "Short Cut") {
+                        if (!isShortCut) {
+                            continue;
+                        }
+                        songCut = 'Short';
+                    } else if (songCut === "Full Song") {
+                        if (!isFullSong) {
+                            continue;
+                        }
+                        songCut = 'Full';
+                    } else if (songCut === "Remix") {
+                        if (!isRemix) {
+                            continue;
+                        }
+                    } else {
+                        continue;
+                    }
+
+                    let difficulty = chart.difficulty.difficulty;
+                    if (difficulty < minDifficulty || difficulty > maxDifficulty) {
+                        continue;
+                    }
+
+                    let coop = chart.difficulty.coop;
+                    if (coop && !isCoop) {
+                        continue;
+                    }
+
+                    let performance = chart.difficulty.performance;
+                    if (performance && !isPerformance) {
+                        continue;
+                    }
+                    if (!performance && isOnlyPerformance) {
+                        continue;
+                    }
+
+                    let single = chart.difficulty.single;
+                    if (single && !isSingle) {
+                        continue;
+                    }
+
+                    let double = chart.difficulty.double;
+                    if (double && !isDouble) {
+                        continue;
+                    }
+
+                    candidates.push({
+                        name: song.song.name,
+                        diff: chart.difficulty.name,
+                        diffNum: difficulty,
+                        cut: songCut,
+                        card: song.song.card,
+                        chartId: chart.chartId,
+                        single: single,
+                        double: double,
+                        coop: coop,
+                    });
+                }
+            }
+        }
+
+
+        console.log("Candidates size: " + candidates.length);
+
+        let sumSingles = 0;
+        let sumDoubles = 0;
+        let sumDiff = {};
+        let sumAllDiff = 0;
+        for (let perc in percents) {
+            sumDiff[perc] = 0;
+        }
+
+        for (let r = 0; r < rows; r++) {
+            for (let c = 0; c < columns; c++) {
+                if (r === 2 && c === 2) {
+                    continue;
+                }
+
+                let cellId = r + '' + c;
+
+                let songname = document.getElementById(cellId + "song");
+
+                if (songname.innerHTML === '') {
+                    continue;
+                }
+
+                let chart = chartIdToChart[cellsToCharts[cellId]];
+
+                if (chart.single) {
+                    sumSingles++;
+                }
+
+                if (chart.double) {
+                    sumDoubles++;
+                }
+
+                let diff = chart.diffNum;
+
+                if (!(diff in sumDiff)) {
+                    sumDiff[diff] = 0;
+                }
+
+                sumDiff[diff]++;
+                sumAllDiff++;
+            }
+        }
+
+
+
+        let shuffledCells = cellsToChange
+            .map(value => ({ value, sort: Math.random() }))
+            .sort((a, b) => a.sort - b.sort)
+            .map(({ value }) => value);
+
+        for (let cellId of shuffledCells) {
+            if (candidates.length === 0) {
+                return;
+            }
+
+            let searchSingles = true;
+            let searchDoubles = true;
+
+            if (isSingle && isDouble && sumSingles > 0) {
+                let currSinglePercentage = sumSingles / (sumSingles + sumDoubles);
+                let currDoublePercentage = sumDoubles / (sumSingles + sumDoubles);
+
+                let diffPercentage = currSinglePercentage - currDoublePercentage;
+
+                let improvedSinglePercentage = singlePercentage - diffPercentage;
+
+                let randomSingleDouble = Math.random();
+
+                if (randomSingleDouble > improvedSinglePercentage) {
+                    searchDoubles = true;
+                    searchSingles = false;
+                } else {
+                    searchSingles = true;
+                    searchDoubles = false;
+                }
+            }
+
+            let updatedPercentagesDifficulties = {};
+            for (let currDiff in sumDiff) {
+                if (sumAllDiff === 0) {
+                    updatedPercentagesDifficulties[currDiff] = percents[currDiff];
+                    continue;
+                }
+
+                let currDiffPercentage = sumDiff[currDiff] / sumAllDiff;
+                let percentageDifference = currDiffPercentage - percents[currDiff];
+                updatedPercentagesDifficulties[currDiff] = percents[currDiff] - percentageDifference;
+            }
+
+            let chosenDifficulty = 0;
+
+            chooseDifficulty:
+            while (true) {
+                let randomDifficulty = Math.random();
+
+                for (let currDiff in updatedPercentagesDifficulties) {
+                    let currPercents = updatedPercentagesDifficulties[currDiff];
+                    randomDifficulty -= currPercents;
+                    if (randomDifficulty < 0) {
+                        chosenDifficulty = Number(currDiff);
+                        break chooseDifficulty;
+                    }
+                }
+            }
+
+
+            let newerCandidates = [];
+
+            for (let currCandidate of candidates) {
+                if (selectedCharts.includes(currCandidate.chartId)) {
+                    // we need that because we dont remove candidates that
+                    // were selected in the previous iteration
+                    continue;
+                }
+
+                if (currCandidate.coop) {
+                    newerCandidates.push(currCandidate);
+                    continue;
+                }
+
+                if (currCandidate.single && searchSingles === false) {
+                    continue;
+                }
+
+                if (currCandidate.double && searchDoubles === false) {
+                    continue;
+                }
+
+                if (currCandidate.diffNum !== chosenDifficulty) {
+                    continue;
+                }
+
+                newerCandidates.push(currCandidate);
+            }
+
+            //console.log((searchSingles? "singles ": "")
+            //    + (searchDoubles? "doubles " : "") + chosenDifficulty + " | "
+            //    + newerCandidates.length + " candidates left" )
+
+            if (newerCandidates.length === 0) {
+                for (let currCandidate of candidates) {
+                    if (selectedCharts.includes(currCandidate.chartId)) {
+                        continue;
+                    }
+                    newerCandidates.push(currCandidate);
+                }
+            }
+
+
+            let itemIndex = Math.floor(Math.random() * newerCandidates.length);
+            let item = newerCandidates[itemIndex];
+
+            if (item.single) {
+                sumSingles++;
+            }
+
+            if (item.double) {
+                sumDoubles++;
+            }
+
+            sumAllDiff++;
+            if (item.diffNum in sumDiff) {
+                sumDiff[item.diffNum]++;
+            }
+
+            // candidates.splice(itemIndex, 1);
+
+            let cell = document.getElementById(cellId);
+            let songname = document.getElementById(cellId + "song");
+            let cutname = document.getElementById(cellId + "cut");
+            let diffname = document.getElementById(cellId + "diff");
+
+            let name = item.name;
+            if (name in shortened) {
+                name = shortened[name];
+            }
+
+            songname.innerHTML = name;
+            songname.style['font-size'] = '';
+
+            if (item.name in fontchange) {
+                songname.style['font-size'] = fontchange[item.name];
+            }
+
+            cutname.innerHTML = item.cut;
+            diffname.innerHTML = item.diff;
+
+            cell.style['background-image'] = "url(" + item.card + ")";
+
+            selectedCharts.push(item.chartId);
+            cellsToCharts[cellId] = item.chartId;
+            chartIdToChart[item.chartId] = item;
+        }
+
+        if (initialRandomize) {
+            document.getElementById("random").innerHTML = "Rerandom!";
+            initialRandomize = false;
+        }
+    }
+
+    function clicked(cellId) {
+        let songname = document.getElementById(cellId + "song");
+        if (songname.innerHTML === '') {
+            return;
+        }
+
+        let selectedDiv = document.getElementById(cellId + "selected");
+
+        if (selectedDiv.style.display === 'block') {
+            selectedDiv.style.display = '';
+        } else {
+            selectedDiv.style.display = 'block';
+        }
+    }
+
+    function switch_settings() {
+        let settings = document.getElementById("settings");
+        let managed = document.getElementById("managerbuttons");
+        if (settings.style.display === 'block') {
+            settings.style.display = 'none'
+            managed.style.display = 'block';
+        } else {
+            settings.style.display = 'block';
+            managed.style.display = 'none';
+        }
+    }
+
+    function update_percents() {
+        let mindiff = document.getElementById("mindiff").value | 0;
+        let maxdiff = document.getElementById("maxdiff").value | 0;
+
+        let percents = document.getElementById("percents");
+        percents.innerHTML = "";
+
+        if (mindiff > maxdiff) {
+            mindiff = maxdiff;
+        }
+
+        minDifficulty = mindiff;
+        maxDifficulty = maxdiff;
+
+        let currdiff = mindiff;
+
+        while (currdiff <= maxdiff) {
+            percents.innerHTML += currdiff + ': '
+                + '<input id="' + currdiff + 'perc" type="number" min="0" max="100" value="1" ' +
+                                                    'onchange="update_percents_descriptions()">' +
+                '<span id="' + currdiff + 'percdesc" style="padding-left: 5px"></span>' +
+                '<br>';
+            currdiff++;
+        }
+
+        update_percents_descriptions();
+    }
+
+    function update_percents_descriptions() {
+        let currdiff = minDifficulty;
+        percents = {};
+
+        let sum = 0;
+
+        while (currdiff <= maxDifficulty) {
+            let perc = document.getElementById(currdiff + "perc");
+            sum += perc.value | 0;
+            currdiff++;
+        }
+
+        currdiff = minDifficulty;
+
+        while (currdiff <= maxDifficulty) {
+            let perc = document.getElementById(currdiff + "perc");
+            let percDesc = document.getElementById(currdiff + "percdesc");
+
+            let actualPercents = (((perc.value | 0) / sum * 100) | 0);
+            percents[currdiff] = actualPercents / 100;
+            percDesc.innerHTML = actualPercents + "%"
+            currdiff++;
+        }
+    }
+
+    update_percents();
+
+    function update_modes() {
+        let issingle = document.getElementById("issingle");
+        let isdouble = document.getElementById("isdouble");
+
+        isSingle = issingle.checked;
+        isDouble = isdouble.checked;
+
+        let sdperc = document.getElementById("sdperc");
+        if (isSingle && isDouble) {
+            sdperc.style.display = 'block';
+            update_modes_descriptions();
+        } else {
+            sdperc.style.display = 'none';
+
+            if (isSingle) {
+                singlePercentage = 1;
+                doublePercentage = 0;
+            } else if (isDouble) {
+                singlePercentage = 0;
+                doublePercentage = 1;
+            } else {
+                singlePercentage = 0;
+                doublePercentage = 0;
+            }
+        }
+    }
+
+    function update_modes_descriptions() {
+        let sperc = document.getElementById("sperc");
+        let dperc = document.getElementById("dperc");
+
+        let sum = (sperc.value | 0) + (dperc.value | 0);
+        let currSperc = ((sperc.value | 0) / sum * 100) | 0;
+        let currDperc = ((dperc.value | 0) / sum * 100) | 0;
+
+        let spercDesc = document.getElementById("spercdesc");
+        let dpercDesc = document.getElementById("dpercdesc");
+        spercDesc.innerHTML = currSperc + "%";
+        dpercDesc.innerHTML = currDperc + "%";
+
+        singlePercentage = currSperc / 100;
+        doublePercentage = currDperc / 100;
+    }
+
+    update_modes();
+
+    function update_misc() {
+        isCoop = document.getElementById("iscoop").checked;
+        isPerformance = document.getElementById("isperformance").checked;
+        isOnlyPerformance = document.getElementById("isallperformance").checked;
+
+        isArcade = document.getElementById("isarcade").checked;
+        isFullSong = document.getElementById("isfullsong").checked;
+        isShortCut = document.getElementById("isshortcut").checked;
+        isRemix = document.getElementById("isremix").checked;
+    }
+
+    update_misc();
+
+    function isCellSelected(cellId) {
+        let selected = document.getElementById(cellId + "selected");
+        return selected.style.display === 'block';
+    }
+
+    function resetCell(cellId) {
+        let blue = document.getElementById(cellId + "bluewin");
+        let red = document.getElementById(cellId + "redwin");
+        let draw = document.getElementById(cellId + "draw");
+        let selected = document.getElementById(cellId + "selected");
+        let inprogress = document.getElementById(cellId + "inprogress");
+
+        for (let item of [blue, red, draw, selected, inprogress]) {
+            if (item.style.display === 'block') {
+                item.style.display = '';
+            }
+        }
+    }
+
+    function changeCellState(cls) {
+        let foundSelected = false;
+
+        for (let r = 0; r < rows; r++) {
+            for (let c = 0; c < columns; c++) {
+                let cellId = r + '' + c;
+
+                if (!isCellSelected(cellId)) {
+                    continue;
+                }
+
+                foundSelected = true;
+
+                resetCell(cellId);
+
+                if (r === 2 && c === 2) {
+                    continue;
+                }
+
+                if (cls) {
+                    document.getElementById(cellId + cls).style.display = 'block';
+                }
+            }
+        }
+
+        if (!foundSelected && ['redwin', 'bluewin', 'draw'].includes(cls)) {
+            for (let r = 0; r < rows; r++) {
+                for (let c = 0; c < columns; c++) {
+                    let cellId = r + '' + c;
+                    let inprogress = document.getElementById(cellId + "inprogress");
+                    if (inprogress.style.display === 'block') {
+                        resetCell(cellId);
+                        document.getElementById(cellId + cls).style.display = 'block';
+                    }
+                }
+            }
+        }
+
+        outerIf:
+        if (!foundSelected && cls === 'inprogress') {
+            let availableCells = [];
+
+            for (let r = 0; r < rows; r++) {
+                for (let c = 0; c < columns; c++) {
+                    let cellId = r + '' + c;
+
+                    let inprogress = document.getElementById(cellId + "inprogress");
+                    if (inprogress.style.display === 'block') {
+                        break outerIf;
+                    }
+
+                    let songname = document.getElementById(cellId + "song");
+
+                    if (songname.innerHTML === '') {
+                        continue;
+                    }
+
+                    let blue = document.getElementById(cellId + "bluewin");
+                    let red = document.getElementById(cellId + "redwin");
+                    let draw = document.getElementById(cellId + "draw");
+
+                    if (blue.style.display !== 'block' &&
+                        red.style.display !== 'block' &&
+                        draw.style.display !== 'block') {
+                        availableCells.push(cellId);
+                    }
+                }
+            }
+
+            if (availableCells.length === 0) {
+                break outerIf;
+            }
+
+            let itemIndex = Math.floor(Math.random() * availableCells.length);
+            let item = availableCells[itemIndex];
+
+            document.getElementById(item + "inprogress").style.display = 'block';
+        }
+    }
+
+    function makeNewCell(cellId) {
+        resetCell(cellId);
+
+        let cell = document.getElementById(cellId);
+        let songname = document.getElementById(cellId + "song");
+        let cutname = document.getElementById(cellId + "cut");
+        let diffname = document.getElementById(cellId + "diff");
+
+        if (songname.innerHTML === '') {
+            return;
+        }
+
+        let chartId = cellsToCharts[cellId];
+        selectedCharts.splice(selectedCharts.indexOf(chartId), 1);
+        cellsToCharts[cellId] = undefined;
+
+        songname.innerHTML = '';
+        songname.style['font-size'] = '';
+        cutname.innerHTML = '';
+        diffname.innerHTML = '';
+        cell.style['background-image'] = "";
+    }
+
+    function clearTable() {
+        for (let r = 0; r < rows; r++) {
+            for (let c = 0; c < columns; c++) {
+                let cellId = r + '' + c;
+                resetCell(cellId);
+                makeNewCell(cellId);
+            }
+        }
+    }
+</script>
+
+</html>

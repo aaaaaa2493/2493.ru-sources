@@ -1,0 +1,86 @@
+body {
+    margin: 0;
+}
+
+#game {
+    width: 100%;
+    height: 100%;
+    background: #DEDEDE;
+    position: absolute;
+}
+
+#game > .cell {
+    position: absolute;
+    background: white;
+    outline: 1px solid black;
+    outline-offset: -1px;
+    opacity: 1;
+    transition:
+        left 0.2s cubic-bezier(0.455, 0.03, 0.515, 0.955),
+        top 0.2s cubic-bezier(0.455, 0.03, 0.515, 0.955),
+        width 0.2s cubic-bezier(0.455, 0.03, 0.515, 0.955),
+        height 0.2s cubic-bezier(0.455, 0.03, 0.515, 0.955),
+        background 0.2s cubic-bezier(0.455, 0.03, 0.515, 0.955);
+}
+
+#game > div[data-state='hidden'] {
+    display: none;
+}
+
+#game[data-move='end'] > div[data-win='true'],
+#game[data-move='end'] > div[data-win='true'][data-state='o'] > div > div {
+    background: #6dd972;
+}
+
+#game > div > div {
+    margin-top: 9%;
+    margin-left: 9%;
+    width: 80%;
+    height: 80%;
+    background: white;
+    opacity: 1;
+    transition:
+        background 0.2s cubic-bezier(0.455, 0.03, 0.515, 0.955),
+        clip-path 0.2s cubic-bezier(0.455, 0.03, 0.515, 0.955),
+        opacity 0.2s cubic-bezier(0.455, 0.03, 0.515, 0.955);
+}
+
+#game[data-move='o'] > div > div {
+    clip-path: circle(0%);
+}
+
+#game[data-move='x'] > div > div {
+    clip-path: polygon(
+            50% 50%, 50% 50%, 50% 50%, 50% 50%, 50% 50%, 50% 50%,
+            50% 50%, 50% 50%, 50% 50%, 50% 50%, 50% 50%, 50% 50%);
+}
+
+#game > div > div > div {
+    width: 100%;
+    height: 100%;
+}
+
+#game > div[data-state='x'] > div,
+#game[data-move='x'] > div[data-state='active']:hover > div {
+    background: #fa6659;
+    clip-path: polygon(
+            20% 0%, 0% 20%, 30% 50%, 0% 80%, 20% 100%, 50% 70%,
+            80% 100%, 100% 80%, 70% 50%, 100% 20%, 80% 0%, 50% 30%);
+}
+
+#game > div[data-state='o'] > div,
+#game[data-move='o'] > div[data-state='active']:hover > div {
+    background: #3047b7;
+    clip-path: circle(50% at 50% 50%);
+}
+
+#game > div[data-state='o'] > div > div,
+#game[data-move='o'] > div[data-state='active']:hover > div > div {
+    background: white;
+    clip-path: circle(20% at 50% 50%);
+}
+
+#game[data-move='o'] > div[data-state='active']:hover > div,
+#game[data-move='x'] > div[data-state='active']:hover > div {
+    opacity: 0.3;
+}

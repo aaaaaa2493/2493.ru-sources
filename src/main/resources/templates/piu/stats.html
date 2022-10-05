@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Pump it Up Stats</title>
+    <link rel="stylesheet" type="text/css" href="/css/piu/stats.css">
+</head>
+<body>
+
+<div id="settings">
+    <input id="showdiff" type="text" value="S20">
+    <input id="player" type="text" value="2493">
+    <button onclick="displayResults(
+        document.getElementById('showdiff').value,
+        document.getElementById('player').value)">Go</button>
+</div>
+
+<div id="field" class="field">
+</div>
+
+</body>
+
+<script type="text/javascript" th:inline="javascript">
+
+    //const rows = [[${rows}]];
+    //const columns = [[${columns}]];
+    //const width = [[${width}]];
+    //const height = [[${height}]];
+
+    //const songs = [[${songs}]];
+
+    const results = [[${results}]];
+
+    displayResults('S20', '2493');
+
+    function displayResults(difficulty, username) {
+        const chosenCharts = [];
+
+        for (let res of results) {
+            if (res.chart.difficulty.name === difficulty) {
+                chosenCharts.push(res);
+            }
+        }
+
+        chosenCharts.sort((a, b) => b.difficulty - a.difficulty);
+
+        let firstDiff = chosenCharts[0].difficulty;
+        let lastDiff = chosenCharts[chosenCharts.length - 1].difficulty;
+
+        let buckets = 10;
+        let bucketsSize = (firstDiff - lastDiff) / buckets;
+
+        let diffThresholds = Array(buckets).fill(0);
+        for (let i = 0; i < buckets; i++) {
+            diffThresholds[i] = firstDiff - bucketsSize * (i + 1.01);
+        }
+
+         chartsSorted = Array(buckets).fill(0);
+        for (let i = 0; i < buckets; i++) {
+            chartsSorted[i] = [];
+        }
+
+        for (let chart of chosenCharts) {
+            for (let i = 0; i < buckets; i++) {
+                if (chart.difficulty >= diffThresholds[i]) {
+                    chartsSorted[i].push(chart);
+                    break;
+                }
+            }
+        }
+
+
+        // constructing
+        let field = document.getElementById('field');
+        field.innerHTML = '';
+
+        for (let i = 0; i < buckets; i++) {
+
+            let charts = chartsSorted[i];
+            let sumDiff = 0;
+
+            if (chartsSorted[i].length === 0) {
+                continue;
+            }
+
+            for (let chart of charts) {
+                sumDiff += chart.difficulty;
+            }
+
+            let avgDiff = ((sumDiff / chartsSorted[i].length * 10) | 0) / 10;
+
+            let str = '<div class="bracket">';
+            str += '<div class=\'bracketname\'>' + avgDiff + '</div>';
+            str += '<div class="songs">'
+
+            for (let chart of charts) {
+                str += "<div class=\"cell\" style=\"background-image: url('" + chart.song.card + "')\">";
+
+                let grade = '';
+                let classes = '';
+                let gradesForPlayer = [];
+                for (let res of chart.results) {
+                    if (res.player === username) {
+                        gradesForPlayer.push(res.grade);
+                    }
+                }
+
+                let sortGrade = {
+                    'SSS': 20,
+                    'SS': 19,
+                    'S': 18,
+                    'A+': 17,
+                    'B+': 16,
+                    'C+': 15,
+                    'D+': 14,
+                    'F+': 13,
+                    'A': 12,
+                    'B': 11,
+                    'C': 10,
+                    'D': 9,
+                    'F': 8,
+                    '?': 7
+                }
+
+                if (gradesForPlayer.length > 0) {
+                    gradesForPlayer.sort((a, b) => sortGrade[b] - sortGrade[a])
+                    grade = gradesForPlayer[0];
+
+                    if (grade === 'S' || grade === 'SS' || grade === 'SSS') {
+                        classes += 'gold';
+                    }
+
+                    if (grade.endsWith('+')) {
+                        grade = grade.substring(0, grade.length - 1);
+                        classes += 'pass';
+                    }
+                }
+
+                str += "<div class=\"grade" + (classes? ' ' + classes: '') + "\">" + grade + "</div>";
+                str += "</div>";
+            }
+
+            str += "</div></div>";
+
+            field.innerHTML += str;
+        }
+    }
+
+
+
+
+</script>
+
+</html>

@@ -1,0 +1,36 @@
+.a_figure{
+    border:1px solid;
+    background-color: aqua;
+    position:absolute;
+    display: flex;
+    justify-content: center; /*Центрирование по горизонтали*/
+    align-items: center;
+    text-align: center;
+    text-shadow:
+            -1px -1px 1px #000000,
+            1px -1px 1px #000000,
+            -1px 1px 1px #000000,
+            1px 1px 1px #000000;
+}
+#displaydiv{
+    width: 96%;
+    height:95vh;
+    border:solid 2px;
+    background-color: #e8e8e7;
+}
+
+#back_figure{
+    background-color: #87918F;
+    position:absolute;
+    display: flex;
+    justify-content: center; /*Центрирование по горизонтали*/
+    align-items: center;
+    text-align: center;
+}
+.error_filter_org{
+    -webkit-box-shadow: 0px 0px 15px #f20800;
+    -moz-box-shadow: 0px 0px 15px #f20800;
+    box-shadow: 0px 0px 15px #f20800;
+    background-color: rgba(255, 188, 190, 0.97);
+    border:3px solid red;
+}
