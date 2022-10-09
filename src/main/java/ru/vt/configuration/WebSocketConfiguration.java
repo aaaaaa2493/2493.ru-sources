@@ -21,10 +21,13 @@ public class WebSocketConfiguration implements WebSocketConfigurer {
     @Value("${2493.settings.monitor_github}")
     private boolean monitorGithub;
 
+    @Value("${2493.tokens.github}")
+    private String githubToken;
+
     @Override
     public void registerWebSocketHandlers(WebSocketHandlerRegistry webSocketHandlerRegistry) {
         if (monitorGithub) {
-            webSocketHandlerRegistry.addHandler(new GithubSocket(), githubWsPath);
+            webSocketHandlerRegistry.addHandler(new GithubSocket(githubToken), githubWsPath);
         }
     }
 

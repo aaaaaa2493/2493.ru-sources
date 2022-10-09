@@ -20,8 +20,8 @@ public class GithubSocket extends TextWebSocketHandler {
     private final Set<WebSocketSession> sessions = new CopyOnWriteArraySet<>();
     private final Map<WebSocketSession, GithubClient> clients = new ConcurrentHashMap<>();
 
-    public GithubSocket() {
-        GithubEventListener eventListener = new GithubEventListener(this::broadcast);
+    public GithubSocket(String githubToken) {
+        GithubEventListener eventListener = new GithubEventListener(githubToken, this::broadcast);
     }
 
     @Override

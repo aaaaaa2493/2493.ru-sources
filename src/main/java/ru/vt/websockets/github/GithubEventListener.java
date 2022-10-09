@@ -47,9 +47,11 @@ public class GithubEventListener {
 
     //private GitHub gitHub;
     private final Consumer<GitHubEvent> broadcastEventFunc;
+    private final String githubToken;
 
-    public GithubEventListener(Consumer<GitHubEvent> broadcastEventFunc) {
+    public GithubEventListener(String githubToken, Consumer<GitHubEvent> broadcastEventFunc) {
         this.broadcastEventFunc = broadcastEventFunc;
+        this.githubToken = githubToken;
         new Thread(this::downloadEvents).start();
         new Thread(this::handleEvents).start();
         new Thread(this::sendEvents).start();
@@ -326,7 +328,7 @@ public class GithubEventListener {
     private String getResponse(String path) throws Exception {
         var request = HttpRequest.newBuilder()
             .uri(new URI("https://api.github.com" + path))
-            .header("Authorization", "Bearer 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")
+            .header("Authorization", "Bearer " + githubToken)
             .GET()
             .build();
         return  HttpClient.newBuilder().build().send(request, BodyHandlers.ofString()).body();
@@ -343,7 +345,7 @@ public class GithubEventListener {
     public static void main(String[] args) throws URISyntaxException, IOException, InterruptedException {
         HttpRequest request = HttpRequest.newBuilder()
                 .uri(new URI("https://api.github.com/events"))
-                .header("Authorization", "Bearer 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")
+                .header("Authorization", "Bearer ")
                 .GET()
                 .build();
 
