@@ -31,19 +31,18 @@
 <br>
 
 <div style="float: left; width: 90px;">
-    <button id="random" onclick="randomize()" style="float: left; width: 100%">
-        Randomize!
-    </button>
-
-    <button onclick="switch_settings()" style="float: left; margin-top: 10px; width: 100%">
+    <button onclick="switch_settings()" style="float: left; width: 100%">
         Settings
+    </button>
+    <button onclick="switch_players()" style="float: left; width: 100%; margin-top: 10px; display: none">
+        Players
     </button>
 </div>
 
-<div id="settings" style="margin-left: 10px">
+<div id="settings" class="settings_block" style="margin-left: 10px">
     <div style="float: left">
-        Min: <input id="mindiff" type="number" value="15" min="1" max="28" onchange="update_percents()">
-        Max: <input id="maxdiff" type="number" value="18" min="1" max="28" onchange="update_percents()">
+        Min: <input id="mindiff" type="number" value="15" min="1" max="28" onchange="update_percents(false)">
+        Max: <input id="maxdiff" type="number" value="18" min="1" max="28" onchange="update_percents(true)">
         <div id="percents"></div>
     </div>
 
@@ -52,7 +51,7 @@
         <input id="isdouble" type="checkbox" checked onclick="update_modes()">Double<br>
 
         <div id="sdperc">
-            S <input id="sperc" type="number" min="0" max="100" value="1"
+            S <input id="sperc" type="number" min="0" max="100" value="1" style="margin-left: 2px;"
                      onchange="update_modes_descriptions()">
             <span id="spercdesc"></span><br>
             D <input id="dperc" type="number" min="0" max="100" value="1"
@@ -62,9 +61,13 @@
     </div>
 
     <div style="float: left; padding-left: 15px">
-        <input id="iscoop" type="checkbox" onclick="update_misc()">Coop<br>
+        <input id="iscoop" type="checkbox" onclick="update_misc()">Coop only<br>
         <input id="isperformance" type="checkbox" checked onclick="update_misc()">Performance<br>
         <input id="isallperformance" type="checkbox" onclick="update_misc()">Perf. only<br>
+        <br><br>
+        <button id="random" onclick="randomize()" style="width: 100%; margin-top: 2px">
+            Randomize!
+        </button>
     </div>
 
     <div style="float: left; padding-left: 15px">
@@ -73,9 +76,15 @@
         <input id="isshortcut" type="checkbox" checked onclick="update_misc()">Short Cut<br>
         <input id="isremix" type="checkbox" checked onclick="update_misc()">Remix
         <br><br>
-        <button onclick="clearTable()" style="margin-left: 20px">Clear</button>
+        <button onclick="clearTable()" style="width: 100%">Clear all</button>
     </div>
 
+</div>
+
+<div id="players_names" style="width: 100px; height: 50px; background: #00bcd4">
+    <div style="">
+
+    </div>
 </div>
 
 <div id="managerbuttons" style="padding-left: 15px">
@@ -107,8 +116,8 @@
                 center.classList.add("center");
 
                 e.innerHTML =
-                    '<div id="22p1name" class="filler p1">T</div>' +
-                    '<div id="22p2name" class="filler p2">2</div>' + e.innerHTML;
+                    '<div id="22p1name" class="filler p1">K</div>' +
+                    '<div id="22p2name" class="filler p2">M</div>' + e.innerHTML;
             }
         }
     }
@@ -158,6 +167,8 @@
 
     function randomize() {
 
+        let selectedCells = 0;
+
         for (let r = 0; r < rows; r++) {
             for (let c = 0; c < columns; c++) {
                 let cellId = r + '' + c;
@@ -165,6 +176,19 @@
                     continue;
                 }
                 makeNewCell(cellId);
+                selectedCells++;
+            }
+        }
+
+        if (selectedCells === 0) {
+            for (let r = 0; r < rows; r++) {
+                for (let c = 0; c < columns; c++) {
+                    let cellId = r + '' + c;
+                    if (!isCellInProgress(cellId)) {
+                        continue;
+                    }
+                    makeNewCell(cellId);
+                }
             }
         }
 
@@ -202,7 +226,6 @@
                             continue;
                         }
                         songCut = '';
-
                     } else if (songCut === "Short Cut") {
                         if (!isShortCut) {
                             continue;
@@ -230,9 +253,12 @@
                     if (coop && !isCoop) {
                         continue;
                     }
+                    if (!coop && isCoop) {
+                        continue;
+                    }
 
                     let performance = chart.difficulty.performance;
-                    if (performance && !isPerformance) {
+                    if (performance && !isPerformance && !isOnlyPerformance) {
                         continue;
                     }
                     if (!performance && isOnlyPerformance) {
@@ -264,9 +290,6 @@
             }
         }
 
-
-        console.log("Candidates size: " + candidates.length);
-
         let sumSingles = 0;
         let sumDoubles = 0;
         let sumDiff = {};
@@ -274,42 +297,6 @@
         for (let perc in percents) {
             sumDiff[perc] = 0;
         }
-
-        for (let r = 0; r < rows; r++) {
-            for (let c = 0; c < columns; c++) {
-                if (r === 2 && c === 2) {
-                    continue;
-                }
-
-                let cellId = r + '' + c;
-
-                let songname = document.getElementById(cellId + "song");
-
-                if (songname.innerHTML === '') {
-                    continue;
-                }
-
-                let chart = chartIdToChart[cellsToCharts[cellId]];
-
-                if (chart.single) {
-                    sumSingles++;
-                }
-
-                if (chart.double) {
-                    sumDoubles++;
-                }
-
-                let diff = chart.diffNum;
-
-                if (!(diff in sumDiff)) {
-                    sumDiff[diff] = 0;
-                }
-
-                sumDiff[diff]++;
-                sumAllDiff++;
-            }
-        }
-
 
 
         let shuffledCells = cellsToChange
@@ -415,6 +402,10 @@
                 }
             }
 
+            if (newerCandidates.length === 0) {
+                break;
+            }
+
 
             let itemIndex = Math.floor(Math.random() * newerCandidates.length);
             let item = newerCandidates[itemIndex];
@@ -494,15 +485,45 @@
         }
     }
 
-    function update_percents() {
+    function switch_players() {
+
+    }
+
+    function update_percents(isMaxDiff) {
         let mindiff = document.getElementById("mindiff").value | 0;
         let maxdiff = document.getElementById("maxdiff").value | 0;
 
         let percents = document.getElementById("percents");
         percents.innerHTML = "";
 
+        if (maxdiff > 28) {
+            maxdiff = 28;
+            document.getElementById("maxdiff").value = maxdiff;
+        }
+
+        if (maxdiff < 1) {
+            maxdiff = 1;
+            document.getElementById("maxdiff").value = maxdiff;
+        }
+
+        if (mindiff > 28) {
+            mindiff = 28;
+            document.getElementById("mindiff").value = mindiff;
+        }
+
+        if (mindiff < 1) {
+            mindiff = 1;
+            document.getElementById("mindiff").value = mindiff;
+        }
+
         if (mindiff > maxdiff) {
-            mindiff = maxdiff;
+            if (isMaxDiff) {
+                maxdiff = mindiff
+                document.getElementById("maxdiff").value = maxdiff;
+            } else {
+                mindiff = maxdiff;
+                document.getElementById("mindiff").value = mindiff;
+            }
         }
 
         minDifficulty = mindiff;
@@ -613,6 +634,21 @@
         return selected.style.display === 'block';
     }
 
+    function isCellInProgress(cellId) {
+        let inprogress = document.getElementById(cellId + "inprogress");
+        return inprogress.style.display === 'block';
+    }
+
+    function isCellHasResult(cellId) {
+        let blue = document.getElementById(cellId + "bluewin");
+        let red = document.getElementById(cellId + "redwin");
+        let draw = document.getElementById(cellId + "draw");
+
+        return blue.style.display === 'block'
+            || red.style.display === 'block'
+            || draw.style.display === 'block';
+    }
+
     function resetCell(cellId) {
         let blue = document.getElementById(cellId + "bluewin");
         let red = document.getElementById(cellId + "redwin");
@@ -656,8 +692,8 @@
             for (let r = 0; r < rows; r++) {
                 for (let c = 0; c < columns; c++) {
                     let cellId = r + '' + c;
-                    let inprogress = document.getElementById(cellId + "inprogress");
-                    if (inprogress.style.display === 'block') {
+
+                    if (isCellInProgress(cellId)) {
                         resetCell(cellId);
                         document.getElementById(cellId + cls).style.display = 'block';
                     }
@@ -673,8 +709,7 @@
                 for (let c = 0; c < columns; c++) {
                     let cellId = r + '' + c;
 
-                    let inprogress = document.getElementById(cellId + "inprogress");
-                    if (inprogress.style.display === 'block') {
+                    if (isCellInProgress(cellId)) {
                         break outerIf;
                     }
 
@@ -684,13 +719,7 @@
                         continue;
                     }
 
-                    let blue = document.getElementById(cellId + "bluewin");
-                    let red = document.getElementById(cellId + "redwin");
-                    let draw = document.getElementById(cellId + "draw");
-
-                    if (blue.style.display !== 'block' &&
-                        red.style.display !== 'block' &&
-                        draw.style.display !== 'block') {
+                    if (!isCellHasResult(cellId)) {
                         availableCells.push(cellId);
                     }
                 }
@@ -731,6 +760,8 @@
     }
 
     function clearTable() {
+        document.getElementById("random").innerHTML = "Randomize!";
+        initialRandomize = true;
         for (let r = 0; r < rows; r++) {
             for (let c = 0; c < columns; c++) {
                 let cellId = r + '' + c;

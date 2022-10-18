@@ -12,13 +12,16 @@ import ru.vt.configuration.WebSocketConfiguration;
 @RequestMapping("/github")
 public class GithubController {
 
+    @Value("${server.port}")
+    int port;
+
     @Autowired
     WebSocketConfiguration webSocketConfiguration;
 
     @GetMapping
     public String getGithubPage(Model model) {
         model.addAttribute("wsPath",
-                "ws://localhost:8080" + webSocketConfiguration.githubWsPath);
+                "ws://2493.ru:" + port + webSocketConfiguration.githubWsPath);
         return "github/frontend";
     }
 

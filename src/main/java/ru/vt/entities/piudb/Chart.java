@@ -131,7 +131,7 @@ public class Chart implements Comparable<Chart> {
         var diff = getLastDifficulty();
         return new ChartDifficulty(
                 diff.shortname(),
-                diff.difficulty.value,
+                diff.difficulty != null? diff.difficulty.value: 0,
                 diff.mode.isSingle(),
                 diff.mode.isDouble(),
                 diff.mode.isCoOp(),

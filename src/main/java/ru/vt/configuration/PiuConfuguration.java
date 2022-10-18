@@ -1,12 +1,13 @@
 package ru.vt.configuration;
 
 import com.fasterxml.jackson.core.type.TypeReference;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.context.event.ApplicationReadyEvent;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.event.EventListener;
-import ru.vt.entities.piudb.Song;
 import ru.vt.entities.pumpking.PumpkingData;
 import ru.vt.services.MixService;
 import ru.vt.services.SongService;
@@ -19,6 +20,8 @@ import java.util.Map;
 @Configuration
 public class PiuConfuguration {
 
+    private Logger log = LoggerFactory.getLogger(getClass());
+
     @Autowired
     SongService songService;
 
@@ -27,13 +30,8 @@ public class PiuConfuguration {
 
     @EventListener(ApplicationReadyEvent.class)
     public void doSomethingAfterStartup() {
-        System.out.println("hello world, I have just started up");
-        for (Song s : songService.getAllSongs()) {
-            var charts = s.getCharts();
-            if (!charts.isEmpty()) {
-                System.out.println(s);
-            }
-        }
+        songService.getAllSongs();
+        log.debug("All songs loaded");
     }
 
     @Bean
@@ -50,7 +48,7 @@ public class PiuConfuguration {
         Map<String, String> idToNameMap = mapper.readValue(idToName, typeRef);
         data.setIdToName(idToNameMap);
 
-        System.out.println("Latest Mix: " + mixService.getLatestMix());
+        log.debug("Latest Mix: " + mixService.getLatestMix());
 
         songService.enrichPumpkingData(data);
         return data;

@@ -134,12 +134,14 @@ public class GithubEventListener {
                     if (eventQueue.size() > 0) {
                         var pushes = eventQueue.stream()
                                 .filter(e -> e.getType() == EventType.PushEvent).count();
-                        log.debug(eventQueue.get(eventQueue.size() - 1).getCreatedAt() +
-                                " - " + eventQueue.get(0).getCreatedAt() +
-                               " events: " + eventQueue.size() +
-                                " pushes: " + pushes +
-                                " sleep: " + secondsToSleep +
-                                " limit: " + getRateLimit().getRate().remaining());
+                        if (false) {
+                            log.debug(eventQueue.get(eventQueue.size() - 1).getCreatedAt() +
+                                    " - " + eventQueue.get(0).getCreatedAt() +
+                                    " events: " + eventQueue.size() +
+                                    " pushes: " + pushes +
+                                    " sleep: " + secondsToSleep +
+                                    " limit: " + getRateLimit().getRate().remaining());
+                        }
                     }
                 }
 

@@ -85,7 +85,15 @@
     background: linear-gradient(35deg, #e71d30a8 0%, #e71d30a8 50%, #0d96ffa8 50%, #0d96ffa8 100%);
 }
 
-#settings {
+.settings_block {
+    display: none;
+    border: 2px solid #1C6EA4;
+    float: left;
+    padding: 5px;
+    background: white;
+}
+
+#players_names {
     display: none;
     border: 2px solid #1C6EA4;
     float: left;

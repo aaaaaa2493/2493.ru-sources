@@ -1,5 +1,7 @@
 package ru.vt.services;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import ru.vt.dao.MixRepository;
@@ -22,6 +24,8 @@ import java.util.Map;
 
 @Service
 public class SongService {
+
+    Logger log = LoggerFactory.getLogger(getClass());
 
     @Autowired
     SongRepository repo;
@@ -51,7 +55,7 @@ public class SongService {
         List<Integer> ids = new ArrayList<>();
         List<Song> songs = repo.findAll();
 
-        System.out.println("Songs total found: " + songs.size());
+        log.debug("Songs total found: " + songs.size());
 
         for (var s : songs) {
             if (!ids.contains(s.getSongId())) {
@@ -60,7 +64,7 @@ public class SongService {
             }
         }
 
-        System.out.println("Songs after removing dups: " + allSongs.size());
+        log.debug("Songs after removing dups: " + allSongs.size());
     }
 
     public List<SongCharts> getAllSongsForMix(int mixId) {
@@ -219,7 +223,25 @@ public class SongService {
             }
         });
 
-        System.out.println("Pumpking Analyzed OK");
+        for (var songChart : getAllSongsForMix(MixService.latestMix.getMixId())) {
+            var song = songChart.getSong();
+            var realCharts = songChart.getCharts();
+            var pumkingCharts = pumpkingResults.stream()
+                    .filter(pr -> pr.getSong().equals(song))
+                    .map(ChartResults::getChart)
+                    .toList();
+
+            for (var rc : realCharts) {
+                if (!pumkingCharts.contains(rc)) {
+                    pumpkingResults.add(new ChartResults(song, rc, new ArrayList<>(), 0.0));
+                }
+            }
+        }
+
+        log.debug("Pumpking Analyzed OK");
+        // openRequest = indexedDB.open("localforage", 2);
+        // transaction = openRequest.result.transaction("keyvaluepairs", "readwrite").objectStore('keyvaluepairs').get('resultsCache');
+        // transaction.result
     }
 
 
