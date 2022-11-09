@@ -13,6 +13,8 @@ build/
 venv
 db
 
+Dockerfile
+
 ### STS ###
 .apt_generated
 .classpath
