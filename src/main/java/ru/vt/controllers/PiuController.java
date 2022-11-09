@@ -5,6 +5,7 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import ru.vt.dto.SongCharts;
 import ru.vt.entities.piudb.Mix.MixValues;
 import ru.vt.services.SongService;
@@ -23,8 +24,15 @@ public class PiuController {
         return "piu/menu";
     }
 
+    @GetMapping("/random/menu")
+    public String randomizerMenuPage() {
+        return "piu/randomMenu";
+    }
+
     @GetMapping("/random")
-    public String randomizerPage(Model model) {
+    public String randomizerPage(Model model,
+                                 @RequestParam(required = false, defaultValue = "rigel") String skin) {
+
         model.addAttribute("rows", 5);
         model.addAttribute("columns", 5);
         model.addAttribute("width", 150);
@@ -32,9 +40,13 @@ public class PiuController {
 
         List<SongCharts> xxSongs = songService.getAllSongsForMix(MixValues.XX.mixId);
         //xxSongs.stream().sorted().map(SongCharts::getPrint).forEach(System.out::println);
-
         model.addAttribute("songs", xxSongs);
-        return "piu/randomizer";
+
+        return switch (skin) {
+            case "rigel" -> "piu/randomizer";
+            case "yushka" -> "piu/randomizerMSK";
+            default -> "piu/randomizer";
+        };
     }
 
     @GetMapping("/stats")
