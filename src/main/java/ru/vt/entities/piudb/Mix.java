@@ -9,6 +9,7 @@ import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.OneToOne;
+import java.util.NoSuchElementException;
 
 @Data
 @Entity
@@ -37,7 +38,7 @@ public class Mix {
         NXAbsolute(12),
         Fiesta(11),
         FiestaEx(9),
-        Fiesta2(8),
+        Fiesta2(7),
         Prime(1),
         Prime2(33),
         XX(34);
@@ -46,6 +47,47 @@ public class Mix {
 
         MixValues(int mixId) {
             this.mixId = mixId;
+        }
+
+        static MixValues of(int mixId) {
+            for (var mix : MixValues.values()) {
+                if (mix.mixId == mixId) {
+                    return mix;
+                }
+            }
+            throw new NoSuchElementException("For mixId = " + mixId);
+        }
+
+        @Override
+        public String toString() {
+            return switch (this) {
+                case The1st -> "1st";
+                case The2nd -> "2nd";
+                case The3rd -> "3rd";
+                case TheOBG -> "The O.B.G.";
+                case Collection -> "Collection";
+                case PerfectCollection -> "Perfect Collection";
+                case Extra -> "Extra";
+                case Premiere -> "Premiere";
+                case Prex -> "Prex";
+                case Rebirth -> "Rebirth";
+                case Premiere2 -> "Premiere 2";
+                case Prex2 -> "Prex 2";
+                case Premiere3 -> "Premiere 3";
+                case Prex3 -> "Prex 3";
+                case Exceed -> "Exceed";
+                case Exceed2 -> "Exceed 2";
+                case Zero -> "Zero";
+                case NX -> "NX";
+                case NX2 -> "NX2";
+                case NXAbsolute -> "NXA";
+                case Fiesta -> "Fiesta";
+                case FiestaEx -> "Fiesta Ex";
+                case Fiesta2 -> "Fiesta 2";
+                case Prime -> "Prime";
+                case Prime2 -> "Prime2";
+                case XX -> "XX";
+            };
         }
     }
 
@@ -68,16 +110,7 @@ public class Mix {
     int sortOrder;
 
     public String toString() {
-        return switch (mixId) {
-            case 12 -> "NXA";
-            case 13 -> "NX2";
-            case 14 -> "NX";
-            case 29 -> "The O.B.G.";
-            case 30 -> "3rd";
-            case 31 -> "2nd";
-            case 32 -> "1st";
-            default -> name;
-        };
+        return MixValues.of(mixId).toString();
     }
 
 }

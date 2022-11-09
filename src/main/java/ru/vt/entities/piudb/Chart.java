@@ -94,6 +94,10 @@ public class Chart implements Comparable<Chart> {
         return sortedChartVersions;
     }
 
+    public String getMix() {
+        return getMinMix().toString();
+    }
+
     @JsonIgnore
     public Mix getMinMix() {
         for (var cv: getChartVersions()) {

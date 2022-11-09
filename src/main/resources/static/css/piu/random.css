@@ -17,7 +17,6 @@
     float: left;
     border: 2px solid #1C6EA4;
     background-size: cover;
-
     font-family: tahoma, serif;
     font-weight: bold;
     font-size: 22px;
@@ -76,6 +75,15 @@
     margin-left: 40px;
 }
 
+.lock {
+    background-image: url(/img/piu/lock.png);
+    background-size: cover;
+    width: 80px;
+    height: 80px;
+    margin-top: 8px;
+    margin-left: 32px;
+}
+
 .draw {
     background: linear-gradient(35deg, #e71d308a 0%, #e71d308a 50%, #0d96ff96 50%, #0d96ff96 100%);
 }
@@ -86,14 +94,6 @@
 }
 
 .settings_block {
-    display: none;
-    border: 2px solid #1C6EA4;
-    float: left;
-    padding: 5px;
-    background: white;
-}
-
-#players_names {
     display: none;
     border: 2px solid #1C6EA4;
     float: left;
@@ -115,21 +115,33 @@ input[type='number'] {
     width: 40px;
 }
 
-.p1 {
-    font-size: 70px;
-    display: flex;
-    justify-content: flex-end;
-    margin-left: -0.07em;
-    margin-top: -0.21em;
+input[type='text'] {
+    width: 40px;
 }
 
-.p2 {
+.p1 {
     font-size: 70px;
     display: flex;
     align-items: flex-end;
     margin-top: 0.14em;
 }
 
+.p2 {
+    font-size: 70px;
+    display: flex;
+    justify-content: flex-end;
+    margin-left: -1px;
+    margin-top: -0.21em;
+}
+
+.cellinfo {
+    height: 100%;
+    background-color: rgba(255, 255, 255, 0.75);
+}
+
+.red_text {
+    color: red;
+}
 
 .gradient-border {
     margin-top: -109px;
@@ -143,11 +155,6 @@ input[type='number'] {
     background-size: 300% 300%;
     background-position: 0 50%;
     animation: moveGradient 4s alternate infinite;
-}
-
-.cellinfo {
-    height: 100%;
-    background-color: rgba(255, 255, 255, 0.75);
 }
 
 @keyframes moveGradient {

@@ -1,5 +1,6 @@
 package ru.vt.dto;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.Data;
 import ru.vt.entities.piudb.Chart;
 import ru.vt.entities.piudb.Song;
@@ -16,6 +17,7 @@ public class SongCharts implements Comparable<SongCharts> {
         this.charts = charts;
     }
 
+    @JsonIgnore
     public String getPrint() {
         return song.getName() + " " + song.getIdentifier() + " " + song.getCut();
     }

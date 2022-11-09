@@ -17,6 +17,7 @@
             <div th:id="${row + '' + col + 'draw'}" class="filler draw"></div>
             <div th:id="${row + '' + col + 'selected'}" class="filler selected"></div>
             <div th:id="${row + '' + col + 'inprogress'}" class="filler inprogress"></div>
+            <div th:id="${row + '' + col + 'lock'}" class="filler lock"></div>
 
             <div th:id="${row + '' + col + 'info'}" class="cellinfo">
                 <div th:id="${row + '' + col + 'song'}" class="songname"></div>
@@ -34,21 +35,30 @@
     <button onclick="switch_settings()" style="float: left; width: 100%">
         Settings
     </button>
-    <button onclick="switch_players()" style="float: left; width: 100%; margin-top: 10px; display: none">
-        Players
-    </button>
 </div>
 
 <div id="settings" class="settings_block" style="margin-left: 10px">
     <div style="float: left">
-        Min: <input id="mindiff" type="number" value="15" min="1" max="28" onchange="update_percents(false)">
-        Max: <input id="maxdiff" type="number" value="18" min="1" max="28" onchange="update_percents(true)">
+        <div id="players_names">
+            <div style="width:35px;float: left">P1:</div>
+            <input id="player1_name" type="text" value="A" style="float: left" onchange="update_names()">
+            <div style="width:35px;float: left; margin-left: 5px">P2:</div>
+            <input id="player2_name" type="text" value="B" style="float: left" onchange="update_names()">
+        </div>
+        <div id="minmaxdifficulties">
+            <div style="width:35px;float: left">Min:</div>
+            <input id="mindiff" type="number" value="16" min="1" max="28" style="float: left" onchange="update_percents(false)">
+            <div style="width:35px;float: left; margin-left: 5px">Max:</div>
+            <input id="maxdiff" type="number" value="18" min="1" max="28" style="float: left" onchange="update_percents(true)">
+        </div>
         <div id="percents"></div>
     </div>
 
     <div style="float: left; padding-left: 15px">
-        <input id="issingle" type="checkbox" checked onclick="update_modes()">Single<br>
-        <input id="isdouble" type="checkbox" checked onclick="update_modes()">Double<br>
+        <input id="issingle" type="checkbox" checked onclick="update_modes('single')">Single<br>
+        <input id="isdouble" type="checkbox" checked onclick="update_modes('double')">Double<br>
+        <input id="isnosameline" type="checkbox" checked onclick="update_modes('nosameline')">
+        <span id="isnosamelinelabel" style="margin-left: -4px">No same line</span><br>
 
         <div id="sdperc">
             S <input id="sperc" type="number" min="0" max="100" value="1" style="margin-left: 2px;"
@@ -61,30 +71,32 @@
     </div>
 
     <div style="float: left; padding-left: 15px">
-        <input id="iscoop" type="checkbox" onclick="update_misc()">Coop only<br>
-        <input id="isperformance" type="checkbox" checked onclick="update_misc()">Performance<br>
-        <input id="isallperformance" type="checkbox" onclick="update_misc()">Perf. only<br>
-        <br><br>
-        <button id="random" onclick="randomize()" style="width: 100%; margin-top: 2px">
-            Randomize!
-        </button>
+        <input id="is1sttoprex3" type="checkbox" checked onclick="update_misc()">1st - Prex 3<br>
+        <input id="isexceedtonxa" type="checkbox" checked onclick="update_misc()">Exceed - NXA<br>
+        <input id="isfiesta" type="checkbox" checked onclick="update_misc()">Fiesta 1/Ex/2<br>
+        <input id="isprime" type="checkbox" checked onclick="update_misc()">Prime<br>
+        <input id="isprime2" type="checkbox" checked onclick="update_misc()">Prime 2<br>
+        <input id="isxx" type="checkbox" checked onclick="update_misc()">XX<br>
     </div>
 
     <div style="float: left; padding-left: 15px">
         <input id="isarcade" type="checkbox" checked onclick="update_misc()">Arcade<br>
         <input id="isfullsong" type="checkbox" checked onclick="update_misc()">Full Song<br>
         <input id="isshortcut" type="checkbox" checked onclick="update_misc()">Short Cut<br>
-        <input id="isremix" type="checkbox" checked onclick="update_misc()">Remix
-        <br><br>
+        <input id="isremix" type="checkbox" checked onclick="update_misc()">Remix<br>
+        <br>
+        <button id="random" onclick="randomize()" style="width: 100px">Randomize!</button>
+    </div>
+
+    <div style="float: left; padding-left: 15px">
+        <input id="iscoop" type="checkbox" onclick="update_misc()">Coop only<br>
+        <input id="isperformance" type="checkbox" onclick="update_misc()">Performance<br>
+        <input id="isallperformance" type="checkbox" onclick="update_misc()">Perf. only<br>
+        <input id="islockcharts" type="checkbox" checked onclick="update_misc()">Lock charts<br>
+        <br>
         <button onclick="clearTable()" style="width: 100%">Clear all</button>
     </div>
 
-</div>
-
-<div id="players_names" style="width: 100px; height: 50px; background: #00bcd4">
-    <div style="">
-
-    </div>
 </div>
 
 <div id="managerbuttons" style="padding-left: 15px">
@@ -116,8 +128,8 @@
                 center.classList.add("center");
 
                 e.innerHTML =
-                    '<div id="22p1name" class="filler p1">K</div>' +
-                    '<div id="22p2name" class="filler p2">M</div>' + e.innerHTML;
+                    '<div id="22p1name" class="filler p1">A</div>' +
+                    '<div id="22p2name" class="filler p2">B</div>' + e.innerHTML;
             }
         }
     }
@@ -145,6 +157,90 @@
         "Indestructible": "21px",
     }
 
+    const p1nameleft = {
+        'A': '4px',
+        'C': '2px',
+        'G': '2px',
+        'I': '2px',
+        'J': '4px',
+        'O': '2px',
+        'Q': '2px',
+        'S': '2px',
+        'T': '4px',
+        'V': '4px',
+        'X': '4px',
+        'Y': '4px',
+        'Z': '2px',
+        '4': '2px',
+        '8': '2px',
+        '0': '2px'
+    }
+
+    const p1nametop = {
+        'Q': '-2px'
+    }
+
+    const p2nameleft = {
+        'A': '-3px',
+        'B': '-3px',
+        'C': '-3px',
+        'F': '-3px',
+        'K': '-3px',
+        'L': '-3px',
+        'P': '-3px',
+        'Q': '-3px',
+        'R': '-3px',
+        'S': '-3px',
+        'T': '-3px',
+        'V': '-3px',
+        'W': '-3px',
+        'X': '-3px',
+        'Y': '-3px',
+        'Z': '-3px',
+        '2': '-3px',
+        '4': '-3px',
+    }
+
+    const p2nametop = {
+
+    }
+
+    const mixFirstToPrex3 = "1st - Prex 3";
+    const mixExceedToNXA = "Exceed - NXA";
+    const mixFiesta = "Fiesta 1/Ex/2";
+    const mixPrime = "Prime";
+    const mixPrime2 = "Prime 2";
+    const mixXX = "XX";
+
+    const mixGroup = {
+        "1st": mixFirstToPrex3,
+        "2nd": mixFirstToPrex3,
+        "3rd": mixFirstToPrex3,
+        "The O.B.G.": mixFirstToPrex3,
+        "Collection": mixFirstToPrex3,
+        "Perfect Collection": mixFirstToPrex3,
+        "Extra": mixFirstToPrex3,
+        "Premiere": mixFirstToPrex3,
+        "Prex": mixFirstToPrex3,
+        "Rebirth": mixFirstToPrex3,
+        "Premiere 2": mixFirstToPrex3,
+        "Prex 2": mixFirstToPrex3,
+        "Premiere 3": mixFirstToPrex3,
+        "Prex 3": mixFirstToPrex3,
+        "Exceed": mixExceedToNXA,
+        "Exceed 2": mixExceedToNXA,
+        "Zero": mixExceedToNXA,
+        "NX": mixExceedToNXA,
+        "NX2": mixExceedToNXA,
+        "NXA": mixExceedToNXA,
+        "Fiesta": mixFiesta,
+        "Fiesta Ex": mixFiesta,
+        "Fiesta 2": mixFiesta,
+        "Prime": mixPrime,
+        "Prime2": mixPrime2,
+        "XX": mixXX,
+    };
+
     let selectedCharts = [];
     let cellsToCharts = {};
     let chartIdToChart = {};
@@ -153,6 +249,8 @@
     let maxDifficulty = 0;
     let isSingle = true;
     let isDouble = true;
+    let isNoSameLine = true;
+    let isLockCharts = true;
     let singlePercentage = 0;
     let doublePercentage = 0;
     let isCoop = false;
@@ -162,133 +260,322 @@
     let isFullSong = true;
     let isShortCut = true;
     let isRemix = true;
+    let isFirstToPrex3 = true;
+    let isExceedToNXA = true;
+    let isFiesta = true;
+    let isPrime = true;
+    let isPrime2 = true;
+    let isXX = true;
 
     let initialRandomize = true;
+    let changeNoSameLine = true;
 
-    function randomize() {
 
-        let selectedCells = 0;
+    let ALL_CELLS = [];
 
-        for (let r = 0; r < rows; r++) {
-            for (let c = 0; c < columns; c++) {
-                let cellId = r + '' + c;
-                if (!isCellSelected(cellId)) {
-                    continue;
-                }
-                makeNewCell(cellId);
-                selectedCells++;
+    for (let r = 0; r < rows; r++) {
+        for (let c = 0; c < columns; c++) {
+            if (r === 2 && c === 2) {
+                continue;
             }
+            let cellId = r + '' + c;
+            ALL_CELLS.push(cellId);
+            cellsToCharts[cellId] = null;
+        }
+    }
+
+    update_names();
+    update_percents();
+    update_modes();
+    update_misc();
+
+    function isMainDiagonalCell(cellId) {
+        return cellId[0] === cellId[1];
+    }
+
+    function isSideDiagonalCell(cellId) {
+        return Number(cellId[0]) + Number(cellId[1]) === rows - 1;
+    }
+
+    function isDiagonalCell(cellId) {
+        return isMainDiagonalCell(cellId) || isSideDiagonalCell(cellId);
+    }
+
+    function getDiagonalCells(cellId) {
+        if (isMainDiagonalCell(cellId)) {
+            return ALL_CELLS.filter(c => c !== cellId && isMainDiagonalCell(c));
+        } else if (isSideDiagonalCell(cellId)) {
+            return ALL_CELLS.filter(c => c !== cellId && isSideDiagonalCell(c));
+        }
+        return undefined;
+    }
+
+    function getSelectedCells() {
+        return ALL_CELLS.filter(c => isCellSelected(c));
+    }
+
+    function isCellEmpty(cellId) {
+        return cellsToCharts[cellId] === null;
+    }
+
+    function getInProgressCells() {
+        return ALL_CELLS.filter(c => isCellInProgress(c));
+    }
+
+    function getCellsToChange() {
+        let emptyCells = ALL_CELLS.filter(c => isCellEmpty(c));
+
+        if (emptyCells.length > 0) {
+            return emptyCells;
         }
 
-        if (selectedCells === 0) {
-            for (let r = 0; r < rows; r++) {
-                for (let c = 0; c < columns; c++) {
-                    let cellId = r + '' + c;
-                    if (!isCellInProgress(cellId)) {
-                        continue;
-                    }
-                    makeNewCell(cellId);
-                }
-            }
+        let cellsToChange = getSelectedCells();
+        if (cellsToChange.length > 0) {
+            return cellsToChange;
         }
+        return getInProgressCells();
+    }
 
-        let cellsToChange = [];
-
-        for (let r = 0; r < rows; r++) {
-            for (let c = 0; c < columns; c++) {
-                if (r === 2 && c === 2) {
-                    continue;
-                }
-
-                let cellId = r + '' + c;
-
-                let songname = document.getElementById(cellId + "song");
-
-                if (songname.innerHTML === '') {
-                    cellsToChange.push(cellId);
-                }
-            }
-        }
-
+    function getCandidatesCharts() {
         let candidates = [];
 
-        if (candidates.length === 0) {
-            for (let song of songs) {
-                for (let chart of song.charts) {
+        for (let song of songs) {
+            for (let chart of song.charts) {
 
-                    if (selectedCharts.includes(chart.chartId)) {
-                        continue;
-                    }
+                if (selectedCharts.includes(chart.chartId)) {
+                    continue;
+                }
 
-                    let songCut = song.song.cut;
-                    if (songCut === "Arcade") {
-                        if (!isArcade) {
-                            continue;
-                        }
-                        songCut = '';
-                    } else if (songCut === "Short Cut") {
-                        if (!isShortCut) {
-                            continue;
-                        }
-                        songCut = 'Short';
-                    } else if (songCut === "Full Song") {
-                        if (!isFullSong) {
-                            continue;
-                        }
-                        songCut = 'Full';
-                    } else if (songCut === "Remix") {
-                        if (!isRemix) {
-                            continue;
-                        }
-                    } else {
+                let chartMix = mixGroup[chart.mix];
+                if (chartMix === mixFirstToPrex3) {
+                    if (!isFirstToPrex3) {
                         continue;
                     }
+                } else if (chartMix === mixExceedToNXA) {
+                    if (!isExceedToNXA) {
+                        continue;
+                    }
+                } else if (chartMix === mixFiesta) {
+                    if (!isFiesta){
+                        continue;
+                    }
+                } else if (chartMix === mixPrime) {
+                    if (!isPrime) {
+                        continue;
+                    }
+                } else if (chartMix === mixPrime2) {
+                    if (!isPrime2) {
+                        continue;
+                    }
+                } else if (chartMix === mixXX) {
+                    if (!isXX) {
+                        continue;
+                    }
+                } else {
+                    throw Error("Can't find Mix '" + chart.mix + "'");
+                }
 
-                    let difficulty = chart.difficulty.difficulty;
-                    if (difficulty < minDifficulty || difficulty > maxDifficulty) {
+                let songCut = song.song.cut;
+                if (songCut === "Arcade") {
+                    if (!isArcade) {
                         continue;
                     }
+                    songCut = '';
+                } else if (songCut === "Short Cut") {
+                    if (!isShortCut) {
+                        continue;
+                    }
+                    songCut = 'Short';
+                } else if (songCut === "Full Song") {
+                    if (!isFullSong) {
+                        continue;
+                    }
+                    songCut = 'Full';
+                } else if (songCut === "Remix") {
+                    if (!isRemix) {
+                        continue;
+                    }
+                } else {
+                    throw Error("Can't find Cut '" + songCut + "'");
+                }
 
-                    let coop = chart.difficulty.coop;
-                    if (coop && !isCoop) {
-                        continue;
-                    }
-                    if (!coop && isCoop) {
-                        continue;
-                    }
+                let difficulty = chart.difficulty.difficulty;
+                if (difficulty < minDifficulty || difficulty > maxDifficulty) {
+                    continue;
+                }
 
-                    let performance = chart.difficulty.performance;
-                    if (performance && !isPerformance && !isOnlyPerformance) {
-                        continue;
-                    }
-                    if (!performance && isOnlyPerformance) {
-                        continue;
-                    }
+                let coop = chart.difficulty.coop;
+                if (coop && !isCoop) {
+                    continue;
+                }
+                if (!coop && isCoop) {
+                    continue;
+                }
 
-                    let single = chart.difficulty.single;
-                    if (single && !isSingle) {
-                        continue;
-                    }
+                let performance = chart.difficulty.performance;
+                if (performance && !isPerformance && !isOnlyPerformance) {
+                    continue;
+                }
+                if (!performance && isOnlyPerformance) {
+                    continue;
+                }
 
-                    let double = chart.difficulty.double;
-                    if (double && !isDouble) {
-                        continue;
-                    }
+                let single = chart.difficulty.single;
+                if (single && !isSingle) {
+                    continue;
+                }
 
-                    candidates.push({
-                        name: song.song.name,
-                        diff: chart.difficulty.name,
-                        diffNum: difficulty,
-                        cut: songCut,
-                        card: song.song.card,
-                        chartId: chart.chartId,
-                        single: single,
-                        double: double,
-                        coop: coop,
-                    });
+                let double = chart.difficulty.double;
+                if (double && !isDouble) {
+                    continue;
+                }
+
+                candidates.push({
+                    name: song.song.name,
+                    diff: chart.difficulty.name,
+                    diffNum: difficulty,
+                    cut: songCut,
+                    card: song.song.card,
+                    chartId: chart.chartId,
+                    single: single,
+                    double: double,
+                    performance: performance,
+                    coop: coop,
+                });
+            }
+        }
+
+        return candidates;
+    }
+
+    function shuffleCells(cells) {
+        return cells
+            .map(value => ({ value, sort: Math.random() }))
+            .sort((a, b) => a.sort - b.sort)
+            .map(({ value }) => value);
+    }
+
+    function getChartsFromCells(cellsIds) {
+        return cellsIds
+            .map(c => cellsToCharts[c])
+            .filter(c => c !== null)
+            .map(c => chartIdToChart[c]);
+    }
+
+    function getCellsSameRow(cellId) {
+        return ALL_CELLS.filter(c => c !== cellId && c[0] === cellId[0]);
+    }
+
+    function getCellsSameCol(cellId) {
+        return ALL_CELLS.filter(c => c !== cellId && c[1] === cellId[1]);
+    }
+
+    function doesMakeSameLine(cellId, wantSingle) {
+        let sameRowCells = getCellsSameRow(cellId);
+        let sameRowCharts = getChartsFromCells(sameRowCells);
+
+        if (sameRowCells.length === sameRowCharts.length &&
+            sameRowCharts.every(c => wantSingle && c.single || !wantSingle && c.double)) {
+            return true;
+        }
+
+        let sameColCells = getCellsSameCol(cellId);
+        let sameColCharts = getChartsFromCells(sameColCells);
+
+        if (sameColCells.length === sameColCharts.length &&
+            sameColCharts.every(c => wantSingle && c.single || !wantSingle && c.double)) {
+            return true;
+        }
+
+        if (isDiagonalCell(cellId)) {
+            let sameDiagonalCells = getDiagonalCells(cellId);
+            let sameDiagonalCharts = getChartsFromCells(sameDiagonalCells);
+
+            if (sameDiagonalCells.length === sameDiagonalCharts.length &&
+                sameDiagonalCharts.every(c => wantSingle && c.single || !wantSingle && c.double)) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    function chooseSinglesOrDoubles(cellId, sumSingles, sumDoubles) {
+        if (isNoSameLine && doesMakeSameLine(cellId, true)) {
+            return false;
+        }
+        if (isNoSameLine && doesMakeSameLine(cellId, false)) {
+            return true;
+        }
+
+        let totalSum = sumSingles + sumDoubles;
+        let currSinglePercentage;
+        let currDoublePercentage;
+
+        if (totalSum === 0) {
+            currSinglePercentage = 0.5;
+            currDoublePercentage = 0.5;
+        } else {
+            currSinglePercentage = sumSingles / (sumSingles + sumDoubles);
+            currDoublePercentage = sumDoubles / (sumSingles + sumDoubles);
+        }
+
+        let diffPercentage = currSinglePercentage - currDoublePercentage;
+
+        let improvedSinglePercentage = singlePercentage - diffPercentage;
+        let randomSingleDouble = Math.random();
+
+        // returns true if chooses Singles, returns false if chooses Doubles
+        return improvedSinglePercentage > randomSingleDouble;
+    }
+
+    function chooseDifficulty(sumDiff, sumAllDiff) {
+        let updatedPercentagesDifficulties = {};
+        for (let currDiff in sumDiff) {
+            if (sumAllDiff === 0) {
+                updatedPercentagesDifficulties[currDiff] = percents[currDiff];
+                continue;
+            }
+
+            let currDiffPercentage = sumDiff[currDiff] / sumAllDiff;
+            let percentageDifference = currDiffPercentage - percents[currDiff];
+            updatedPercentagesDifficulties[currDiff] = percents[currDiff] - percentageDifference;
+        }
+
+        while (true) {
+            let randomDifficulty = Math.random();
+
+            for (let currDiff in updatedPercentagesDifficulties) {
+                let currPercents = updatedPercentagesDifficulties[currDiff];
+                randomDifficulty -= currPercents;
+                if (randomDifficulty < 0) {
+                    return Number(currDiff);
                 }
             }
         }
+    }
+
+    function filterCandidates(candidates, searchSingles, searchDoubles, chosenDifficulty) {
+        let nonSelectedCandidates = candidates
+            .filter(c => !selectedCharts.includes(c.chartId));
+
+        let filteredCandidates = nonSelectedCandidates
+            .filter(c =>
+                (c.single && searchSingles || c.double && searchDoubles) &&
+                c.diffNum === chosenDifficulty ||
+                c.coop
+            );
+
+        if (filteredCandidates.length === 0) {
+            filteredCandidates = nonSelectedCandidates
+        }
+
+        return filteredCandidates;
+    }
+
+    function randomize() {
+        let cellsToChange = shuffleCells(getCellsToChange());
+        let candidates = getCandidatesCharts();
 
         let sumSingles = 0;
         let sumDoubles = 0;
@@ -298,114 +585,40 @@
             sumDiff[perc] = 0;
         }
 
+        let cannotRandomizeCellSameLine = false;
 
-        let shuffledCells = cellsToChange
-            .map(value => ({ value, sort: Math.random() }))
-            .sort((a, b) => a.sort - b.sort)
-            .map(({ value }) => value);
-
-        for (let cellId of shuffledCells) {
+        for (let cellId of cellsToChange) {
             if (candidates.length === 0) {
                 return;
             }
 
-            let searchSingles = true;
-            let searchDoubles = true;
+            let searchSingles = isSingle;
+            let searchDoubles = isDouble;
 
-            if (isSingle && isDouble && sumSingles > 0) {
-                let currSinglePercentage = sumSingles / (sumSingles + sumDoubles);
-                let currDoublePercentage = sumDoubles / (sumSingles + sumDoubles);
+            if (isCoop) {
+                searchSingles = false;
+                searchDoubles = false;
+            }
 
-                let diffPercentage = currSinglePercentage - currDoublePercentage;
-
-                let improvedSinglePercentage = singlePercentage - diffPercentage;
-
-                let randomSingleDouble = Math.random();
-
-                if (randomSingleDouble > improvedSinglePercentage) {
-                    searchDoubles = true;
-                    searchSingles = false;
-                } else {
-                    searchSingles = true;
-                    searchDoubles = false;
+            if (isSingle && isDouble) {
+                searchSingles = chooseSinglesOrDoubles(cellId, sumSingles, sumDoubles);
+                searchDoubles= !searchSingles;
+            } else if (isNoSameLine) {
+                if (isSingle && !isDouble && doesMakeSameLine(cellId, true) ||
+                    isDouble && !isSingle && doesMakeSameLine(cellId, false)) {
+                    cannotRandomizeCellSameLine = true;
+                    continue;
                 }
             }
 
-            let updatedPercentagesDifficulties = {};
-            for (let currDiff in sumDiff) {
-                if (sumAllDiff === 0) {
-                    updatedPercentagesDifficulties[currDiff] = percents[currDiff];
-                    continue;
-                }
+            let chosenDifficulty = chooseDifficulty(sumDiff, sumAllDiff);
 
-                let currDiffPercentage = sumDiff[currDiff] / sumAllDiff;
-                let percentageDifference = currDiffPercentage - percents[currDiff];
-                updatedPercentagesDifficulties[currDiff] = percents[currDiff] - percentageDifference;
-            }
-
-            let chosenDifficulty = 0;
-
-            chooseDifficulty:
-            while (true) {
-                let randomDifficulty = Math.random();
-
-                for (let currDiff in updatedPercentagesDifficulties) {
-                    let currPercents = updatedPercentagesDifficulties[currDiff];
-                    randomDifficulty -= currPercents;
-                    if (randomDifficulty < 0) {
-                        chosenDifficulty = Number(currDiff);
-                        break chooseDifficulty;
-                    }
-                }
-            }
-
-
-            let newerCandidates = [];
-
-            for (let currCandidate of candidates) {
-                if (selectedCharts.includes(currCandidate.chartId)) {
-                    // we need that because we dont remove candidates that
-                    // were selected in the previous iteration
-                    continue;
-                }
-
-                if (currCandidate.coop) {
-                    newerCandidates.push(currCandidate);
-                    continue;
-                }
-
-                if (currCandidate.single && searchSingles === false) {
-                    continue;
-                }
-
-                if (currCandidate.double && searchDoubles === false) {
-                    continue;
-                }
-
-                if (currCandidate.diffNum !== chosenDifficulty) {
-                    continue;
-                }
-
-                newerCandidates.push(currCandidate);
-            }
-
-            //console.log((searchSingles? "singles ": "")
-            //    + (searchDoubles? "doubles " : "") + chosenDifficulty + " | "
-            //    + newerCandidates.length + " candidates left" )
-
-            if (newerCandidates.length === 0) {
-                for (let currCandidate of candidates) {
-                    if (selectedCharts.includes(currCandidate.chartId)) {
-                        continue;
-                    }
-                    newerCandidates.push(currCandidate);
-                }
-            }
+            let newerCandidates = filterCandidates(
+                candidates, searchSingles, searchDoubles, chosenDifficulty);
 
             if (newerCandidates.length === 0) {
                 break;
             }
-
 
             let itemIndex = Math.floor(Math.random() * newerCandidates.length);
             let item = newerCandidates[itemIndex];
@@ -423,39 +636,15 @@
                 sumDiff[item.diffNum]++;
             }
 
-            // candidates.splice(itemIndex, 1);
-
-            let cell = document.getElementById(cellId);
-            let songname = document.getElementById(cellId + "song");
-            let cutname = document.getElementById(cellId + "cut");
-            let diffname = document.getElementById(cellId + "diff");
-
-            let name = item.name;
-            if (name in shortened) {
-                name = shortened[name];
-            }
-
-            songname.innerHTML = name;
-            songname.style['font-size'] = '';
-
-            if (item.name in fontchange) {
-                songname.style['font-size'] = fontchange[item.name];
-            }
-
-            cutname.innerHTML = item.cut;
-            diffname.innerHTML = item.diff;
-
-            cell.style['background-image'] = "url(" + item.card + ")";
-
-            selectedCharts.push(item.chartId);
-            cellsToCharts[cellId] = item.chartId;
-            chartIdToChart[item.chartId] = item;
+            writeChartInfoToCell(cellId, item);
         }
 
         if (initialRandomize) {
             document.getElementById("random").innerHTML = "Rerandom!";
             initialRandomize = false;
         }
+
+        handleRedNoSameLineText(cannotRandomizeCellSameLine);
     }
 
     function clicked(cellId) {
@@ -485,8 +674,32 @@
         }
     }
 
-    function switch_players() {
+    function update_names() {
+        let p1name = document.getElementById("player1_name").value;
+        let p2name = document.getElementById("player2_name").value;
 
+        let p1nameFiller = document.getElementById("22p1name");
+        let p2nameFiller = document.getElementById("22p2name");
+
+        p1nameFiller.innerHTML = p1name;
+        p2nameFiller.innerHTML = p2name;
+
+        p1nameFiller.style['margin-left'] = '';
+        p1nameFiller.style['margin-top'] = '';
+
+        if (p1name in p1nameleft) {
+            p1nameFiller.style['margin-left'] = p1nameleft[p1name];
+        }
+        if (p1name in p1nametop) {
+            p1nameFiller.style['margin-top'] = p1nametop[p1name];
+        }
+
+        if (p2name in p2nameleft) {
+            p2nameFiller.style['margin-left'] = p2nameleft[p2name];
+        }
+        if (p2name in p2nametop) {
+            p2nameFiller.style['margin-top'] = p2nametop[p2name];
+        }
     }
 
     function update_percents(isMaxDiff) {
@@ -568,14 +781,30 @@
         }
     }
 
-    update_percents();
-
-    function update_modes() {
+    function update_modes(source) {
         let issingle = document.getElementById("issingle");
         let isdouble = document.getElementById("isdouble");
+        let isnosameline = document.getElementById("isnosameline");
+
+        let isFromNoSameLine = source === 'nosameline';
+
+        if (isFromNoSameLine) {
+            changeNoSameLine = false;
+        }
+
+        handleRedNoSameLineText(false);
+
+        if (initialRandomize && changeNoSameLine) {
+            if (!issingle.checked || !isdouble.checked) {
+                isnosameline.checked = false;
+            } else if (issingle.checked && isdouble.checked) {
+                isnosameline.checked = true;
+            }
+        }
 
         isSingle = issingle.checked;
         isDouble = isdouble.checked;
+        isNoSameLine = isnosameline.checked;
 
         let sdperc = document.getElementById("sdperc");
         if (isSingle && isDouble) {
@@ -614,20 +843,33 @@
         doublePercentage = currDperc / 100;
     }
 
-    update_modes();
-
     function update_misc() {
-        isCoop = document.getElementById("iscoop").checked;
-        isPerformance = document.getElementById("isperformance").checked;
-        isOnlyPerformance = document.getElementById("isallperformance").checked;
+        isFirstToPrex3 = document.getElementById("is1sttoprex3").checked;
+        isExceedToNXA = document.getElementById("isexceedtonxa").checked;
+        isFiesta = document.getElementById("isfiesta").checked;
+        isPrime = document.getElementById("isprime").checked;
+        isPrime2 = document.getElementById("isprime2").checked;
+        isXX = document.getElementById("isxx").checked;
 
         isArcade = document.getElementById("isarcade").checked;
         isFullSong = document.getElementById("isfullsong").checked;
         isShortCut = document.getElementById("isshortcut").checked;
         isRemix = document.getElementById("isremix").checked;
-    }
 
-    update_misc();
+        isCoop = document.getElementById("iscoop").checked;
+        isPerformance = document.getElementById("isperformance").checked;
+        isOnlyPerformance = document.getElementById("isallperformance").checked;
+
+        isLockCharts = document.getElementById("islockcharts").checked;
+
+        if (isLockCharts) {
+            lockIrrelevantCells();
+        } else {
+            ALL_CELLS
+                .filter(c => isCellLocked(c))
+                .forEach(c => resetCell(c));
+        }
+    }
 
     function isCellSelected(cellId) {
         let selected = document.getElementById(cellId + "selected");
@@ -637,6 +879,11 @@
     function isCellInProgress(cellId) {
         let inprogress = document.getElementById(cellId + "inprogress");
         return inprogress.style.display === 'block';
+    }
+
+    function isCellLocked(cellId) {
+        let lock = document.getElementById(cellId + "lock");
+        return lock.style.display === 'block';
     }
 
     function isCellHasResult(cellId) {
@@ -649,14 +896,34 @@
             || draw.style.display === 'block';
     }
 
+    function isCellBlueWin(cellId) {
+        let blue = document.getElementById(cellId + "bluewin");
+        return blue.style.display === 'block';
+    }
+
+    function isCellRedWin(cellId) {
+        let red = document.getElementById(cellId + "redwin");
+        return red.style.display === 'block';
+    }
+
+    function handleRedNoSameLineText(showRed) {
+        let nosamelinelabel = document.getElementById("isnosamelinelabel");
+        if (showRed) {
+            nosamelinelabel.classList.add("red_text");
+        } else {
+            nosamelinelabel.classList.remove("red_text");
+        }
+    }
+
     function resetCell(cellId) {
         let blue = document.getElementById(cellId + "bluewin");
         let red = document.getElementById(cellId + "redwin");
         let draw = document.getElementById(cellId + "draw");
         let selected = document.getElementById(cellId + "selected");
         let inprogress = document.getElementById(cellId + "inprogress");
+        let lock = document.getElementById(cellId + "lock");
 
-        for (let item of [blue, red, draw, selected, inprogress]) {
+        for (let item of [blue, red, draw, selected, inprogress, lock]) {
             if (item.style.display === 'block') {
                 item.style.display = '';
             }
@@ -666,64 +933,35 @@
     function changeCellState(cls) {
         let foundSelected = false;
 
-        for (let r = 0; r < rows; r++) {
-            for (let c = 0; c < columns; c++) {
-                let cellId = r + '' + c;
+        for (let cellId of ALL_CELLS) {
+            if (!isCellSelected(cellId)) {
+                continue;
+            }
 
-                if (!isCellSelected(cellId)) {
-                    continue;
-                }
+            foundSelected = true;
 
-                foundSelected = true;
+            resetCell(cellId);
 
-                resetCell(cellId);
+            if (cls) {
+                document.getElementById(cellId + cls).style.display = 'block';
+            }
+        }
 
-                if (r === 2 && c === 2) {
-                    continue;
-                }
-
-                if (cls) {
+        if (!foundSelected && ['redwin', 'bluewin', 'draw'].includes(cls)) {
+            for (let cellId of ALL_CELLS) {
+                if (isCellInProgress(cellId)) {
+                    resetCell(cellId);
                     document.getElementById(cellId + cls).style.display = 'block';
                 }
             }
         }
 
-        if (!foundSelected && ['redwin', 'bluewin', 'draw'].includes(cls)) {
-            for (let r = 0; r < rows; r++) {
-                for (let c = 0; c < columns; c++) {
-                    let cellId = r + '' + c;
-
-                    if (isCellInProgress(cellId)) {
-                        resetCell(cellId);
-                        document.getElementById(cellId + cls).style.display = 'block';
-                    }
-                }
-            }
-        }
-
         outerIf:
-        if (!foundSelected && cls === 'inprogress') {
-            let availableCells = [];
+        if (!foundSelected && cls === 'inprogress' &&
+            ALL_CELLS.every(c => !isCellInProgress(c))) {
 
-            for (let r = 0; r < rows; r++) {
-                for (let c = 0; c < columns; c++) {
-                    let cellId = r + '' + c;
-
-                    if (isCellInProgress(cellId)) {
-                        break outerIf;
-                    }
-
-                    let songname = document.getElementById(cellId + "song");
-
-                    if (songname.innerHTML === '') {
-                        continue;
-                    }
-
-                    if (!isCellHasResult(cellId)) {
-                        availableCells.push(cellId);
-                    }
-                }
-            }
+            let availableCells = ALL_CELLS
+                .filter(c => !isCellEmpty(c) && !isCellHasResult(c) && !isCellLocked(c));
 
             if (availableCells.length === 0) {
                 break outerIf;
@@ -734,6 +972,98 @@
 
             document.getElementById(item + "inprogress").style.display = 'block';
         }
+
+        if (isLockCharts) {
+            lockIrrelevantCells();
+        }
+    }
+
+    function lockIrrelevantCells() {
+        for (let cellId of ALL_CELLS) {
+            if (isCellEmpty(cellId) ||
+                isCellHasResult(cellId) ||
+                isCellLocked(cellId) ||
+                isCellInProgress(cellId)) {
+                continue;
+            }
+
+            let rowLock = false;
+            let colLock = false;
+            let diagLock = false;
+
+            let sameRow = getCellsSameRow(cellId);
+
+            if (sameRow.some(c => isCellBlueWin(c)) &&
+                sameRow.some(c => isCellRedWin(c))) {
+                rowLock = true;
+            }
+
+            let sameCol = getCellsSameCol(cellId);
+
+            if (sameCol.some(c => isCellBlueWin(c)) &&
+                sameCol.some(c => isCellRedWin(c))) {
+                colLock = true;
+            }
+
+            if (isDiagonalCell(cellId)) {
+                let diagonalCells = getDiagonalCells(cellId);
+
+                if (diagonalCells.some(c => isCellBlueWin(c)) &&
+                    diagonalCells.some(c => isCellRedWin(c))) {
+                    diagLock = true;
+                }
+            } else {
+                diagLock = true;
+            }
+
+            if (rowLock && colLock && diagLock) {
+                let lock = document.getElementById(cellId + "lock");
+                lock.style.display = 'block';
+            }
+        }
+    }
+
+    function writeChartInfoToCell(cellId, chart) {
+        makeNewCell(cellId);
+
+        let cell = document.getElementById(cellId);
+        let songname = document.getElementById(cellId + "song");
+        let cutname = document.getElementById(cellId + "cut");
+        let diffname = document.getElementById(cellId + "diff");
+
+        let name = chart.name;
+        if (name in shortened) {
+            name = shortened[name];
+        }
+
+        songname.innerHTML = name;
+        songname.style['font-size'] = '';
+
+        if (chart.name in fontchange) {
+            songname.style['font-size'] = fontchange[chart.name];
+        }
+
+        cutname.innerHTML = chart.cut;
+        diffname.innerHTML = chart.diff;
+
+        if (chart.single) {
+            diffname.classList.add("single");
+        }
+        if (chart.double) {
+            diffname.classList.add("double");
+        }
+        if (chart.performance) {
+            diffname.classList.add("performance");
+        }
+        if (chart.coop) {
+            diffname.classList.add("coop");
+        }
+
+        cell.style['background-image'] = "url(" + chart.card + ")";
+
+        selectedCharts.push(chart.chartId);
+        cellsToCharts[cellId] = chart.chartId;
+        chartIdToChart[chart.chartId] = chart;
     }
 
     function makeNewCell(cellId) {
@@ -744,13 +1074,18 @@
         let cutname = document.getElementById(cellId + "cut");
         let diffname = document.getElementById(cellId + "diff");
 
+        diffname.classList.remove("single");
+        diffname.classList.remove("double");
+        diffname.classList.remove("performance");
+        diffname.classList.remove("coop");
+
         if (songname.innerHTML === '') {
             return;
         }
 
         let chartId = cellsToCharts[cellId];
         selectedCharts.splice(selectedCharts.indexOf(chartId), 1);
-        cellsToCharts[cellId] = undefined;
+        cellsToCharts[cellId] = null;
 
         songname.innerHTML = '';
         songname.style['font-size'] = '';
@@ -761,13 +1096,11 @@
 
     function clearTable() {
         document.getElementById("random").innerHTML = "Randomize!";
+        document.getElementById("isnosamelinelabel").classList.remove("red_text");
         initialRandomize = true;
-        for (let r = 0; r < rows; r++) {
-            for (let c = 0; c < columns; c++) {
-                let cellId = r + '' + c;
-                resetCell(cellId);
-                makeNewCell(cellId);
-            }
+        changeNoSameLine = true;
+        for (let cellId of ALL_CELLS) {
+            makeNewCell(cellId);
         }
     }
 </script>
