@@ -92,7 +92,8 @@
         <input id="iscoop" type="checkbox" onclick="update_misc()">Coop only<br>
         <input id="isperformance" type="checkbox" onclick="update_misc()">Performance<br>
         <input id="isallperformance" type="checkbox" onclick="update_misc()">Perf. only<br>
-        <input id="islockcharts" type="checkbox" checked onclick="update_misc()">Lock charts<br>
+        <input id="islockcharts" type="checkbox" checked onclick="update_misc()">
+        <span id="islockchartslabel" style="margin-left: -4px">Lock charts</span><br>
         <br>
         <button onclick="clearTable()" style="width: 100%">Clear all</button>
     </div>
@@ -156,6 +157,9 @@
         "Repeatorment Remix": "20px",
         "Indestructible": "21px",
     }
+
+    const nonInterestingCls = "non-interesting";
+    const determinedCls = "determined";
 
     const p1nameleft = {
         'A': '4px',
@@ -268,7 +272,9 @@
     let isXX = true;
 
     let initialRandomize = true;
-    let changeNoSameLine = true;
+
+    const initialChangeNoSameLine = document.getElementById("isnosameline").checked;
+    let changeNoSameLine = initialChangeNoSameLine;
 
 
     let ALL_CELLS = [];
@@ -660,6 +666,8 @@
         } else {
             selectedDiv.style.display = 'block';
         }
+
+        determineNotInterestingCells();
     }
 
     function switch_settings() {
@@ -867,7 +875,7 @@
         } else {
             ALL_CELLS
                 .filter(c => isCellLocked(c))
-                .forEach(c => resetCell(c));
+                .forEach(c => unlockCell(c));
         }
     }
 
@@ -884,6 +892,22 @@
     function isCellLocked(cellId) {
         let lock = document.getElementById(cellId + "lock");
         return lock.style.display === 'block';
+    }
+
+    function lockCell(cellId) {
+        let lock = document.getElementById(cellId + "lock");
+        lock.style.display = 'block';
+
+        let cell = document.getElementById(cellId);
+        cell.classList.add("locked");
+    }
+
+    function unlockCell(cellId) {
+        let lock = document.getElementById(cellId + "lock");
+        lock.style.display = '';
+
+        let cell = document.getElementById(cellId);
+        cell.classList.remove("locked");
     }
 
     function isCellHasResult(cellId) {
@@ -916,6 +940,12 @@
     }
 
     function resetCell(cellId) {
+        unlockCell(cellId);
+
+        let cell = document.getElementById(cellId);
+        cell.classList.remove(determinedCls);
+        cell.classList.remove(nonInterestingCls);
+
         let blue = document.getElementById(cellId + "bluewin");
         let red = document.getElementById(cellId + "redwin");
         let draw = document.getElementById(cellId + "draw");
@@ -932,6 +962,7 @@
 
     function changeCellState(cls) {
         let foundSelected = false;
+        const isDetermination = ['redwin', 'bluewin', 'draw'].includes(cls);
 
         for (let cellId of ALL_CELLS) {
             if (!isCellSelected(cellId)) {
@@ -944,10 +975,15 @@
 
             if (cls) {
                 document.getElementById(cellId + cls).style.display = 'block';
+
+                if (isDetermination) {
+                    let cell = document.getElementById(cellId);
+                    cell.classList.add(determinedCls);
+                }
             }
         }
 
-        if (!foundSelected && ['redwin', 'bluewin', 'draw'].includes(cls)) {
+        if (!foundSelected && isDetermination) {
             for (let cellId of ALL_CELLS) {
                 if (isCellInProgress(cellId)) {
                     resetCell(cellId);
@@ -975,6 +1011,27 @@
 
         if (isLockCharts) {
             lockIrrelevantCells();
+        }
+
+        determineNotInterestingCells();
+    }
+
+    function determineNotInterestingCells() {
+        let selectedCells = getSelectedCells();
+
+        for (let cellId of ALL_CELLS) {
+            let cell = document.getElementById(cellId);
+
+            if (selectedCells.length === 0) {
+                cell.classList.remove(nonInterestingCls)
+                continue;
+            }
+
+            if (!isCellSelected(cellId) && !isCellInProgress(cellId) && !isCellHasResult(cellId)) {
+                cell.classList.add(nonInterestingCls);
+            } else {
+                cell.classList.remove(nonInterestingCls);
+            }
         }
     }
 
@@ -1017,8 +1074,7 @@
             }
 
             if (rowLock && colLock && diagLock) {
-                let lock = document.getElementById(cellId + "lock");
-                lock.style.display = 'block';
+                lockCell(cellId);
             }
         }
     }
@@ -1098,7 +1154,7 @@
         document.getElementById("random").innerHTML = "Randomize!";
         document.getElementById("isnosamelinelabel").classList.remove("red_text");
         initialRandomize = true;
-        changeNoSameLine = true;
+        changeNoSameLine = initialChangeNoSameLine;
         for (let cellId of ALL_CELLS) {
             makeNewCell(cellId);
         }
