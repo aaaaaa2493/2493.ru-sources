@@ -977,8 +977,7 @@
                 document.getElementById(cellId + cls).style.display = 'block';
 
                 if (isDetermination) {
-                    let cell = document.getElementById(cellId);
-                    cell.classList.add(determinedCls);
+                    document.getElementById(cellId).classList.add(determinedCls);
                 }
             }
         }
@@ -988,6 +987,7 @@
                 if (isCellInProgress(cellId)) {
                     resetCell(cellId);
                     document.getElementById(cellId + cls).style.display = 'block';
+                    document.getElementById(cellId).classList.add(determinedCls);
                 }
             }
         }
