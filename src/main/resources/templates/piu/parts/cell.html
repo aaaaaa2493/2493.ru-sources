@@ -1,0 +1,18 @@
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+
+<div th:fragment="cell(cellId)" th:id="${cellId}" class="cell" onclick="clicked(this.id)">
+
+    <div th:id="${cellId + 'bluewin'}" class="filler blue"></div>
+    <div th:id="${cellId + 'redwin'}"  class="filler red"></div>
+    <div th:id="${cellId + 'draw'}" class="filler draw"></div>
+    <div th:id="${cellId + 'selected'}" class="filler selected"></div>
+    <div th:id="${cellId + 'inprogress'}" class="filler inprogress"></div>
+    <div th:id="${cellId + 'lock'}" class="filler lock"></div>
+
+    <div th:id="${cellId + 'info'}" class="cellinfo">
+        <div th:id="${cellId + 'song'}" class="songname"></div>
+        <div th:id="${cellId + 'cut'}" class="cutname"></div>
+        <div th:id="${cellId + 'diff'}" class="diffname"></div>
+    </div>
+
+</div>

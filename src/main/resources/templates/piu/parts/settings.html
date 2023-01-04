@@ -1,0 +1,373 @@
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+
+<div th:fragment="settings">
+
+    <div id="switchbuttons" style="float: left; width: 90px;">
+        <button onclick="switch_settings()" style="float: left; width: 100%">
+            Settings
+        </button>
+    </div>
+
+    <div id="settings" class="settings_block" style="margin-left: 10px">
+        <div style="float: left">
+            <div id="players_names">
+                <div style="width:35px;float: left">P1:</div>
+                <input id="player1_name" type="text" value="A" style="float: left" oninput="update_names()">
+                <div style="width:35px;float: left; margin-left: 5px">P2:</div>
+                <input id="player2_name" type="text" value="B" style="float: left" oninput="update_names()">
+            </div>
+            <div id="minmaxdifficulties">
+                <div style="width:35px;float: left">Min:</div>
+                <input id="mindiff" type="number" value="16" min="1" max="28" style="float: left" onchange="update_percents(false)">
+                <div style="width:35px;float: left; margin-left: 5px">Max:</div>
+                <input id="maxdiff" type="number" value="18" min="1" max="28" style="float: left" onchange="update_percents(true)">
+            </div>
+            <div id="percents"></div>
+        </div>
+
+        <div style="float: left; padding-left: 15px">
+            <input id="issingle" type="checkbox" checked onclick="update_modes('single')">Single<br>
+            <input id="isdouble" type="checkbox" checked onclick="update_modes('double')">Double<br>
+            <input id="isnosameline" type="checkbox" checked onclick="update_modes('nosameline')">
+            <span id="isnosamelinelabel" style="margin-left: -4px">No same line</span><br>
+
+            <div id="sdperc">
+                S <input id="sperc" type="number" min="0" max="100" value="1" style="margin-left: 2px;"
+                         onchange="update_modes_descriptions()">
+                <span id="spercdesc"></span><br>
+                D <input id="dperc" type="number" min="0" max="100" value="1"
+                         onchange="update_modes_descriptions()">
+                <span id="dpercdesc"></span>
+            </div>
+        </div>
+
+        <div style="float: left; padding-left: 15px">
+            <input id="is1sttoprex3" type="checkbox" checked onclick="update_misc()">1st - Prex 3<br>
+            <input id="isexceedtonxa" type="checkbox" checked onclick="update_misc()">Exceed - NXA<br>
+            <input id="isfiesta" type="checkbox" checked onclick="update_misc()">Fiesta 1/Ex/2<br>
+            <input id="isprime" type="checkbox" checked onclick="update_misc()">Prime<br>
+            <input id="isprime2" type="checkbox" checked onclick="update_misc()">Prime 2<br>
+            <input id="isxx" type="checkbox" checked onclick="update_misc()">XX<br>
+        </div>
+
+        <div style="float: left; padding-left: 15px">
+            <input id="isarcade" type="checkbox" checked onclick="update_misc()">Arcade<br>
+            <input id="isfullsong" type="checkbox" checked onclick="update_misc()">Full Song<br>
+            <input id="isshortcut" type="checkbox" checked onclick="update_misc()">Short Cut<br>
+            <input id="isremix" type="checkbox" checked onclick="update_misc()">Remix<br>
+            <br>
+            <button id="random" onclick="randomize()" style="width: 100px">Randomize!</button>
+        </div>
+
+        <div style="float: left; padding-left: 15px">
+            <input id="iscoop" type="checkbox" onclick="update_misc()">Coop only<br>
+            <input id="isperformance" type="checkbox" onclick="update_misc()">Performance<br>
+            <input id="isallperformance" type="checkbox" onclick="update_misc()">Perf. only<br>
+            <input id="islockcharts" type="checkbox" checked onclick="update_misc()">
+            <span id="islockchartslabel" style="margin-left: -4px">Lock charts</span><br>
+            <br>
+            <button onclick="clearTable()" style="width: 100%">Clear all</button>
+        </div>
+
+    </div>
+
+    <div id="managerbuttons" style="padding-left: 15px">
+        <button id="makeinprogress" class="makeinprogress" onclick="changeCellState('inprogress')">In progress</button>
+        <button id="makeredwin" class="red" onclick="changeCellState('redwin')">Red wins</button>
+        <button id="makebluewin" class="blue" onclick="changeCellState('bluewin')">Blue wins</button>
+        <button id="makedraw" class="draw" onclick="changeCellState('draw')">Draw</button>
+        <button id="resetcell" onclick="changeCellState()">Reset</button>
+    </div>
+
+    <script type="text/javascript" th:inline="javascript">
+
+        let percents = {};
+        let minDifficulty = 0;
+        let maxDifficulty = 0;
+
+        let isSingle = true;
+        let isDouble = true;
+        let isNoSameLine = true;
+        let singlePercentage = 0;
+        let doublePercentage = 0;
+
+        let isFirstToPrex3 = true;
+        let isExceedToNXA = true;
+        let isFiesta = true;
+        let isPrime = true;
+        let isPrime2 = true;
+        let isXX = true;
+
+        let isArcade = true;
+        let isFullSong = true;
+        let isShortCut = true;
+        let isRemix = true;
+
+        let isCoop = false;
+        let isPerformance = true;
+        let isOnlyPerformance = false;
+        let isLockCharts = true;
+
+        let isLockingSupported = true;
+        let isNoSameLineSupported = true;
+        let isNamesSupported = true;
+
+        const initialChangeNoSameLine = document.getElementById("isnosameline").checked;
+        let changeNoSameLine = initialChangeNoSameLine;
+        let initialRandomize = true;
+
+        function switch_settings() {
+            let settings = document.getElementById("settings");
+            let managed = document.getElementById("managerbuttons");
+            if (settings.style.display === 'block') {
+                settings.style.display = 'none'
+                managed.style.display = 'block';
+            } else {
+                settings.style.display = 'block';
+                managed.style.display = 'none';
+            }
+        }
+
+        function update_names() {
+            if (!isNamesSupported) {
+                return;
+            }
+
+            let p1name = document.getElementById("player1_name").value;
+            let p2name = document.getElementById("player2_name").value;
+
+            let p1nameFiller = document.getElementById("p1name");
+            let p2nameFiller = document.getElementById("p2name");
+
+            p1nameFiller.innerHTML = p1name;
+            p2nameFiller.innerHTML = p2name;
+        }
+
+        function update_percents(isMaxDiff) {
+            let mindiff = document.getElementById("mindiff").value | 0;
+            let maxdiff = document.getElementById("maxdiff").value | 0;
+
+            let percents = document.getElementById("percents");
+            percents.innerHTML = "";
+
+            if (maxdiff > 28) {
+                maxdiff = 28;
+                document.getElementById("maxdiff").value = maxdiff;
+            }
+
+            if (maxdiff < 1) {
+                maxdiff = 1;
+                document.getElementById("maxdiff").value = maxdiff;
+            }
+
+            if (mindiff > 28) {
+                mindiff = 28;
+                document.getElementById("mindiff").value = mindiff;
+            }
+
+            if (mindiff < 1) {
+                mindiff = 1;
+                document.getElementById("mindiff").value = mindiff;
+            }
+
+            if (mindiff > maxdiff) {
+                if (isMaxDiff) {
+                    maxdiff = mindiff
+                    document.getElementById("maxdiff").value = maxdiff;
+                } else {
+                    mindiff = maxdiff;
+                    document.getElementById("mindiff").value = mindiff;
+                }
+            }
+
+            minDifficulty = mindiff;
+            maxDifficulty = maxdiff;
+
+            let currdiff = mindiff;
+
+            while (currdiff <= maxdiff) {
+                percents.innerHTML += currdiff + ': '
+                    + '<input id="' + currdiff + 'perc" type="number" min="0" max="100" value="1" ' +
+                    'onchange="update_percents_descriptions()">' +
+                    '<span id="' + currdiff + 'percdesc" style="padding-left: 5px"></span>' +
+                    '<br>';
+                currdiff++;
+            }
+
+            update_percents_descriptions();
+        }
+
+        function update_percents_descriptions() {
+            let currdiff = minDifficulty;
+            percents = {};
+
+            let sum = 0;
+
+            while (currdiff <= maxDifficulty) {
+                let perc = document.getElementById(currdiff + "perc");
+                sum += perc.value | 0;
+                currdiff++;
+            }
+
+            currdiff = minDifficulty;
+
+            while (currdiff <= maxDifficulty) {
+                let perc = document.getElementById(currdiff + "perc");
+                let percDesc = document.getElementById(currdiff + "percdesc");
+
+                let actualPercents = (((perc.value | 0) / sum * 100) | 0);
+                percents[currdiff] = actualPercents / 100;
+                percDesc.innerHTML = actualPercents + "%"
+                currdiff++;
+            }
+        }
+
+        function update_modes(source) {
+            let issingle = document.getElementById("issingle");
+            let isdouble = document.getElementById("isdouble");
+
+            if (isNoSameLineSupported) {
+                handleRedNoSameLineText(false);
+
+                let isnosameline = document.getElementById("isnosameline");
+
+                let isFromNoSameLine = source === 'nosameline';
+
+                if (isFromNoSameLine) {
+                    changeNoSameLine = false;
+                }
+
+                if (initialRandomize && changeNoSameLine) {
+                    if (!issingle.checked || !isdouble.checked) {
+                        isnosameline.checked = false;
+                    } else if (issingle.checked && isdouble.checked) {
+                        isnosameline.checked = true;
+                    }
+                }
+
+                isNoSameLine = isnosameline.checked;
+            }
+
+            isSingle = issingle.checked;
+            isDouble = isdouble.checked;
+
+            let sdperc = document.getElementById("sdperc");
+            if (isSingle && isDouble) {
+                sdperc.style.display = 'block';
+                update_modes_descriptions();
+            } else {
+                sdperc.style.display = 'none';
+
+                if (isSingle) {
+                    singlePercentage = 1;
+                    doublePercentage = 0;
+                } else if (isDouble) {
+                    singlePercentage = 0;
+                    doublePercentage = 1;
+                } else {
+                    singlePercentage = 0;
+                    doublePercentage = 0;
+                }
+            }
+        }
+
+        function update_modes_descriptions() {
+            let sperc = document.getElementById("sperc");
+            let dperc = document.getElementById("dperc");
+
+            let sum = (sperc.value | 0) + (dperc.value | 0);
+            let currSperc = ((sperc.value | 0) / sum * 100) | 0;
+            let currDperc = ((dperc.value | 0) / sum * 100) | 0;
+
+            let spercDesc = document.getElementById("spercdesc");
+            let dpercDesc = document.getElementById("dpercdesc");
+            spercDesc.innerHTML = currSperc + "%";
+            dpercDesc.innerHTML = currDperc + "%";
+
+            singlePercentage = currSperc / 100;
+            doublePercentage = currDperc / 100;
+        }
+
+        function update_misc() {
+            isFirstToPrex3 = document.getElementById("is1sttoprex3").checked;
+            isExceedToNXA = document.getElementById("isexceedtonxa").checked;
+            isFiesta = document.getElementById("isfiesta").checked;
+            isPrime = document.getElementById("isprime").checked;
+            isPrime2 = document.getElementById("isprime2").checked;
+            isXX = document.getElementById("isxx").checked;
+
+            isArcade = document.getElementById("isarcade").checked;
+            isFullSong = document.getElementById("isfullsong").checked;
+            isShortCut = document.getElementById("isshortcut").checked;
+            isRemix = document.getElementById("isremix").checked;
+
+            isCoop = document.getElementById("iscoop").checked;
+            isPerformance = document.getElementById("isperformance").checked;
+            isOnlyPerformance = document.getElementById("isallperformance").checked;
+
+            if (isLockingSupported) {
+                isLockCharts = document.getElementById("islockcharts").checked;
+
+                if (isLockCharts) {
+                    lockIrrelevantCells();
+                } else {
+                    unlockAllCells();
+                }
+            }
+        }
+
+        function disableLocking() {
+            isLockingSupported = false;
+
+            isLockCharts = false;
+            document.getElementById("islockcharts").checked = false;
+            document.getElementById("islockcharts").style.display = 'none';
+            document.getElementById("islockchartslabel").style.display = 'none';
+        }
+
+        function disableNoSameLine() {
+            isNoSameLineSupported = false;
+
+            isNoSameLine = false;
+            document.getElementById("isnosameline").checked = false;
+            document.getElementById("isnosameline").style.display = 'none';
+            document.getElementById("isnosamelinelabel").style.display = 'none';
+        }
+
+        function disableNames() {
+            isNamesSupported = false;
+
+            document.getElementById("players_names").style.display = 'none';
+        }
+
+        function handleRedNoSameLineText(showRed) {
+            if (!isNoSameLineSupported || !isNoSameLine) {
+                return;
+            }
+
+            let nosamelinelabel = document.getElementById("isnosamelinelabel");
+            if (showRed) {
+                nosamelinelabel.classList.add("red_text");
+            } else {
+                nosamelinelabel.classList.remove("red_text");
+            }
+        }
+
+        function resetSettings() {
+            initialRandomize = true;
+            changeNoSameLine = initialChangeNoSameLine;
+
+            document.getElementById("random").innerHTML = "Randomize!";
+            document.getElementById("isnosamelinelabel").classList.remove("red_text");
+        }
+
+        window.addEventListener('load', () => {
+            update_names();
+            update_percents();
+            update_modes();
+            update_misc();
+        })
+
+    </script>
+
+</div>

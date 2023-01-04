@@ -30,35 +30,31 @@ public class PiuController {
     }
 
     @GetMapping("/random")
-    public String bingoPage(Model model,
-                            @RequestParam(required = false, defaultValue = "rigel") String skin) {
+    public String bingoPage(
+            Model model,
+            @RequestParam(required = false, defaultValue = "rigel") String skin,
+            @RequestParam(required = false, defaultValue = "5") int rows,
+            @RequestParam(required = false, defaultValue = "5") int columns,
+            @RequestParam(required = false, defaultValue = "150") int width,
+            @RequestParam(required = false, defaultValue = "105") int height
+    ) {
+        if (skin.equals("one")) {
+            rows = 1;
+            columns = 1;
+        }
 
-        model.addAttribute("rows", 5);
-        model.addAttribute("columns", 5);
-        model.addAttribute("width", 150);
-        model.addAttribute("height", 105);
-
-        List<SongCharts> xxSongs = songService.getAllSongsForMix(MixValues.XX.mixId);
-        //xxSongs.stream().sorted().map(SongCharts::getPrint).forEach(System.out::println);
-        model.addAttribute("songs", xxSongs);
-
-        return switch (skin) {
-            case "rigel" -> "piu/randomizer";
-            case "yushka" -> "piu/randomizerMSK";
-            default -> "piu/randomizer";
-        };
-    }
-
-    @GetMapping("/randomizer")
-    public String randomizerPage(Model model) {
-        model.addAttribute("width", 150);
-        model.addAttribute("height", 105);
+        model.addAttribute("rows", rows);
+        model.addAttribute("columns", columns);
+        model.addAttribute("width", width);
+        model.addAttribute("height", height);
 
         List<SongCharts> xxSongs = songService.getAllSongsForMix(MixValues.XX.mixId);
         //xxSongs.stream().sorted().map(SongCharts::getPrint).forEach(System.out::println);
         model.addAttribute("songs", xxSongs);
 
-        return "piu/one_randomizer";
+        model.addAttribute("skin", skin);
+
+        return "piu/randomizer";
     }
 
     @GetMapping("/stats")

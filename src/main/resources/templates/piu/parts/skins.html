@@ -1,0 +1,42 @@
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+
+
+<div th:fragment="rigel">
+    <link rel="stylesheet" type="text/css" href="/css/piu/randomSPB.css">
+</div>
+
+
+<div th:fragment="yushka">
+    <link rel="stylesheet" type="text/css" href="/css/piu/pretty_levels.css">
+    <link rel="stylesheet" type="text/css" href="/css/piu/randomMSK.css">
+</div>
+
+
+<div th:fragment="one">
+    <link rel="stylesheet" type="text/css" href="/css/piu/pretty_levels.css">
+    <link rel="stylesheet" type="text/css" href="/css/piu/randomONE.css">
+
+    <script type="text/javascript" th:inline="javascript">
+
+        document.getElementById("isfullsong").checked = false;
+        document.getElementById("isshortcut").checked = false;
+        document.getElementById("isremix").checked = false;
+
+        document.getElementById("is1sttoprex3").checked = false;
+        document.getElementById("isexceedtonxa").checked = false;
+        document.getElementById("isfiesta").checked = false;
+
+        document.getElementById("switchbuttons").style.display = 'none';
+        document.getElementById("settings").style.display = 'block';
+        document.getElementById("managerbuttons").innerHTML = "";
+
+        disableLocking();
+        disableNoSameLine();
+        disableNames();
+
+        function getCellsToChange() {
+            return ['00'];
+        }
+
+    </script>
+</div>

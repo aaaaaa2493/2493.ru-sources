@@ -1,84 +1,18 @@
-body{
-        background: #31253e;
-        margin: 0;
+
+body {
+    background: #31253e;
+    margin: 0;
 }
 
 .field {
-    display: table;
-    width: auto;
     border: 8px solid #150f1b;
     background: #31253e;
 }
 
-.row {
-    display: table-row;
-    width: auto;
-}
-
 .cell {
-    display: table-column;
-    float: left;
     outline: 5px solid #150f1b;
     border: 5px solid #31253e;
-    background-size: cover;
-    font-family: tahoma, serif;
-    font-weight: bold;
-    font-size: 22px;
-    user-select: none;
     margin: 5px;
-    position: relative;
-}
-
-.songname {
-    display: none;
-}
-
-.cutname {
-    display: none;
-}
-
-.diffname {
-    font-size:18px;
-    text-shadow: 2px 2px 6px #000000;
-    text-align: center;
-    padding: 10px 0 0 0;
-    position: absolute;
-    bottom: -10px;
-    left: -10px;
-    color: white;
-    height: 34px;
-    width: 45px;
-    border-radius: 50px;
-    background-position-y: -10px;
-}
-
-.single {
-    border: 3px solid #00000090;
-    outline: 3px solid #00000050;
-    background-color: white;
-    background-image: radial-gradient(#ffffff80, #e63f2d, #960b0b);
-}
-
-.double {
-    border: 3px solid #00000090;
-    outline: 3px solid #00000050;
-    background-color: white;
-    background-image: radial-gradient(#8ae62d70, #74c81f, #326a0c);
-}
-
-.coop {
-    border: 3px solid #00000090;
-    outline: 3px solid #00000050;
-    background-color: white;
-    background-image: radial-gradient(rgba(230, 215, 45, 0.44), #eee11d, #f5cc27);
-}
-
-.filler {
-    position: absolute;
-    width: 150px;
-    height: 105px;
-    display: none;
-    color: white;
 }
 
 .blue {
@@ -89,6 +23,48 @@ body{
 .red {
     background: linear-gradient(35deg, #e71d30, #f85c3980);
     outline: 10px solid #7b1f1f;
+}
+
+.selected, .inprogress {
+    outline: 10px solid #ffcd39;
+}
+
+.makeinprogress {
+    background: #ffcd39;
+}
+
+.lock {
+    background-color: #150f1b;
+    background-image: url(https://static.tildacdn.com/tild3137-3862-4963-b932-343466316235/padlock1.png);
+    background-repeat: no-repeat;
+    background-position: center center;
+}
+
+.locked {
+    border-color: #150f1b;
+    background-color: #150f1b;
+    background-image: none !important;
+}
+
+.draw {
+    background: linear-gradient(15deg, #e71d308a 0%, #f85c39 49%, #4acfec 51%, #0d96ff96 100%);
+}
+
+.center {
+    background: linear-gradient(15deg, #e71d308a 0%, #f85c39 49%, #4acfec 51%, #0d96ff96 100%);
+    text-shadow: 2px 2px 6px #00000050;
+}
+
+.locked .diffname {
+    display: none;
+}
+
+.determined .diffname {
+    display: none;
+}
+
+.non-interesting {
+    filter: grayscale(1);
 }
 
 .cell .red:before {
@@ -107,126 +83,11 @@ body{
     padding-left: 45px;
 }
 
-.lock {
-    background-color: #150f1b;
-    background-image: url(https://static.tildacdn.com/tild3137-3862-4963-b932-343466316235/padlock1.png);
-    background-repeat: no-repeat;
-    background-position: center center;
-}
-
-.locked {
-    border-color: #150f1b;
-    background-color: #150f1b;
-    background-image: none !important;
-}
-
-.locked .diffname {
-    display: none;
-}
-
-.determined .diffname {
-    display: none;
-}
-
-.selected, .inprogress {
-    outline: 10px solid #ffcd39;
-}
-
-.non-interesting {
-    filter: grayscale(1);
-}
-
-.makeinprogress {
-    background-color: #02915699;
-}
-
-.draw {
-    background: linear-gradient(15deg, #e71d308a 0%, #f85c39 49%, #4acfec 51%, #0d96ff96 100%);
-}
-
-.center {
-    display: none;
-}
-
-.row:nth-child(3) .cell:nth-child(3){
-      background: linear-gradient(15deg, #e71d308a 0%, #f85c39 49%, #4acfec 51%, #0d96ff96 100%);
-      text-shadow: 2px 2px 6px #00000050;
-}
-
-.settings_block {
-    display: none;
-    border: 2px solid #1C6EA4;
-    float: left;
-    padding: 5px;
-    background: white;
-}
-
-input[type="text"] {
-  width: 40px;
-}
-
-#percents {
-    padding: 5px;
-}
-
-#managerbuttons button {
-    float: left;
-    width: 100px;
-    margin-left: 15px
-}
-input[type='number'] {
-    width: 40px;
-}
-
-#p1n {
-    font-size: 30px;
-    margin: 0px;
-    text-align: right;
+.p1, .p2 {
     color: white;
-    padding: 2px 8px;
 }
 
-#p2n {
-    font-size: 30px;
-    margin: 0px;
-    position: absolute;
-    bottom: 0px;
-    color: white;
-    padding: 2px 8px;
-}
-
-
-.gradient-border {
-    margin-top: -109px;
-    margin-left: -4px;
-    position: absolute;
-    content: "";
-    z-index: 0;
-    width: 158px;
-    height: 113px;
-    background: linear-gradient(60deg, #5f86f2, #a65ff2, #f25fd0, #f25f61, #f2cb5f, #abf25f, #5ff281, #5ff2f0);
-    background-size: 300% 300%;
-    background-position: 0 50%;
-    animation: moveGradient 4s alternate infinite;
-}
-
-.cellinfo {
-    height: 100%;
-    background-color: #150f1b00;
-}
-
-@keyframes moveGradient {
-    50% {
-        background-position: 100% 50%;
-    }
-}
-
-@keyframes moveGradient {
-    50% {
-        background-position: 100% 50%;
-    }
-}
-#managerbuttons button, #settingbutton button{
+#managerbuttons button, #settingbutton button {
     color: white;
     border: none;
     outline: none;
@@ -235,9 +96,7 @@ input[type='number'] {
     cursor: pointer;
     text-shadow: 2px 2px 6px #00000080;
 }
-#makeinprogress{
-    background: #ffcd39;
-}
-#resetcell, #settingbutton button{
+
+#resetcell, #settingbutton button {
     background: #150f1b;
 }

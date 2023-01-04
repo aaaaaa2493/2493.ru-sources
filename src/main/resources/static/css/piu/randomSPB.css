@@ -1,0 +1,75 @@
+
+.songname {
+    height: 75%;
+    text-align:center;
+
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.cutname {
+    float: left;
+    padding-left: 3%;
+}
+
+.diffname {
+    text-align: right;
+    padding-right: 5%;
+}
+
+.blue {
+    background-color: #0d96ff96;
+}
+
+.red {
+    background-color: #e71d308a;
+}
+
+.selected {
+    background-color: #4e4e4e75;
+}
+
+.inprogress {
+    width: 0;
+    height: 0;
+    border-top: 40px solid transparent;
+    border-left: 70px solid #02915699;
+    border-bottom: 40px solid transparent;
+    margin-top: 12px;
+    margin-left: 40px;
+}
+
+.makeinprogress {
+    background-color: #02915699;
+}
+
+.lock {
+    background-image: url(/img/piu/lock.png);
+    background-size: cover;
+    width: 80px;
+    height: 80px;
+    margin-top: 8px;
+    margin-left: 32px;
+}
+
+.draw {
+    background: linear-gradient(35deg, #e71d308a 0%, #e71d308a 50%, #0d96ff96 50%, #0d96ff96 100%);
+}
+
+.center {
+    display: block;
+    background: linear-gradient(35deg, #e71d30a8 0%, #e71d30a8 50%, #0d96ffa8 50%, #0d96ffa8 100%);
+}
+
+.cellinfo {
+    background-color: rgba(255, 255, 255, 0.75);
+}
+
+.center .cellinfo {
+    background-color: rgba(255, 255, 255, 0);
+}
+
+.p1, .p2 {
+    color: black;
+}
