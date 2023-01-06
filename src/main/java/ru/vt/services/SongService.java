@@ -61,6 +61,9 @@ public class SongService {
             if (!ids.contains(s.getSongId())) {
                 ids.add(s.getSongId());
                 allSongs.add(s);
+            } else {
+                System.out.println("Duplicate found:\n" + s + "\n\nOriginal:\n" +
+                        allSongs.stream().filter(ss -> ss.getSongId() == s.getSongId()).toList().get(0) + "\n\n\n\n");
             }
         }
 
@@ -239,9 +242,6 @@ public class SongService {
         }
 
         log.debug("Pumpking Analyzed OK");
-        // openRequest = indexedDB.open("localforage", 2);
-        // transaction = openRequest.result.transaction("keyvaluepairs", "readwrite").objectStore('keyvaluepairs').get('resultsCache');
-        // transaction.result
     }
 
 

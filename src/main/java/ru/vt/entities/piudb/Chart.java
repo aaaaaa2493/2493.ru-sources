@@ -5,8 +5,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Data;
 import org.hibernate.annotations.LazyCollection;
 import org.hibernate.annotations.LazyCollectionOption;
-import ru.vt.entities.piudb.Operation.OperationValues;
-import ru.vt.services.MixService;
+import ru.vt.entities.piudb.base.VersionsOperations;
 import ru.vt.utils.Utils;
 
 import javax.persistence.Entity;
@@ -16,12 +15,11 @@ import javax.persistence.ManyToMany;
 import javax.persistence.OneToMany;
 import javax.persistence.Transient;
 import java.util.ArrayList;
-import java.util.Iterator;
 import java.util.List;
 
 @Data
 @Entity
-public class Chart implements Comparable<Chart> {
+public class Chart implements Comparable<Chart>, VersionsOperations {
 
     @Id
     int chartId;
@@ -69,60 +67,8 @@ public class Chart implements Comparable<Chart> {
     @JsonIgnore
     final List<ChartVersion> sortedChartVersions = new ArrayList<>();
 
-    @JsonIgnore
-    public List<ChartVersion> getChartVersions() {
-        Utils.synchronizeOnEmpty(sortedChartVersions, () -> {
-            List<ChartVersion> chartVersions = new ArrayList<>();
-            Iterator<Version> itVer = versionsOperations.iterator();
-            Iterator<Operation> itOp = operations.iterator();
-
-            while (itVer.hasNext() && itOp.hasNext()) {
-                var currVersion = itVer.next();
-                var currOperation = itOp.next();
-
-                // Prime JE and Infinity
-                if (currVersion.isPrimeJEorInfinity()) {
-                    continue;
-                }
-
-                chartVersions.add(new ChartVersion(currVersion, currOperation));
-            }
-
-            sortedChartVersions.addAll(chartVersions.stream().sorted().toList());
-        });
-
-        return sortedChartVersions;
-    }
-
     public String getMix() {
         return getMinMix().toString();
-    }
-
-    @JsonIgnore
-    public Mix getMinMix() {
-        for (var cv: getChartVersions()) {
-            if (cv.operation.operationId != OperationValues.DELETE.operationId) {
-                return cv.version.mix;
-            }
-        }
-        return null;
-    }
-
-    @JsonIgnore
-    public Mix getMaxMix() {
-        var versions = getChartVersions();
-        if (versions.size() == 0) {
-            return null;
-        }
-
-        var latestVersion = versions.get(versions.size() - 1);
-
-        if (latestVersion.operation.operationId == OperationValues.DELETE.operationId) {
-            return latestVersion.version.mix.parentMix;
-        } else {
-            // if last action is not DELETE then it's the latest Mix
-            return MixService.latestMix;
-        }
     }
 
     @JsonIgnore
@@ -147,15 +93,7 @@ public class Chart implements Comparable<Chart> {
     }
 
     public String toString() {
-        var minMix = getMinMix();
-        var maxMix = getMaxMix();
-        String mixInfo;
-
-        if (minMix.mixId == maxMix.mixId) {
-            mixInfo = minMix.toString();
-        } else {
-            mixInfo = minMix + " - " + maxMix;
-        }
+        String mixInfo = getMixInfo();
 
         var lastDifficulty = getLastDifficulty().shortname();
         if (lastDifficulty.length() < 4) {
@@ -163,6 +101,11 @@ public class Chart implements Comparable<Chart> {
         }
 
         var stepmakersStr = String.join(", ", stepmakers.stream().map(Object::toString).toList());
+
+        var chartIdStr = chartId + "";
+        if (chartIdStr.length() < 5) {
+            chartIdStr += " ".repeat(5 - chartIdStr.length());
+        }
 
         return lastDifficulty + " | " + mixInfo + " | " + stepmakersStr;
     }

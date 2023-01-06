@@ -29,8 +29,7 @@ public class Version implements Comparable<Version> {
         if (name.equals("default")) {
             return mix + "";
         }
-        return mix + "";
-        //return mix + " " + name;
+        return mix + " " + name;
     }
 
     public boolean isPrimeJEorInfinity() {

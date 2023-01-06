@@ -8,6 +8,7 @@ import org.springframework.boot.context.event.ApplicationReadyEvent;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.event.EventListener;
+import ru.vt.entities.piudb.SongTitle;
 import ru.vt.entities.pumpking.PumpkingData;
 import ru.vt.services.MixService;
 import ru.vt.services.SongService;
@@ -15,12 +16,13 @@ import ru.vt.services.SongService;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.List;
 import java.util.Map;
 
 @Configuration
-public class PiuConfuguration {
+public class PiuConfiguration {
 
-    private Logger log = LoggerFactory.getLogger(getClass());
+    private final Logger log = LoggerFactory.getLogger(getClass());
 
     @Autowired
     SongService songService;
@@ -30,8 +32,41 @@ public class PiuConfuguration {
 
     @EventListener(ApplicationReadyEvent.class)
     public void doSomethingAfterStartup() {
-        songService.getAllSongs();
+        var songs = songService.getAllSongs();
         log.debug("All songs loaded");
+
+        for (var s : songs) {
+            try {
+                System.out.println(s);
+            } catch (Exception ex) {
+                System.out.println("Failed to print song id=" + s.getSongId());
+                throw ex;
+            }
+        }
+
+        for (var s : songs) {
+            String songName = s.getName();
+            List<String> songTitles = s.getSongTitles().stream()
+                    .filter(st -> st.getLanguage().getCode().equals("en")).map(SongTitle::getTitle).toList();
+
+            if (!songTitles.contains(songName) && songTitles.size() > 0) {
+                System.out.println(songName);
+                for (var st : songTitles) {
+                    System.out.println(st);
+                }
+                System.out.println();
+            }
+        }
+
+        for (var s: songs) {
+            String songName = s.getName();
+            List<String> songCards = s.getAllCards();
+            if (songCards.size() > 1) {
+                System.out.println(songName + " " + s.getIdentifier() + "(" + s.getCard() + ")");
+                songCards.forEach(System.out::println);
+                System.out.println();
+            }
+        }
     }
 
     @Bean

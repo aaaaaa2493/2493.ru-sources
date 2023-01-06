@@ -15,4 +15,30 @@ public class SongBpm {
     double bpmMin;
     double bpmMax;
 
+    @Override
+    public String toString() {
+        if (bpmMin == 0 && bpmMax == 0) {
+            return "???";
+        }
+
+        final String bpmMinStr;
+        if (bpmMin == (int) bpmMin) {
+            bpmMinStr = (int) bpmMin + "";
+        } else {
+            bpmMinStr = bpmMin + "";
+        }
+
+        final String bpmMaxStr;
+        if (bpmMax == (int) bpmMax) {
+            bpmMaxStr = (int) bpmMax + "";
+        } else {
+            bpmMaxStr = bpmMax + "";
+        }
+
+        if (bpmMin == bpmMax) {
+            return bpmMaxStr;
+        }
+        return bpmMinStr + "~" + bpmMaxStr;
+    }
+
 }

@@ -57,6 +57,11 @@ public class PiuController {
         return "piu/randomizer";
     }
 
+    @GetMapping("/randomizer")
+    public String oneRandomPage() {
+        return "forward:random?skin=one";
+    }
+
     @GetMapping("/stats")
     public String statsPage(Model model) {
         model.addAttribute("results", songService.getResults());

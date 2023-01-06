@@ -7,6 +7,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Spliterator;
 import java.util.Spliterators;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.StreamSupport;
 
@@ -92,6 +93,14 @@ public class Utils {
                     runnable.run();
                 }
             }
+        }
+    }
+
+    public static <T, K> T ifNotNull(K obj, Function<K, T> func) {
+        if (obj == null) {
+            return null;
+        } else {
+            return func.apply(obj);
         }
     }
 
