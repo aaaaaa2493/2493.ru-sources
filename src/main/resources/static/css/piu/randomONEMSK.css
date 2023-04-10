@@ -1,0 +1,235 @@
+*, *::before, *::after {
+    box-sizing: border-box;
+}
+
+body {
+    margin: 0 auto;
+    background: #31253e;
+    font-family: tahoma, serif;
+    min-width: 550px;
+    max-width: 1000px;
+}
+
+input::-webkit-outer-spin-button,
+input::-webkit-inner-spin-button {
+    -webkit-appearance: none;
+    margin: 0;
+}
+input[type=number] {
+    -moz-appearance: textfield;
+}
+
+input {
+    background-color: #31253e;
+    border: none;
+    border-radius: 5px;
+    color: white;
+    text-align: center;
+    height: 30px;
+    width: 60px;
+    margin:4px;
+}
+
+input[type=checkbox] {
+    position: absolute;
+    z-index: -1;
+    opacity: 0;
+}
+
+input[type=checkbox]+label {
+    display: inline-flex;
+    align-items: center;
+    user-select: none;
+}
+
+input[type=checkbox]+label::before {
+    content: '';
+    display: inline-block;
+    width: 30px;
+    height: 30px;
+    flex-shrink: 0;
+    flex-grow: 0;
+    border: 2px solid #0b76ef;
+    border-radius: 5px;
+    margin-right: 5px;
+    background-repeat: no-repeat;
+    background-position: center center;
+    background-size: 50% 50%;
+    font-size: 28px;
+    margin: 4px 15px;
+    line-height: 26px;
+}
+
+input[type=checkbox]:checked+label::before {
+    border-color: #0b76ef;
+    background-color: #0b76ef;
+    content: "🞫";
+    text-align: center;
+}
+
+input[type=checkbox]:disabled+label::before {
+    background-color: #0b76ef;
+}
+
+.row {
+    position: relative;
+    float: left;
+    width: 100%;
+    max-width: 1000px;
+    min-height: 100px;
+    background-color: #31253e;
+}
+
+.cell {
+    display: table-column;
+    position: relative;
+    float: left;
+    background-size: cover;
+    background-position: center center;
+    font-weight: bold;
+    margin: 15px;
+    border: 15px solid #150f1b;
+    font-size: 22px;
+    user-select: none;
+    background-color: #31253e;
+    overflow: hidden;
+}
+
+.songname {
+    display: none;
+}
+
+.cutname {
+    display: none;
+}
+
+.diffname {
+    font-size:36px;
+    line-height: 66px;
+    text-shadow: 2px 2px 6px #000000;
+    text-align: center;
+    padding: 10px 0 0 0;
+    position: absolute;
+    bottom: 18px;
+    right: 18px;
+    color: white;
+    height: 100px;
+    width: 100px;
+    border-radius: 50px;
+    background-position-y: -10px;
+    left: auto;
+}
+
+.single {
+    border: 6px solid #00000090;
+    outline: 1px solid #00000050;
+    background-color: white;
+    background-image: radial-gradient(#ffffff80, #e63f2d, #960b0b);
+}
+
+.double {
+    border: 6px solid #00000090;
+    outline: 1px solid #00000050;
+    background-color: white;
+    background-image: radial-gradient(#8ae62d70, #74c81f, #326a0c);
+}
+
+.coop {
+    border: 6px solid #00000090;
+    outline: 1px solid #00000050;
+    background-color: white;
+    background-image: radial-gradient(rgba(230, 215, 45, 0.44), #eee11d, #f5cc27);
+}
+
+.settings_block {
+    position: relative;
+    float: left;
+    background: #150f1b;
+    margin-top:-15px;
+    margin-left: 15px;
+    color: white;
+    padding-bottom: 30px;
+}
+
+.setting-line {
+    position: relative;
+    float: left;
+    width: 100%;
+}
+
+.setting-container-left {
+    padding: 0 15px;
+    position: relative;
+    float: left;
+}
+
+.setting-container-right {
+    padding: 0 15px;
+    position: relative;
+    float: right;
+    text-align: right;
+}
+
+details {
+    position: relative;
+    float: left;
+    width: 100%;
+    padding: 0 15px;
+}
+
+details > div {
+    padding-top: 15px;
+}
+
+hr ~ div {
+    padding-top: 0px;
+}
+
+summary {
+    cursor: pointer;
+    text-decoration: underline dashed #aa8ec7;
+}
+
+hr {
+    margin:15px;
+    position: relative;
+    float: left;
+    border-color: #392c47;
+    border-top: 1px;
+}
+
+#hidden {
+    display: none;
+}
+
+#random {
+    background: #31253e;
+    padding: 15px 0;
+    color: white;
+    border: none;
+    border-radius: 15px;
+    margin: 30px 15px ;
+    cursor: pointer;
+    font-size: 40px;
+}
+
+#random:hover {
+    background-color: #553c70;
+}
+
+#sdperc_container {
+    padding-left: 0px;
+}
+
+#maxbpmlabel, #minbpmlabel {
+    padding: 10px;
+}
+
+#bpmminmax > div {
+    float: left;
+}
+
+#bpmdiv {
+    padding-top: 0px;
+    padding-left: 10px;
+}

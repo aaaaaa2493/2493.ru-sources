@@ -38,6 +38,7 @@ public class PiuConfiguration {
         for (var s : songs) {
             try {
                 System.out.println(s);
+                //System.out.println(s.getIdentifier());
             } catch (Exception ex) {
                 System.out.println("Failed to print song id=" + s.getSongId());
                 throw ex;

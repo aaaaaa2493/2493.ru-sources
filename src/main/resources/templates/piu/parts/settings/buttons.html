@@ -1,0 +1,21 @@
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+
+
+<div th:fragment="randomize">
+    <button id="random" onclick="randomize()">Randomize!</button>
+
+    <script type="text/javascript" th:inline="javascript">
+
+        window.addEventListener("load", () => {
+            document.getElementById("random").innerHTML = randomizeText;
+        });
+
+        let randomizeText = "Randomize!";
+        let afterRandomizeText = "Rerandom!"
+    </script>
+</div>
+
+
+<div th:fragment="clear">
+    <button id="clear_all" onclick="clearTable()">Clear all</button>
+</div>

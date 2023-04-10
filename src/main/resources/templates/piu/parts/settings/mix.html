@@ -1,0 +1,247 @@
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+
+
+<div th:fragment="mix">
+
+    <div th:if="${altLayout}">
+        <link rel="stylesheet" type="text/css" href="/css/piu/pretty_select.css">
+
+        <script type="text/javascript" th:inline="javascript">
+            const selectEveryMix = true;
+        </script>
+
+        <div style="float: left;">
+            <div style="padding: 10px">Начальный микс</div>
+            <div style="height: 10px"></div>
+            <div style="padding: 10px">Конечный микс</div>
+        </div>
+
+        <div style="float: left;">
+            <div style="height: 40px">
+                <div id="starting_mix_select" class="select-div" tabindex="1"></div>
+            </div>
+
+            <div style="height: 10px"></div>
+
+            <div style="height: 40px">
+                <div id="ending_mix_select" class="select-div" tabindex="1"></div>
+            </div>
+        </div>
+    </div>
+
+    <div th:unless="${altLayout}">
+        <script type="text/javascript" th:inline="javascript">
+            const selectEveryMix = false;
+        </script>
+
+        <div class="input-div">
+            <input id="is1sttoprex3" type="checkbox" checked onclick="update_mixes()">
+            <label for="is1sttoprex3">1st - Prex 3</label>
+        </div>
+
+        <div class="input-div">
+            <input id="isexceedtonxa" type="checkbox" checked onclick="update_mixes()">
+            <label for="isexceedtonxa">Exceed - NXA</label>
+        </div>
+
+        <div class="input-div">
+            <input id="isfiesta" type="checkbox" checked onclick="update_mixes()">
+            <label for="isfiesta">Fiesta 1/Ex/2</label>
+        </div>
+
+        <div class="input-div">
+            <input id="isprime" type="checkbox" checked onclick="update_mixes()">
+            <label for="isprime">Prime</label>
+        </div>
+
+        <div class="input-div">
+            <input id="isprime2" type="checkbox" checked onclick="update_mixes()">
+            <label for="isprime2">Prime 2</label>
+        </div>
+
+        <div class="input-div">
+            <input id="isxx" type="checkbox" checked onclick="update_mixes()">
+            <label for="isxx">XX</label>
+        </div>
+    </div>
+
+    <script type="text/javascript" th:inline="javascript">
+        includeMix = true;
+
+        const mix1st = "1st";
+        const mix2nd = "2nd";
+        const mix3rd = "3rd";
+        const mixTheOBG = "The O.B.G.";
+        const mixCollection = "Collection";
+        const mixPerfect = "Perfect Collection";
+        const mixExtra = "Extra";
+        const mixPremiere = "Premiere";
+        const mixPrex = "Prex";
+        const mixRebirth = "Rebirth";
+        const mixPremiere2 = "Premiere 2";
+        const mixPrex2 = "Prex 2";
+        const mixPremiere3 = "Premiere 3";
+        const mixPrex3 = "Prex 3";
+        const mixExceed = "Exceed";
+        const mixExceed2 = "Exceed 2";
+        const mixZero = "Zero";
+        const mixNX = "NX";
+        const mixNX2 = "NX2";
+        const mixNXA = "NXA";
+        const mixFiesta = "Fiesta";
+        const mixFiestaEx = "Fiesta Ex";
+        const mixFiesta2 = "Fiesta 2";
+        const mixPrime = "Prime";
+        const mixPrime2 = "Prime 2";
+        const mixXX = "XX";
+
+        const allMixes = [
+            mix1st,
+            mix2nd,
+            mix3rd,
+            mixTheOBG,
+            mixCollection,
+            mixPerfect,
+            mixExtra,
+            mixPremiere,
+            mixPrex,
+            mixRebirth,
+            mixPremiere2,
+            mixPrex2,
+            mixPremiere3,
+            mixPrex3,
+            mixExceed,
+            mixExceed2,
+            mixZero,
+            mixNX,
+            mixNX2,
+            mixNXA,
+            mixFiesta,
+            mixFiestaEx,
+            mixFiesta2,
+            mixPrime,
+            mixPrime2,
+            mixXX,
+        ];
+
+        const isMixEnabled = {};
+        for (let mix of allMixes) {
+            isMixEnabled[mix] = false;
+        }
+
+        function fromMixToMix(fromMix, toMix) {
+            let startIndex = getMixIndex(fromMix);
+            let stopIndex = getMixIndex(toMix);
+            return allMixes.slice(startIndex, stopIndex + 1)
+        }
+
+        function getMixIndex(mix) {
+            let result = allMixes.indexOf(mix);
+            if (result < 0) {
+                throw new Error("No such mix: " + mix);
+            }
+            return result;
+        }
+
+        const __fromMixId = "fromMix";
+        const __toMixId = "toMix";
+
+        function constructMixes() {
+            let startingMix = document.getElementById("starting_mix_select");
+            let endingMix = document.getElementById("ending_mix_select");
+
+            let option = `
+            <input class="selectopt" name="{name}" type="radio" id="{id}" onclick="update_mixes('{name}')">
+            <label for="{id}" class="option">{mix}</label>
+            `;
+
+            for (let mix of allMixes) {
+                startingMix.innerHTML += option
+                    .replaceAll("{name}", __fromMixId).replaceAll("{id}", "from" + mix).replace("{mix}", mix);
+                endingMix.innerHTML += option
+                    .replaceAll("{name}", __toMixId).replaceAll("{id}", "to" + mix).replace("{mix}", mix);
+            }
+
+            document.getElementById("from" + mix1st).checked = true;
+            document.getElementById("to" + mixXX).checked = true;
+        }
+
+        window.addEventListener('load', () => {
+            if (selectEveryMix) {
+                constructMixes();
+            }
+            update_mixes();
+        });
+
+        function update_mixes(source) {
+            for (let mix of allMixes) {
+                isMixEnabled[mix] = false;
+            }
+
+            if (!selectEveryMix) {
+                let isFirstToPrex3 = document.getElementById("is1sttoprex3").checked;
+                let isExceedToNXA = document.getElementById("isexceedtonxa").checked;
+                let isFiesta = document.getElementById("isfiesta").checked;
+                let isPrime = document.getElementById("isprime").checked;
+                let isPrime2 = document.getElementById("isprime2").checked;
+                let isXX = document.getElementById("isxx").checked;
+
+                if (isFirstToPrex3) {
+                    for (let mix of fromMixToMix(mix1st, mixPrex3)) {
+                        isMixEnabled[mix] = true;
+                    }
+                }
+
+                if (isExceedToNXA) {
+                    for (let mix of fromMixToMix(mixExceed, mixNXA)) {
+                        isMixEnabled[mix] = true;
+                    }
+                }
+
+                if (isFiesta) {
+                    for (let mix of fromMixToMix(mixFiesta, mixFiesta2)) {
+                        isMixEnabled[mix] = true;
+                    }
+                }
+
+                if (isPrime) {
+                    isMixEnabled[mixPrime] = true;
+                }
+
+                if (isPrime2) {
+                    isMixEnabled[mixPrime2] = true;
+                }
+
+                if (isXX) {
+                    isMixEnabled[mixXX] = true;
+                }
+            } else {
+                let fromMix = document.querySelector(`input[name="${__fromMixId}"]:checked`).id.substring(4);
+                let toMix = document.querySelector(`input[name="${__toMixId}"]:checked`).id.substring(2);
+
+                let fromMixIndex = getMixIndex(fromMix);
+                let toMixIndex = getMixIndex(toMix);
+
+                if (fromMixIndex > toMixIndex) {
+                    if (source === __fromMixId) {
+                        document.getElementById("to" + fromMix).checked = true;
+                        toMix = fromMix;
+                    } else {
+                        document.getElementById("from" + toMix).checked = true;
+                        fromMix = toMix;
+                    }
+                }
+
+                for (let mix of fromMixToMix(fromMix, toMix)) {
+                    isMixEnabled[mix] = true;
+                }
+            }
+        }
+
+        function filter_mix(mix) {
+            return isMixEnabled[mix];
+        }
+    </script>
+
+
+</div>

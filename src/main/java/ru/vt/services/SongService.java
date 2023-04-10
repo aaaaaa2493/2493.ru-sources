@@ -4,7 +4,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import ru.vt.dao.MixRepository;
 import ru.vt.dao.SongRepository;
 import ru.vt.dto.ChartResults;
 import ru.vt.dto.SongCharts;
@@ -31,7 +30,7 @@ public class SongService {
     SongRepository repo;
 
     @Autowired
-    MixRepository mixRepo;
+    MixService mixService;
 
     private final List<Song> allSongs = new ArrayList<>();
     private final List<ChartResults> pumpkingResults = new ArrayList<>();
@@ -56,6 +55,8 @@ public class SongService {
         List<Song> songs = repo.findAll();
 
         log.debug("Songs total found: " + songs.size());
+        songs = songs.stream().filter(e -> e.getMinMix() != null || e.getIdentifier() != null).toList();
+        log.debug("Songs after removing Infinity: " + songs.size());
 
         for (var s : songs) {
             if (!ids.contains(s.getSongId())) {
@@ -68,11 +69,13 @@ public class SongService {
         }
 
         log.debug("Songs after removing dups: " + allSongs.size());
+        log.debug("Songs for " + mixService.getLatestMix() + ": " +
+                getAllSongsForMix(mixService.getLatestMix().getMixId()).size());
     }
 
     public List<SongCharts> getAllSongsForMix(int mixId) {
         List<SongCharts> songsForMix = new ArrayList<>();
-        Mix mix = mixRepo.findById(mixId).get();
+        Mix mix = mixService.getById(mixId);
 
         for (var song: getAllSongs()) {
             List<Chart> charts = song.getChartsForMix(mix);

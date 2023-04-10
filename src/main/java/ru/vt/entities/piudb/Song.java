@@ -136,6 +136,11 @@ public class Song implements VersionsOperations {
         return sorted.get(0).path;
     }
 
+    @JsonProperty
+    public String getCardBig() {
+        return "/img/card_big/" + getIdentifier() + ".png";
+    }
+
     @JsonIgnore
     public List<String> getAllCards() {
         return card.stream().sorted().map(s -> s.path).toList();

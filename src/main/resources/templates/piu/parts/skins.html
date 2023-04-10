@@ -1,22 +1,28 @@
 <html lang="en" xmlns:th="http://www.thymeleaf.org">
 
 
-<div th:fragment="rigel">
-    <link rel="stylesheet" type="text/css" href="/css/piu/randomSPB.css">
+<div th:fragment="spb(head)">
+    <link th:if="${head}" rel="stylesheet" type="text/css" href="/css/piu/random.css">
+    <link th:if="${head}" rel="stylesheet" type="text/css" href="/css/piu/pretty_checkboxes.css">
+    <link th:if="${head}" rel="stylesheet" type="text/css" href="/css/piu/randomSPB.css">
 </div>
 
 
-<div th:fragment="yushka">
-    <link rel="stylesheet" type="text/css" href="/css/piu/pretty_levels.css">
-    <link rel="stylesheet" type="text/css" href="/css/piu/randomMSK.css">
+<div th:fragment="msk(head)">
+    <link th:if="${head}" rel="stylesheet" type="text/css" href="/css/piu/random.css">
+    <link th:if="${head}" rel="stylesheet" type="text/css" href="/css/piu/pretty_checkboxes.css">
+    <link th:if="${head}" rel="stylesheet" type="text/css" href="/css/piu/pretty_levels.css">
+    <link th:if="${head}" rel="stylesheet" type="text/css" href="/css/piu/randomMSK.css">
 </div>
 
 
-<div th:fragment="one">
-    <link rel="stylesheet" type="text/css" href="/css/piu/pretty_levels.css">
-    <link rel="stylesheet" type="text/css" href="/css/piu/randomONE.css">
+<div th:fragment="one_spb(head)">
+    <link th:if="${head}" rel="stylesheet" type="text/css" href="/css/piu/random.css">
+    <link th:if="${head}" rel="stylesheet" type="text/css" href="/css/piu/pretty_checkboxes.css">
+    <link th:if="${head}" rel="stylesheet" type="text/css" href="/css/piu/pretty_levels.css">
+    <link th:if="${head}" rel="stylesheet" type="text/css" href="/css/piu/randomONE.css">
 
-    <script type="text/javascript" th:inline="javascript">
+    <script th:unless="${head}" type="text/javascript" th:inline="javascript">
 
         document.getElementById("isfullsong").checked = false;
         document.getElementById("isshortcut").checked = false;
@@ -26,13 +32,136 @@
         document.getElementById("isexceedtonxa").checked = false;
         document.getElementById("isfiesta").checked = false;
 
-        document.getElementById("switchbuttons").style.display = 'none';
-        document.getElementById("settings").style.display = 'block';
-        document.getElementById("managerbuttons").innerHTML = "";
+        document.getElementById("random").onclick = () => {
+            clearTable();
+            randomize();
+        };
 
-        disableLocking();
-        disableNoSameLine();
-        disableNames();
+        function getCellsToChange() {
+            return ['00'];
+        }
+
+    </script>
+</div>
+
+
+<div th:fragment="one_msk(head)">
+    <link th:if="${head}" rel="stylesheet" type="text/css" href="/css/piu/pretty_levels.css">
+    <link th:if="${head}" rel="stylesheet" type="text/css" href="/css/piu/pretty_loader.css">
+    <link th:if="${head}" rel="stylesheet" type="text/css" href="/css/piu/randomONEMSK.css">
+
+    <script th:unless="${head}" type="text/javascript" th:inline="javascript">
+
+        useHighResImages = true;
+
+        minDiffName = "Мин. сложность:";
+        maxDiffName = "Макс. сложность:";
+
+        singlePercentsLabelName = "";
+        doublePercentsLabelName = "";
+
+        document.getElementById("random").onclick = () => {
+            clearTable();
+            randomize();
+            loader();
+            function loadImage(imageUrl, onprogress) {
+                return new Promise((resolve, reject) => {
+                    var xhr = new XMLHttpRequest();
+                    var notifiedNotComputable = false;
+
+                    xhr.open('GET', imageUrl, true);
+                    xhr.responseType = 'arraybuffer';
+
+                    xhr.onprogress = function(ev) {
+                        if (ev.lengthComputable) {
+                            onprogress((ev.loaded / ev.total) * 100);
+                        } else {
+                            if (!notifiedNotComputable) {
+                                notifiedNotComputable = true;
+                                onprogress(-1);
+                            }
+                        }
+                    }
+
+                    xhr.onloadend = function() {
+                        if (!xhr.status.toString().match(/^2/)) {
+                            reject(xhr);
+                        } else {
+                            if (!notifiedNotComputable) {
+                                onprogress(100);
+                            }
+
+                            var options = {}
+                            var headers = xhr.getAllResponseHeaders();
+                            var m = headers.match(/^Content-Type\:\s*(.*?)$/mi);
+
+                            if (m && m[1]) {
+                                options.type = m[1];
+                            }
+
+                            var blob = new Blob([this.response], options);
+
+                            resolve(window.URL.createObjectURL(blob));
+                        }
+                    }
+
+                    xhr.send();
+                });
+            }
+
+            loadImage(downloadedImage, (ratio) => {
+                if (ratio === -1) {
+                    // Ratio not computable. Let's make this bar an undefined one.
+                    // Remember that since ratio isn't computable, calling this function
+                    // makes no further sense, so it won't be called again.
+                    //progressBar.removeAttribute('value');
+                } else {
+                    // We have progress ratio; update the bar.
+                    //progressBar.value = ratio;
+                    console.log("LOAD " + ratio);
+
+                    let timePassed = Date.now() - downloadStart;
+                    let twoSecondsPercents = timePassed / (2000 - 1000) * 100;
+
+                    if (twoSecondsPercents < ratio) {
+                        ratio = twoSecondsPercents;
+                    }
+
+                    let loaderBar = $("#loader-bar");
+                    let width = ratio + "%";
+                    loaderBar.css("width", width);
+                }
+            })
+            .then(imgSrc => {
+                downloadedImage = null;
+
+                let timePassed = Date.now() - downloadStart;
+                if (timePassed < 2000) {
+                    let updateBarFunc = function () {
+                        let timePassed = Date.now() - downloadStart;
+                        if (timePassed >= 2000) {
+                            return;
+                        }
+
+                        let twoSecondsPercents = timePassed / (2000 - 1000) * 100;
+
+                        let loaderBar = $("#loader-bar");
+                        let width = twoSecondsPercents + "%";
+                        loaderBar.css("width", width);
+                        setTimeout(updateBarFunc, 10);
+                    }
+                    setTimeout(updateBarFunc, 10);
+                }
+
+                // Loading successfuly complete; set the image and probably do other stuff.
+                console.log("LOADED " + imgSrc);
+            }, xhr => {
+                // An error occured. We have the XHR object to see what happened.
+            });
+        };
+
+        randomizeText = "✨";
+        afterRandomizeText = "✨";
 
         function getCellsToChange() {
             return ['00'];

@@ -20,6 +20,10 @@ public class MixService {
         return mixRepo.findAll();
     }
 
+    public Mix getById(int id) {
+        return mixRepo.findById(id).get();
+    }
+
     public Mix getLatestMix() {
         if (latestMix == null) {
             latestMix = mixRepo.findAll()

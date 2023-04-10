@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <title>Pump it Up Randomizer</title>
-    <link rel="stylesheet" type="text/css" href="/css/piu/random.css">
+    <meta th:replace="piu/parts/skins :: ${skin}(true)">
 </head>
 <body>
 
@@ -11,10 +11,10 @@
 
 <br>
 
-<div th:replace="piu/parts/settings :: settings"></div>
+<div th:replace="piu/parts/settings/settings :: settings"></div>
 
 </body>
 
-<div th:replace="piu/parts/skins :: ${skin}"></div>
+<div th:replace="piu/parts/skins :: ${skin}(false)"></div>
 
 </html>

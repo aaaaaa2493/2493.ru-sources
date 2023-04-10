@@ -1,0 +1,123 @@
+#loader{
+    height: 100%;
+    width: 100%;
+    display: none;
+    background: #31253e;
+}
+#loader-bar{
+    position: absolute;
+    width: 0;
+    height: 100%;
+    background-color: #150f1b;
+    /*animation-name: loader;
+    animation-duration: 2s;
+    animation-timing-function: ease-out;*/
+
+    transition: width 0.2s ease-in-out;
+}
+@keyframes loader{
+    0%{
+        width:0%;
+    }
+    100%{
+        width:100%;
+    }
+}
+
+.sk-cube-grid {
+    width: 100px;
+    height: 100px;
+    margin: auto;
+    position: relative;
+}
+.sk-cube-grid .sk-cube {
+    width: 33%;
+    height: 33%;
+    float: left;
+    animation: sk-cube-grid-scale-delay 1.0s infinite ease-in-out;
+    z-index: 2;
+    position: relative;
+}
+.sk-cube-na {
+    width: 33%;
+    height: 33%;
+    float: left;
+    z-index: 3;
+    position: relative;
+}
+.blue-inner, .yellow-inner, .red-inner, .grey-inner{
+    width: 80%;
+    height: 80%;
+    margin: auto;
+}
+
+.sk-cube-grid .sk-cube-1 {
+    animation-delay: 0.1s;
+    background-color: #a03526;
+}
+
+.sk-cube-grid .sk-cube-2 {
+    background-color: #4a4a4a;
+}
+.sk-cube-grid .sk-cube-3 {
+    animation-delay: 0.3s;
+    background-color: #a03526;
+}
+.sk-cube-grid .sk-cube-4 {
+    background-color: #4a4a4a;
+}
+.sk-cube-grid .sk-cube-5 {
+    animation-delay: 0.2s;
+    background-color: #c49413;
+}
+.sk-cube-grid .sk-cube-6 {
+    background-color: #4a4a4a;
+}
+.sk-cube-grid .sk-cube-7 {
+    animation-delay: 0s;
+    background-color: #2f5d92;
+}
+.sk-cube-grid .sk-cube-8 {
+    background-color: #4a4a4a;
+}
+.sk-cube-grid .sk-cube-9 {
+    animation-delay: 0.4s;
+    background-color: #2f5d92;
+}
+
+.blue-inner{
+    background-color: #4688d4;
+}
+.red-inner{
+    background-color: #d35846;
+}
+.yellow-inner{
+    background-color: #f2ce22;
+}
+.grey-inner{
+    background-color: #717171;
+}
+.back{
+    width: 100%;
+    height: 100%;
+    background-color: #4a4a4a;
+    position: absolute;
+    margin-top: 4px;
+    z-index: 1;
+    filter: drop-shadow(0 4px 4px #150f1b)
+}
+
+@keyframes sk-cube-grid-scale-delay {
+    from {
+        transform: translateY(0px);
+        filter: brightness(100%);
+    }
+    5% {
+        transform: translateY(4px);
+        filter: brightness(200%);
+    }
+    30% {
+        transform: translateY(0px);
+        filter: brightness(100%);
+    }
+}

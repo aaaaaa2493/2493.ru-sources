@@ -85,7 +85,7 @@ public class Mix {
                 case FiestaEx -> "Fiesta Ex";
                 case Fiesta2 -> "Fiesta 2";
                 case Prime -> "Prime";
-                case Prime2 -> "Prime2";
+                case Prime2 -> "Prime 2";
                 case XX -> "XX";
             };
         }

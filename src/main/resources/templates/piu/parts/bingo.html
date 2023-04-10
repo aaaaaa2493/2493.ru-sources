@@ -9,14 +9,14 @@
 
     <script id="song-list" type="text/javascript" th:inline="javascript">
         const songs = [[${songs}]];
-    </script>
 
-    <script id="setup-cells" type="text/javascript" th:inline="javascript">
         const rows = [[${rows}]];
         const columns = [[${columns}]];
         const width = [[${width}]];
         const height = [[${height}]];
+    </script>
 
+    <script id="setup-cells" type="text/javascript" th:inline="javascript">
         const ALL_CELLS = [];
         const cellsToCharts = {};
         const selectedCharts = [];
@@ -25,72 +25,148 @@
         const centerRow = rows / 2 | 0;
         const centerCol = columns / 2 | 0;
 
+        function isCenterNamesCell(row, col) {
+            return rows > 1 && columns > 1 && row === centerRow && col === centerCol;
+        }
+
         for (let r = 0; r < rows; r++) {
             for (let c = 0; c < columns; c++) {
                 let cellId = r + '' + c;
-                let cell = document.getElementById(cellId);
-                //e.style["margin-left"] = (size * c) + "px";
-                //e.style["margin-top"] = (size * r) + "px";
-                cell.style["width"] = width + "px";
-                cell.style["height"] = height + "px";
 
-                if (rows > 1 && columns > 1 && r === centerRow && c === centerCol) {
-                    let center = document.getElementById(cellId);
-                    center.classList.add("center");
-
-                    cell.innerHTML =
-                        '<div id="p1name" class="p1">P1</div>' +
-                        '<div id="p2name" class="p2">P2</div>' + cell.innerHTML;
-
-                } else {
+                if (!isCenterNamesCell(r, c)) {
                     ALL_CELLS.push(cellId);
                     cellsToCharts[cellId] = null;
                 }
             }
         }
+    </script>
 
+    <script th:if="${isBingo}" type="text/javascript" th:inline="javascript">
+        for (let r = 0; r < rows; r++) {
+            for (let c = 0; c < columns; c++) {
+                let cellId = r + '' + c;
+                let cell = document.getElementById(cellId);
+
+                if (isCenterNamesCell(r, c)) {
+                    let center = document.getElementById(cellId);
+                    center.classList.add("center");
+                    cell.innerHTML =
+                        '<div id="p1name" class="p1">P1</div>' +
+                        '<div id="p2name" class="p2">P2</div>' + cell.innerHTML;
+                }
+            }
+        }
+    </script>
+
+    <script th:unless="${altLayout}" type="text/javascript" th:inline="javascript">
+        for (let r = 0; r < rows; r++) {
+            for (let c = 0; c < columns; c++) {
+                let cellId = r + '' + c;
+                let cell = document.getElementById(cellId);
+
+                cell.style["width"] = width + "px";
+                cell.style["height"] = height + "px";
+            }
+        }
+    </script>
+
+
+    <script th:if="${altLayout}" src="https://code.jquery.com/jquery-3.6.1.min.js"></script>
+    <script th:if="${altLayout}" type="text/javascript" th:inline="javascript">
+        {
+            let loader = `
+                <div id="loader">
+                    <div id="loader-bar"></div>
+                    <div class="sk-cube-grid">
+                        <div class="sk-cube sk-cube-1">
+                            <div class="red-inner"></div>
+                        </div>
+                        <div class="sk-cube-na sk-cube-2">
+                            <div class="grey-inner"></div>
+                        </div>
+                        <div class="sk-cube sk-cube-3">
+                            <div class="red-inner"></div>
+                        </div>
+                        <div class="sk-cube-na sk-cube-4">
+                            <div class="grey-inner"></div>
+                        </div>
+                        <div class="sk-cube sk-cube-5">
+                            <div class="yellow-inner"></div>
+                        </div>
+                        <div class="sk-cube-na sk-cube-6">
+                            <div class="grey-inner"></div>
+                        </div>
+                        <div class="sk-cube sk-cube-7">
+                            <div class="blue-inner"></div>
+                        </div>
+                        <div class="sk-cube-na sk-cube-8">
+                            <div class="grey-inner"></div>
+                        </div>
+                        <div class="sk-cube sk-cube-9">
+                            <div class="blue-inner"></div>
+                        </div>
+                        <div class="back"></div>
+                    </div>
+                </div>`;
+
+            let elem = document.getElementById("00");
+            elem.innerHTML = loader + elem.innerHTML;
+        }
+
+        function rs(){
+            var WDT = $(".row").width() -45,
+                HGH = WDT*3 / 4;
+
+            $("#settings").width(WDT);
+            $("hr").width(WDT-30);
+            $("#random").width(WDT-30);
+
+            let e = document.getElementById('00');
+            e.style["width"] = WDT + "px";
+            e.style["height"] = HGH + "px";
+
+        }
+
+        window.addEventListener('load', function(event){
+            rs();
+        });
+
+        window.addEventListener('resize', function(event){
+            rs();
+        });
+
+        function loader(){
+            $("#loader").css({
+                "display":"flex"
+            });
+            $(".diffname").css({
+                "display":"none"
+            });
+
+            let updateLoaderFunc = function(){
+                if (downloadedImage === null) {
+                    $("#loader").css({
+                        "display":"none"
+                    });
+                    $(".diffname").css({
+                        "display":"block"
+                    });
+                    $("#loader-bar").css({
+                        "width":"0%"
+                    });
+                } else {
+                    setTimeout(updateLoaderFunc, 10);
+                }
+            }
+
+            setTimeout(updateLoaderFunc, 2000);
+        }
     </script>
 
     <script type="text/javascript" th:inline="javascript">
 
         const nonInterestingCls = "non-interesting";
         const determinedCls = "determined";
-
-        const mixFirstToPrex3 = "1st - Prex 3";
-        const mixExceedToNXA = "Exceed - NXA";
-        const mixFiesta = "Fiesta 1/Ex/2";
-        const mixPrime = "Prime";
-        const mixPrime2 = "Prime 2";
-        const mixXX = "XX";
-
-        const mixGroup = {
-            "1st": mixFirstToPrex3,
-            "2nd": mixFirstToPrex3,
-            "3rd": mixFirstToPrex3,
-            "The O.B.G.": mixFirstToPrex3,
-            "Collection": mixFirstToPrex3,
-            "Perfect Collection": mixFirstToPrex3,
-            "Extra": mixFirstToPrex3,
-            "Premiere": mixFirstToPrex3,
-            "Prex": mixFirstToPrex3,
-            "Rebirth": mixFirstToPrex3,
-            "Premiere 2": mixFirstToPrex3,
-            "Prex 2": mixFirstToPrex3,
-            "Premiere 3": mixFirstToPrex3,
-            "Prex 3": mixFirstToPrex3,
-            "Exceed": mixExceedToNXA,
-            "Exceed 2": mixExceedToNXA,
-            "Zero": mixExceedToNXA,
-            "NX": mixExceedToNXA,
-            "NX2": mixExceedToNXA,
-            "NXA": mixExceedToNXA,
-            "Fiesta": mixFiesta,
-            "Fiesta Ex": mixFiesta,
-            "Fiesta 2": mixFiesta,
-            "Prime": mixPrime,
-            "Prime2": mixPrime2,
-            "XX": mixXX,
-        };
 
         const shortened = {
             "Can-can ~Orpheus in The Party Mix~": "Can-Can ~OiTPM~",
@@ -137,6 +213,10 @@
             return ALL_CELLS.filter(c => isCellSelected(c));
         }
 
+        function getEmptyCells() {
+            return ALL_CELLS.filter(c => isCellEmpty(c));
+        }
+
         function isCellEmpty(cellId) {
             return cellsToCharts[cellId] === null;
         }
@@ -146,7 +226,7 @@
         }
 
         function getCellsToChange() {
-            let emptyCells = ALL_CELLS.filter(c => isCellEmpty(c));
+            let emptyCells = getEmptyCells();
 
             if (emptyCells.length > 0) {
                 return emptyCells;
@@ -169,57 +249,20 @@
                         continue;
                     }
 
-                    let chartMix = mixGroup[chart.mix];
-                    if (chartMix === mixFirstToPrex3) {
-                        if (!isFirstToPrex3) {
-                            continue;
-                        }
-                    } else if (chartMix === mixExceedToNXA) {
-                        if (!isExceedToNXA) {
-                            continue;
-                        }
-                    } else if (chartMix === mixFiesta) {
-                        if (!isFiesta){
-                            continue;
-                        }
-                    } else if (chartMix === mixPrime) {
-                        if (!isPrime) {
-                            continue;
-                        }
-                    } else if (chartMix === mixPrime2) {
-                        if (!isPrime2) {
-                            continue;
-                        }
-                    } else if (chartMix === mixXX) {
-                        if (!isXX) {
-                            continue;
-                        }
-                    } else {
-                        throw Error("Can't find Mix '" + chart.mix + "'");
+                    if (includeMix && !filter_mix(chart.mix)) {
+                        continue;
+                    }
+
+                    if (includeBpm && !filter_bpm(song.song.bpm)) {
+                        continue;
                     }
 
                     let songCut = song.song.cut;
-                    if (songCut === "Arcade") {
-                        if (!isArcade) {
+                    if (includeCut) {
+                        if (!filter_cut(songCut)) {
                             continue;
                         }
-                        songCut = '';
-                    } else if (songCut === "Short Cut") {
-                        if (!isShortCut) {
-                            continue;
-                        }
-                        songCut = 'Short';
-                    } else if (songCut === "Full Song") {
-                        if (!isFullSong) {
-                            continue;
-                        }
-                        songCut = 'Full';
-                    } else if (songCut === "Remix") {
-                        if (!isRemix) {
-                            continue;
-                        }
-                    } else {
-                        throw Error("Can't find Cut '" + songCut + "'");
+                        songCut = get_simpler_cut(songCut);
                     }
 
                     let difficulty = chart.difficulty.difficulty;
@@ -259,6 +302,7 @@
                         diffNum: difficulty,
                         cut: songCut,
                         card: song.song.card,
+                        cardBig: song.song.cardBig,
                         chartId: chart.chartId,
                         single: single,
                         double: double,
@@ -276,6 +320,10 @@
                 .map(value => ({ value, sort: Math.random() }))
                 .sort((a, b) => a.sort - b.sort)
                 .map(({ value }) => value);
+        }
+
+        function getChartFromCell(cellId) {
+            return chartIdToChart[ cellsToCharts[cellId] ];
         }
 
         function getChartsFromCells(cellsIds) {
@@ -323,11 +371,15 @@
             return false;
         }
 
+        function haveSameLineOnTable() {
+            return ALL_CELLS.some(c => c !== null && doesMakeSameLine(c, getChartsFromCells([c])[0].single));
+        }
+
         function chooseSinglesOrDoubles(cellId, sumSingles, sumDoubles) {
-            if (isNoSameLine && doesMakeSameLine(cellId, true)) {
+            if (isNoSameLineSupported && isNoSameLine && doesMakeSameLine(cellId, true)) {
                 return false;
             }
-            if (isNoSameLine && doesMakeSameLine(cellId, false)) {
+            if (isNoSameLineSupported && isNoSameLine && doesMakeSameLine(cellId, false)) {
                 return true;
             }
 
@@ -339,17 +391,20 @@
                 currSinglePercentage = 0.5;
                 currDoublePercentage = 0.5;
             } else {
-                currSinglePercentage = sumSingles / (sumSingles + sumDoubles);
-                currDoublePercentage = sumDoubles / (sumSingles + sumDoubles);
+                currSinglePercentage = sumSingles / totalSum;
+                currDoublePercentage = sumDoubles / totalSum;
             }
 
-            let diffPercentage = currSinglePercentage - currDoublePercentage;
+            // returns true if chooses Singles, returns false if chooses Doubles
+            return currSinglePercentage < singlePercentage;
 
-            let improvedSinglePercentage = singlePercentage - diffPercentage;
-            let randomSingleDouble = Math.random();
+            //let diffPercentage = currSinglePercentage - currDoublePercentage;
+
+            //let improvedSinglePercentage = singlePercentage - diffPercentage;
+            //let randomSingleDouble = Math.random();
 
             // returns true if chooses Singles, returns false if chooses Doubles
-            return improvedSinglePercentage > randomSingleDouble;
+            //return improvedSinglePercentage > randomSingleDouble;
         }
 
         function chooseDifficulty(sumDiff, sumAllDiff) {
@@ -423,10 +478,18 @@
                     searchDoubles = false;
                 }
 
+                if (isNoSameLineSupported && isNoSameLine) {
+                    if (isSingle && doesMakeSameLine(cellId, true) &&
+                        isDouble && doesMakeSameLine(cellId, false)) {
+                        cannotRandomizeCellSameLine = true;
+                        continue;
+                    }
+                }
+
                 if (isSingle && isDouble) {
                     searchSingles = chooseSinglesOrDoubles(cellId, sumSingles, sumDoubles);
                     searchDoubles= !searchSingles;
-                } else if (isNoSameLine) {
+                } else if (isNoSameLineSupported && isNoSameLine) {
                     if (isSingle && !isDouble && doesMakeSameLine(cellId, true) ||
                         isDouble && !isSingle && doesMakeSameLine(cellId, false)) {
                         cannotRandomizeCellSameLine = true;
@@ -462,15 +525,25 @@
                 writeChartInfoToCell(cellId, item);
             }
 
+            if (initialRandomize && cannotRandomizeCellSameLine) {
+                clearTable();
+                randomize();
+                return;
+            }
+
             if (initialRandomize) {
-                document.getElementById("random").innerHTML = "Rerandom!";
+                document.getElementById("random").innerHTML = afterRandomizeText;
                 initialRandomize = false;
             }
 
-            handleRedNoSameLineText(cannotRandomizeCellSameLine);
+            if (isNoSameLineSupported) {
+                handleRedNoSameLineText(cannotRandomizeCellSameLine);
+            }
 
             lockIrrelevantCells();
             determineNotInterestingCells();
+
+            console.log(ALL_CELLS.filter(c => getChartFromCell(c).single).length, ALL_CELLS.filter(c => getChartFromCell(c).double).length);
         }
 
         function clicked(cellId) {
@@ -595,33 +668,39 @@
             }
 
             outerIf:
-                if (!foundSelected && cls === 'inprogress' &&
-                    ALL_CELLS.every(c => !isCellInProgress(c))) {
+            if (!foundSelected && cls === 'inprogress' &&
+                ALL_CELLS.every(c => !isCellInProgress(c))) {
 
-                    let availableCells = ALL_CELLS
-                        .filter(c => !isCellEmpty(c) && !isCellHasResult(c) && !isCellLocked(c));
+                let availableCells = ALL_CELLS
+                    .filter(c => !isCellEmpty(c) && !isCellHasResult(c) && !isCellLocked(c));
 
-                    if (availableCells.length === 0) {
-                        break outerIf;
-                    }
-
-                    let itemIndex = Math.floor(Math.random() * availableCells.length);
-                    let item = availableCells[itemIndex];
-
-                    document.getElementById(item + "inprogress").style.display = 'block';
+                if (availableCells.length === 0) {
+                    break outerIf;
                 }
+
+                let itemIndex = Math.floor(Math.random() * availableCells.length);
+                let item = availableCells[itemIndex];
+
+                document.getElementById(item + "inprogress").style.display = 'block';
+            }
+
+            if (!foundSelected && cls === 'reset' && ALL_CELLS.some(c => isCellInProgress(c))) {
+                for (let cell of getInProgressCells()) {
+                    resetCell(cell);
+                }
+            }
 
             lockIrrelevantCells();
             determineNotInterestingCells();
         }
 
         function determineNotInterestingCells() {
-            let selectedCells = getSelectedCells();
+            let interestingCells = getSelectedCells() + getInProgressCells();
 
             for (let cellId of ALL_CELLS) {
                 let cell = document.getElementById(cellId);
 
-                if (selectedCells.length === 0) {
+                if (interestingCells.length === 0) {
                     cell.classList.remove(nonInterestingCls)
                     continue;
                 }
@@ -635,7 +714,7 @@
         }
 
         function lockIrrelevantCells() {
-            if (!isLockCharts) {
+            if (!isLockingSupported || !isLockCharts) {
                 return;
             }
 
@@ -691,6 +770,9 @@
                 .forEach(c => unlockCell(c));
         }
 
+        let downloadedImage = null;
+        let downloadStart = null;
+
         function writeChartInfoToCell(cellId, chart) {
             makeNewCell(cellId);
 
@@ -727,7 +809,11 @@
                 diffname.classList.add("coop");
             }
 
-            cell.style['background-image'] = "url(" + chart.card + ")";
+            let card = useHighResImages ? chart.cardBig : chart.card;
+
+            cell.style['background-image'] = "url(" + card + ")";
+            downloadedImage = card;
+            downloadStart = Date.now();
 
             selectedCharts.push(chart.chartId);
             cellsToCharts[cellId] = chart.chartId;

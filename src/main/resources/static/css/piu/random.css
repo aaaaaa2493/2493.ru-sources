@@ -34,14 +34,13 @@
 }
 
 .settings_block {
-    display: none;
     border: 2px solid #1C6EA4;
     float: left;
     padding: 5px;
     background: white;
 }
 
-#percents {
+#difficulty_percents {
     padding: 5px;
 }
 
@@ -82,4 +81,63 @@ input[type='text'] {
     bottom: 0;
     padding: 2px 8px;
     display: block;
+}
+
+.settings_block {
+    margin-left: 10px;
+}
+
+.settings-section {
+    float: left;
+}
+
+.settings-section:not(:last-child) {
+    padding-right: 15px;
+}
+
+#random {
+    width: 100px;
+}
+
+#clear_all {
+    width: 100%;
+}
+
+#mindifflabel, #maxdifflabel, #minbpmlabel, #maxbpmlabel, #p1namelabel, #p2namelabel {
+    width: 40px;
+    float: left;
+    display: flex;
+    justify-content: center;
+}
+
+#maxdifflabel, #maxbpmlabel, #p2namelabel {
+    margin-left: 5px;
+}
+
+#mindiff, #maxdiff, #minbpm, #maxbpm {
+    float: left;
+}
+
+#minmaxdifficulties > div {
+    float: left;
+}
+
+#sperc {
+    margin-left: 2px;
+}
+
+/* Chrome, Safari, Edge, Opera */
+input::-webkit-outer-spin-button,
+input::-webkit-inner-spin-button {
+    -webkit-appearance: none;
+    margin: 0;
+}
+
+/* Firefox */
+input[type=number] {
+    -moz-appearance: textfield;
+}
+
+input {
+    text-align: center;
 }

@@ -1,0 +1,92 @@
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+
+
+<div th:fragment="bpmminmax" id="bpmminmax">
+    <div>
+        <label id="minbpmlabel">BPM:</label>
+        <input id="minbpm" type="number" value="1" min="1" max="999" onchange="update_minmax_bpm(false)">
+    </div>
+
+    <div>
+        <label id="maxbpmlabel">-</label>
+        <input id="maxbpm" type="number" value="999" min="1" max="999" onchange="update_minmax_bpm(true)">
+    </div>
+
+    <script type="text/javascript" th:inline="javascript">
+        includeBpm = true;
+
+        let minBpm = 0;
+        let maxBpm = 0;
+
+        let minBpmBound = 0;
+        let maxBpmBound = 0;
+
+        let minBpmName = "BPM:";
+        let maxBpmName = " - ";
+
+        for (let song of songs) {
+            let max = song.song.bpm.bpmMax;
+            let min = song.song.bpm.bpmMin;
+
+            if (max > maxBpmBound || maxBpmBound === 0) {
+                maxBpmBound = max;
+            }
+            if (min < minBpmBound || minBpmBound === 0) {
+                minBpmBound = min;
+            }
+        }
+
+        window.addEventListener('load', () => {
+            update_minmax_bpm();
+            document.getElementById("minbpmlabel").innerHTML = minBpmName;
+            document.getElementById("maxbpmlabel").innerHTML = maxBpmName;
+        });
+
+        function update_minmax_bpm(isMaxBpm) {
+            let minbpm = document.getElementById("minbpm").value | 0;
+            let maxbpm = document.getElementById("maxbpm").value | 0;
+
+            if (maxbpm > maxBpmBound) {
+                maxbpm = maxBpmBound;
+                document.getElementById("maxbpm").value = maxbpm;
+            }
+
+            if (maxbpm < minBpmBound) {
+                maxbpm = minBpmBound;
+                document.getElementById("maxbpm").value = maxbpm;
+            }
+
+            if (minbpm > maxBpmBound) {
+                minbpm = maxBpmBound;
+                document.getElementById("minbpm").value = minbpm;
+            }
+
+            if (minbpm < minBpmBound) {
+                minbpm = minBpmBound;
+                document.getElementById("minbpm").value = minbpm;
+            }
+
+            if (minbpm > maxbpm) {
+                if (isMaxBpm) {
+                    minbpm = maxbpm;
+                    document.getElementById("minbpm").value = minbpm;
+                } else {
+                    maxbpm = minbpm
+                    document.getElementById("maxbpm").value = maxbpm;
+                }
+            }
+
+            minBpm = minbpm;
+            maxBpm = maxbpm;
+        }
+
+        function filter_bpm(bpm) {
+            if (bpm.bpmMax < minBpm || bpm.bpmMin > maxBpm) {
+                return false;
+            } else {
+                return true;
+            }
+        }
+    </script>
+
+</div>

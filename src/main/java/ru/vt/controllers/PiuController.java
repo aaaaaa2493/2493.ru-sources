@@ -26,7 +26,7 @@ public class PiuController {
 
     @GetMapping("/random/menu")
     public String randomizerMenuPage() {
-        return "piu/randomMenu";
+        return "piu/menuRandomizer";
     }
 
     @GetMapping("/random")
@@ -36,17 +36,26 @@ public class PiuController {
             @RequestParam(required = false, defaultValue = "5") int rows,
             @RequestParam(required = false, defaultValue = "5") int columns,
             @RequestParam(required = false, defaultValue = "150") int width,
-            @RequestParam(required = false, defaultValue = "105") int height
+            @RequestParam(required = false, defaultValue = "105") int height,
+            @RequestParam(required = false, defaultValue = "true") boolean isBingo,
+            @RequestParam(required = false, defaultValue = "false") boolean altLayout
     ) {
-        if (skin.equals("one")) {
+        if (skin.startsWith("one")) {
             rows = 1;
             columns = 1;
+            isBingo = false;
+            if (skin.equals("one_msk")) {
+                altLayout = true;
+            }
         }
 
         model.addAttribute("rows", rows);
         model.addAttribute("columns", columns);
         model.addAttribute("width", width);
         model.addAttribute("height", height);
+
+        model.addAttribute("isBingo", isBingo);
+        model.addAttribute("altLayout", altLayout);
 
         List<SongCharts> xxSongs = songService.getAllSongsForMix(MixValues.XX.mixId);
         //xxSongs.stream().sorted().map(SongCharts::getPrint).forEach(System.out::println);
@@ -59,7 +68,7 @@ public class PiuController {
 
     @GetMapping("/randomizer")
     public String oneRandomPage() {
-        return "forward:random?skin=one";
+        return "forward:random?skin=one_spb";
     }
 
     @GetMapping("/stats")
