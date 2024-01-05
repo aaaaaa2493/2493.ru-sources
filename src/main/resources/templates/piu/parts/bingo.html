@@ -16,13 +16,48 @@
     </script>
 
     <script id="basic-functions" type="text/javascript">
+        const BLUE_WIN = "bluewin";
+        const RED_WIN = "redwin";
+        const DRAW = "draw";
+        const SELECTED = "selected";
+        const IN_PROGRESS = "inprogress";
+        const LOCKED = "lock";
+
+        const TYPE_NAMES = "names";
+        const NAMES_PLAYER_1 = "p1name";
+        const NAMES_PLAYER_2 = "p2name";
+
+        const TYPE_RANDOM = "info";
+        const RANDOM_SONG = "song";
+        const RANDOM_CUT = "cut";
+        const RANDOM_DIFFICULTY = "diff";
+
+        const OVERLAYS = [
+            BLUE_WIN,
+            RED_WIN,
+            DRAW,
+            SELECTED,
+            IN_PROGRESS,
+            LOCKED,
+        ];
+
+        const CELL_TYPES = [
+            TYPE_NAMES,
+            TYPE_RANDOM,
+        ];
+
         function isShowingBlock(block) {
             return block.style.display === 'block' || block.style.display === 'flex'
         }
 
         function showBlock(block) {
-            if (block.id.endsWith('redwin') ||
-                block.id.endsWith('bluewin')
+            if (CELL_TYPES.some(e => block.id.endsWith(e))) {
+                let cellId = extractCellId(block.id);
+                CELL_TYPES.forEach(e => hideBlock(getBlock(cellId, e)));
+            }
+
+            if (block.id.endsWith(RED_WIN) ||
+                block.id.endsWith(BLUE_WIN)
             ) {
                 block.style.display = 'flex';
             } else {
@@ -30,12 +65,36 @@
             }
         }
 
+        function byId(cellId, addon) {
+            if (addon) {
+                return document.getElementById(getBlockId(cellId, addon));
+            }
+            return document.getElementById(cellId);
+        }
+
         function hideBlock(block) {
             block.style.display = '';
         }
 
+        function getBlock(cellId, addon) {
+            return byId(getBlockId(cellId, addon));
+        }
+
+        function getBlockId(cellId, addon) {
+            return `${cellId}-${addon}`;
+        }
+
+        function getCell(row, col) {
+            return byId(getCellId(row, col));
+        }
+
         function getCellId(row, col) {
             return `${row}-${col}`;
+        }
+
+        function extractCellId(blockId) {
+            let parts = blockId.split('-');
+            return parts.slice(0, 2).join('-');
         }
 
         function getCellRow(cellId) {
@@ -58,23 +117,23 @@
                 for (let col = 0; col < columns; col++) {
                     let cellId = getCellId(row, col);
                     fieldHtml += `
-                        <div id="${cellId}" class="cell" onclick="clicked(this.id)" style="width: 150px; height: 105px;">
-                            <div id="${cellId}names" class="filler players_names">
-                                <div id="${cellId}p1name" class="p1"></div>
-                                <div id="${cellId}p2name" class="p2"></div>
+                        <div id="${cellId}" class="cell" onclick="clicked(this.id)">
+                            <div id="${getBlockId(cellId, TYPE_NAMES)}" class="filler players_names">
+                                <div id="${getBlockId(cellId, NAMES_PLAYER_1)}" class="p1"></div>
+                                <div id="${getBlockId(cellId, NAMES_PLAYER_2)}" class="p2"></div>
                             </div>
 
-                            <div id="${cellId}bluewin" class="filler blue"></div>
-                            <div id="${cellId}redwin" class="filler red"></div>
-                            <div id="${cellId}draw" class="filler draw"></div>
-                            <div id="${cellId}selected" class="filler selected"></div>
-                            <div id="${cellId}inprogress" class="filler inprogress"></div>
-                            <div id="${cellId}lock" class="filler lock"></div>
+                            <div id="${getBlockId(cellId, BLUE_WIN)}" class="filler blue"></div>
+                            <div id="${getBlockId(cellId, RED_WIN)}" class="filler red"></div>
+                            <div id="${getBlockId(cellId, DRAW)}" class="filler draw"></div>
+                            <div id="${getBlockId(cellId, SELECTED)}" class="filler selected"></div>
+                            <div id="${getBlockId(cellId, IN_PROGRESS)}" class="filler inprogress"></div>
+                            <div id="${getBlockId(cellId, LOCKED)}" class="filler lock"></div>
 
-                            <div id="${cellId}info" class="filler cellinfo">
-                                <div id="${cellId}song" class="songname"></div>
-                                <div id="${cellId}cut" class="cutname"></div>
-                                <div id="${cellId}diff" class="diffname"></div>
+                            <div id="${getBlockId(cellId, TYPE_RANDOM)}" class="filler cellinfo">
+                                <div id="${getBlockId(cellId, RANDOM_SONG)}" class="songname"></div>
+                                <div id="${getBlockId(cellId, RANDOM_CUT)}" class="cutname"></div>
+                                <div id="${getBlockId(cellId, RANDOM_DIFFICULTY)}" class="diffname"></div>
                             </div>
                         </div>
                     `;
@@ -83,7 +142,7 @@
                 fieldHtml += `</div>`;
             }
 
-            document.getElementById("field").innerHTML = fieldHtml;
+            byId("field").innerHTML = fieldHtml;
         }
 
         generateField();
@@ -102,16 +161,39 @@
             return rows > 1 && columns > 1 && row === centerRow && col === centerCol;
         }
 
-        for (let r = 0; r < rows; r++) {
-            for (let c = 0; c < columns; c++) {
-                let cellId = getCellId(r, c);
+        function clearCellObjects() {
+            ALL_CELLS.length = 0;
+            selectedCharts.length = 0;
 
-                if (!isCenterNamesCell(r, c)) {
-                    ALL_CELLS.push(cellId);
-                    cellsToCharts[cellId] = null;
+            for (const key in cellsToCharts) {
+                if (cellsToCharts.hasOwnProperty(key)) {
+                    delete cellsToCharts[key];
+                }
+            }
+
+            for (const key in chartIdToChart) {
+                if (chartIdToChart.hasOwnProperty(key)) {
+                    delete chartIdToChart[key];
                 }
             }
         }
+
+        function generateCellObjects() {
+            clearCellObjects();
+
+            for (let r = 0; r < rows; r++) {
+                for (let c = 0; c < columns; c++) {
+                    let cellId = getCellId(r, c);
+
+                    if (!isCenterNamesCell(r, c)) {
+                        ALL_CELLS.push(cellId);
+                        cellsToCharts[cellId] = null;
+                    }
+                }
+            }
+        }
+
+        generateCellObjects();
     </script>
 
     <script th:if="${isBingo}" type="text/javascript" th:inline="javascript">
@@ -120,9 +202,9 @@
                 let cellId = getCellId(r, c);
 
                 if (isCenterNamesCell(r, c)) {
-                    showBlock(document.getElementById(cellId + 'names'));
+                    showBlock(byId(cellId, TYPE_NAMES));
                 } else {
-                    showBlock(document.getElementById(cellId + 'info'));
+                    showBlock(byId(cellId, TYPE_RANDOM));
                 }
             }
         }
@@ -131,8 +213,7 @@
     <script th:unless="${altLayout}" type="text/javascript" th:inline="javascript">
         for (let r = 0; r < rows; r++) {
             for (let c = 0; c < columns; c++) {
-                let cellId = getCellId(r, c);
-                let cell = document.getElementById(cellId);
+                let cell = getCell(r, c);
 
                 cell.style.width = width + "px";
                 cell.style.height = height + "px";
@@ -183,7 +264,7 @@
                     </div>
                 </div>`;
 
-            let elem = document.getElementById(getCellId(0, 0));
+            let elem = getCell(0, 0);
             elem.innerHTML = loader + elem.innerHTML;
         }
 
@@ -195,7 +276,7 @@
             $("hr").width(WDT-30);
             $("#random").width(WDT-30);
 
-            let e = document.getElementById(getCellId(0, 0));
+            let e = getCell(0, 0);
             e.style["width"] = WDT + "px";
             e.style["height"] = HGH + "px";
         }
@@ -306,15 +387,15 @@
         }
 
         function getCellsToChange() {
+            let cellsToChange = getSelectedCells();
+            if (cellsToChange.length > 0) {
+                return cellsToChange;
+            }
+
             let emptyCells = getEmptyCells();
 
             if (emptyCells.length > 0) {
                 return emptyCells;
-            }
-
-            let cellsToChange = getSelectedCells();
-            if (cellsToChange.length > 0) {
-                return cellsToChange;
             }
             return getInProgressCells();
         }
@@ -362,6 +443,10 @@
                 .map(value => ({ value, sort: Math.random() }))
                 .sort((a, b) => a.sort - b.sort)
                 .map(({ value }) => value);
+        }
+
+        function hasChartInCell(cellId) {
+            return !!cellsToCharts[cellId];
         }
 
         function getChartFromCell(cellId) {
@@ -414,7 +499,7 @@
         }
 
         function haveSameLineOnTable() {
-            return ALL_CELLS.some(c => c !== null && doesMakeSameLine(c, getChartFromCell(c).single));
+            return ALL_CELLS.some(c => c !== null && hasChartInCell(c) && doesMakeSameLine(c, getChartFromCell(c).single));
         }
 
         function chooseSinglesOrDoubles(cellId, sumSingles, sumDoubles) {
@@ -595,7 +680,7 @@
             }
 
             if (initialRandomize) {
-                document.getElementById("random").innerHTML = afterRandomizeText;
+                byId("random").innerHTML = afterRandomizeText;
                 initialRandomize = false;
             }
 
@@ -617,12 +702,7 @@
         }
 
         function clicked(cellId) {
-            let songname = document.getElementById(cellId + "song");
-            if (songname.innerHTML === '') {
-                return;
-            }
-
-            let selectedDiv = document.getElementById(cellId + "selected");
+            let selectedDiv = byId(cellId, SELECTED);
 
             if (isShowingBlock(selectedDiv)) {
                 hideBlock(selectedDiv);
@@ -634,68 +714,62 @@
         }
 
         function isCellSelected(cellId) {
-            let selected = document.getElementById(cellId + "selected");
+            let selected = byId(cellId, SELECTED);
             return isShowingBlock(selected);
         }
 
         function isCellInProgress(cellId) {
-            let inprogress = document.getElementById(cellId + "inprogress");
+            let inprogress = byId(cellId, IN_PROGRESS);
             return isShowingBlock(inprogress);
         }
 
         function isCellLocked(cellId) {
-            let lock = document.getElementById(cellId + "lock");
+            let lock = byId(cellId, LOCKED);
             return isShowingBlock(lock);
         }
 
         function lockCell(cellId) {
-            let lock = document.getElementById(cellId + "lock");
+            let lock = byId(cellId, LOCKED);
             showBlock(lock);
 
-            let cell = document.getElementById(cellId);
+            let cell = byId(cellId);
             cell.classList.add("locked");
         }
 
         function unlockCell(cellId) {
-            let lock = document.getElementById(cellId + "lock");
+            let lock = byId(cellId, LOCKED);
             hideBlock(lock);
 
-            let cell = document.getElementById(cellId);
+            let cell = byId(cellId);
             cell.classList.remove("locked");
         }
 
         function isCellHasResult(cellId) {
-            let blue = document.getElementById(cellId + "bluewin");
-            let red = document.getElementById(cellId + "redwin");
-            let draw = document.getElementById(cellId + "draw");
+            let blue = byId(cellId, BLUE_WIN);
+            let red = byId(cellId, RED_WIN);
+            let draw = byId(cellId, DRAW);
             return isShowingBlock(blue) || isShowingBlock(red) || isShowingBlock(draw);
         }
 
         function isCellBlueWin(cellId) {
-            let blue = document.getElementById(cellId + "bluewin");
+            let blue = byId(cellId, BLUE_WIN);
             return isShowingBlock(blue);
         }
 
         function isCellRedWin(cellId) {
-            let red = document.getElementById(cellId + "redwin");
+            let red = byId(cellId, RED_WIN);
             return isShowingBlock(red);
         }
 
         function resetCell(cellId) {
             unlockCell(cellId);
 
-            let cell = document.getElementById(cellId);
+            let cell = byId(cellId);
             cell.classList.remove(determinedCls);
             cell.classList.remove(nonInterestingCls);
 
-            let blue = document.getElementById(cellId + "bluewin");
-            let red = document.getElementById(cellId + "redwin");
-            let draw = document.getElementById(cellId + "draw");
-            let selected = document.getElementById(cellId + "selected");
-            let inprogress = document.getElementById(cellId + "inprogress");
-            let lock = document.getElementById(cellId + "lock");
-
-            for (let item of [blue, red, draw, selected, inprogress, lock]) {
+            for (let overlay of OVERLAYS) {
+                let item = byId(cellId, overlay);
                 if (isShowingBlock(item)) {
                     hideBlock(item);
                 }
@@ -704,7 +778,7 @@
 
         function changeCellState(cls) {
             let foundSelected = false;
-            const isDetermination = ['redwin', 'bluewin', 'draw'].includes(cls);
+            const isDetermination = [RED_WIN, BLUE_WIN, DRAW].includes(cls);
 
             for (let cellId of ALL_CELLS) {
                 if (!isCellSelected(cellId)) {
@@ -715,11 +789,15 @@
 
                 resetCell(cellId);
 
-                if (cls) {
-                    showBlock(document.getElementById(cellId + cls));
+                if (cls !== 'reset') {
+                    if (combineInProgressAndSelected && cls === IN_PROGRESS) {
+                        showBlock(byId(cellId, SELECTED));
+                    } else {
+                        showBlock(byId(cellId, cls));
+                    }
 
                     if (isDetermination) {
-                        document.getElementById(cellId).classList.add(determinedCls);
+                        byId(cellId).classList.add(determinedCls);
                     }
                 }
             }
@@ -728,14 +806,14 @@
                 for (let cellId of ALL_CELLS) {
                     if (isCellInProgress(cellId)) {
                         resetCell(cellId);
-                        showBlock(document.getElementById(cellId + cls));
-                        document.getElementById(cellId).classList.add(determinedCls);
+                        showBlock(byId(cellId, cls));
+                        byId(cellId).classList.add(determinedCls);
                     }
                 }
             }
 
             outerIf:
-            if (!foundSelected && cls === 'inprogress' &&
+            if (!foundSelected && cls === IN_PROGRESS &&
                 ALL_CELLS.every(c => !isCellInProgress(c))) {
 
                 let availableCells = ALL_CELLS
@@ -748,7 +826,7 @@
                 let itemIndex = Math.floor(Math.random() * availableCells.length);
                 let item = availableCells[itemIndex];
 
-                showBlock(document.getElementById(item + "inprogress"));
+                showBlock(byId(item, IN_PROGRESS));
             }
 
             if (!foundSelected && cls === 'reset' && ALL_CELLS.some(c => isCellInProgress(c))) {
@@ -765,7 +843,7 @@
             let interestingCells = getSelectedCells() + getInProgressCells();
 
             for (let cellId of ALL_CELLS) {
-                let cell = document.getElementById(cellId);
+                let cell = byId(cellId);
 
                 if (interestingCells.length === 0) {
                     cell.classList.remove(nonInterestingCls)
@@ -843,10 +921,10 @@
         function writeChartInfoToCell(cellId, chart) {
             makeNewCell(cellId);
 
-            let cell = document.getElementById(cellId);
-            let songname = document.getElementById(cellId + "song");
-            let cutname = document.getElementById(cellId + "cut");
-            let diffname = document.getElementById(cellId + "diff");
+            let cell = byId(cellId);
+            let songname = byId(cellId, RANDOM_SONG);
+            let cutname = byId(cellId, RANDOM_CUT);
+            let diffname = byId(cellId, RANDOM_DIFFICULTY);
 
             let name = chart.name;
             if (name in shortened) {
@@ -890,10 +968,10 @@
         function makeNewCell(cellId) {
             resetCell(cellId);
 
-            let cell = document.getElementById(cellId);
-            let songname = document.getElementById(cellId + "song");
-            let cutname = document.getElementById(cellId + "cut");
-            let diffname = document.getElementById(cellId + "diff");
+            let cell = byId(cellId);
+            let songname = byId(cellId, RANDOM_SONG);
+            let cutname = byId(cellId, RANDOM_CUT);
+            let diffname = byId(cellId, RANDOM_DIFFICULTY);
 
             diffname.classList.remove("single");
             diffname.classList.remove("double");

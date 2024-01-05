@@ -20,6 +20,8 @@
 
     <script th:unless="${head}" type="text/javascript" th:inline="javascript">
         includeSongCountPreview = false;
+        combineInProgressAndSelected = true;
+        byId('makeinprogress').innerText = "Random";
     </script>
 </div>
 
