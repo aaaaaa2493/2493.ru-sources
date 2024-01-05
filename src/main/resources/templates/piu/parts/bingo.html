@@ -268,7 +268,7 @@
             elem.innerHTML = loader + elem.innerHTML;
         }
 
-        function rs(){
+        function rs() {
             let WDT = $(".row").width() -45,
                 HGH = WDT*9 / 16;
 
@@ -281,13 +281,8 @@
             e.style["height"] = HGH + "px";
         }
 
-        window.addEventListener('load', function(event){
-            rs();
-        });
-
-        window.addEventListener('resize', function(event){
-            rs();
-        });
+        window.addEventListener('load', rs);
+        window.addEventListener('resize', rs);
 
         function loader(){
             if (includeNoLoader && isNoLoader) {
