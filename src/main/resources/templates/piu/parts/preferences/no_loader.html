@@ -1,0 +1,24 @@
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+
+
+<div th:fragment="no_loader" th:remove="tag">
+    <div class="input-div">
+        <input id="isnoloader" type="checkbox" onclick="update_no_loader()">
+        <label for="isnoloader">No loader</label>
+    </div>
+
+    <script type="text/javascript" th:inline="javascript">
+        includeNoLoader = true;
+
+        let isNoLoader = false;
+
+        window.addEventListener('load', () => {
+            update_no_repeat();
+        });
+
+        function update_no_loader() {
+            isNoLoader = document.getElementById("isnoloader").checked;
+        }
+    </script>
+
+</div>

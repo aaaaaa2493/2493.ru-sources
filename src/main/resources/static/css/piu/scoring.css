@@ -1,0 +1,50 @@
+body {
+    padding: 10px;
+    background: url(/img/bg.png);
+}
+
+* {
+    font-family: Arial, serif;
+    font-size: 30px;
+}
+
+
+.field-container {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    float: left;
+    padding-right: 20px;
+    padding-top: 10px;
+}
+
+.field {
+    display: flex;
+    align-items: center;
+    margin-bottom: 10px;
+}
+
+.field label {
+    margin-right: 10px;
+    min-width: 180px;  /* You can adjust this value to make sure all labels have the same width. */
+    text-align: right;
+}
+
+.field input {
+    width: 100px;
+    text-align: right;
+}
+
+input[type="checkbox"] {
+    transform: scale(2);
+}
+
+
+.grade {
+    height: 100px;
+    width: 200px;
+    display: flex;
+    background-size: contain;
+    background-repeat: no-repeat;
+    background-position: center;
+}

@@ -1,0 +1,29 @@
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+
+
+<div th:fragment="lock_charts" th:remove="tag">
+    <div class="input-div">
+        <input id="islockcharts" type="checkbox" checked onclick="update_lock_charts()">
+        <label id="islockchartslabel" for="islockcharts">Lock charts</label>
+    </div>
+
+    <script type="text/javascript" th:inline="javascript">
+        isLockingSupported = true;
+
+        let isLockCharts = true;
+
+        window.addEventListener('load', () => {
+            update_lock_charts();
+        });
+
+        function update_lock_charts() {
+            isLockCharts = document.getElementById("islockcharts").checked;
+
+            if (isLockCharts) {
+                lockIrrelevantCells();
+            } else {
+                unlockAllCells();
+            }
+        }
+    </script>
+</div>

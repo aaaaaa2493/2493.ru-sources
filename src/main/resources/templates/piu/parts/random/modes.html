@@ -1,0 +1,140 @@
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+
+
+<div th:fragment="single_double" th:remove="tag">
+    <div class="input-div">
+        <input id="issingle" type="checkbox" checked onclick="update_modes('single')">
+        <label for="issingle">Single</label>
+    </div>
+
+    <div class="input-div">
+        <input id="isdouble" type="checkbox" checked onclick="update_modes('double')">
+        <label for="isdouble">Double</label>
+    </div>
+
+    <script type="text/javascript" th:inline="javascript">
+        includeMode = true;
+
+        let isSingle = true;
+        let isDouble = true;
+        let singlePercentage = 0;
+        let doublePercentage = 0;
+
+        window.addEventListener('load', () => {
+            update_modes();
+        });
+
+        function update_modes(source) {
+            let issingle = document.getElementById("issingle");
+            let isdouble = document.getElementById("isdouble");
+
+            if (isNoSameLineSupported) {
+                handleRedNoSameLineText(false);
+
+                let isnosameline = document.getElementById("isnosameline");
+
+                let isFromNoSameLine = source === 'nosameline';
+
+                if (isFromNoSameLine) {
+                    changeNoSameLine = false;
+                }
+
+                if (initialRandomize && changeNoSameLine) {
+                    if (!issingle.checked || !isdouble.checked) {
+                        isnosameline.checked = false;
+                    } else if (issingle.checked && isdouble.checked) {
+                        isnosameline.checked = true;
+                    }
+                }
+
+                isNoSameLine = isnosameline.checked;
+            }
+
+            isSingle = issingle.checked;
+            isDouble = isdouble.checked;
+
+            let sdperc = document.getElementById("sdperc");
+            if (isSingle && isDouble) {
+                sdperc.style.display = 'block';
+                update_modes_percents_descriptions();
+            } else {
+                sdperc.style.display = 'none';
+
+                if (isSingle) {
+                    singlePercentage = 1;
+                    doublePercentage = 0;
+                } else if (isDouble) {
+                    singlePercentage = 0;
+                    doublePercentage = 1;
+                } else {
+                    singlePercentage = 0;
+                    doublePercentage = 0;
+                }
+            }
+
+            settingsChanged();
+        }
+
+        function filter_mode(song, chart) {
+            let single = chart.difficulty.single;
+            if (single && !isSingle) {
+                return false;
+            }
+
+            let double = chart.difficulty.double;
+            if (double && !isDouble) {
+                return false;
+            }
+
+            return true;
+        }
+        chartFilters.push(filter_mode);
+
+    </script>
+
+</div>
+
+
+<div th:fragment="percents" th:remove="tag">
+    <div id="sdperc">
+        <div>
+            <label id="singleperclabel">S</label>
+            <input id="sperc" type="number" min="0" max="100" value="1" onchange="update_modes_percents_descriptions()">
+            <span id="spercdesc"></span>
+        </div>
+
+        <div>
+            <label id="doubleperclabel">D</label>
+            <input id="dperc" type="number" min="0" max="100" value="1"
+                   onchange="update_modes_percents_descriptions()">
+            <span id="dpercdesc"></span>
+        </div>
+    </div>
+
+    <script type="text/javascript" th:inline="javascript">
+        let singlePercentsLabelName = "S";
+        let doublePercentsLabelName = "D";
+
+        window.addEventListener("load", () => {
+            document.getElementById("singleperclabel").innerHTML = singlePercentsLabelName;
+            document.getElementById("doubleperclabel").innerHTML = doublePercentsLabelName;
+        })
+
+        function update_modes_percents_descriptions() {
+            let sperc = document.getElementById("sperc");
+            let dperc = document.getElementById("dperc");
+
+            let sum = (sperc.value | 0) + (dperc.value | 0);
+            let currSperc = ((sperc.value | 0) / sum * 100) | 0;
+            let currDperc = ((dperc.value | 0) / sum * 100) | 0;
+
+            let spercDesc = document.getElementById("spercdesc");
+            let dpercDesc = document.getElementById("dpercdesc");
+            spercDesc.innerHTML = currSperc + "%";
+            dpercDesc.innerHTML = currDperc + "%";
+
+            singlePercentage = currSperc / 100;
+            doublePercentage = currDperc / 100;
+        }
+    </script>
+</div>

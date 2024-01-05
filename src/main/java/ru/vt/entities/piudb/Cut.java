@@ -23,6 +23,15 @@ public class Cut {
             this.cutId = cutId;
         }
 
+        public static CutValues of(int cutId) {
+            for (var c : values()) {
+                if (c.cutId == cutId) {
+                    return c;
+                }
+            }
+            throw new IllegalArgumentException("Wrong cut: " + cutId);
+        }
+
         public static CutValues fromPumpking(PumpkingDuration duration) {
             return switch (duration) {
                 case Standard -> Arcade;
@@ -40,6 +49,26 @@ public class Cut {
     String name;
 
     int sortOrder;
+
+    public CutValues enumValue() {
+        return CutValues.of(cutId);
+    }
+
+    public boolean isArcade() {
+        return enumValue() == CutValues.Arcade;
+    }
+
+    public boolean isFullSong() {
+        return enumValue() == CutValues.FullSong;
+    }
+
+    public boolean isRemix() {
+        return enumValue() == CutValues.Remix;
+    }
+
+    public boolean isShortCut() {
+        return enumValue() == CutValues.ShortCut;
+    }
 
     @Override
     public String toString() {

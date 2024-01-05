@@ -5,8 +5,8 @@
 body {
     margin: 0 auto;
     background: #31253e;
-    font-family: tahoma, serif;
-    min-width: 550px;
+    font-family: 'Tahoma', serif;
+    min-width: 620px;
     max-width: 1000px;
 }
 
@@ -63,8 +63,14 @@ input[type=checkbox]+label::before {
 input[type=checkbox]:checked+label::before {
     border-color: #0b76ef;
     background-color: #0b76ef;
-    content: "🞫";
+    content: "X";
     text-align: center;
+    justify-content: center;
+    font-family: 'Roboto Mono', monospace;
+}
+
+#preview-count {
+    padding: 10px;
 }
 
 input[type=checkbox]:disabled+label::before {
@@ -84,7 +90,7 @@ input[type=checkbox]:disabled+label::before {
     display: table-column;
     position: relative;
     float: left;
-    background-size: cover;
+    background-size: 100% 100%;
     background-position: center center;
     font-weight: bold;
     margin: 15px;
@@ -232,4 +238,15 @@ hr {
 #bpmdiv {
     padding-top: 0px;
     padding-left: 10px;
+}
+
+#usage {
+    padding: 20px 10px 0;
+    position: relative;
+    float: right;
+    color: #aa8ec7;
+}
+
+#usage > a {
+    color: #aa8ec7;
 }

@@ -1,0 +1,172 @@
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+
+
+<div th:fragment="mix" th:remove="tag">
+
+    <div th:if="${altLayout}">
+        <link rel="stylesheet" type="text/css" href="/css/piu/pretty_select.css">
+
+        <div style="float: left;">
+            <div style="padding: 5px">Playing mix</div>
+            <div style="height: 8px"></div>
+            <div style="padding: 5px;text-align: right">Start mix</div>
+            <div style="height: 8px"></div>
+            <div style="padding: 5px;text-align: right">End mix</div>
+        </div>
+
+        <div style="float: left;">
+            <div style="height: 30px">
+                <div id="play_mix_select" class="select-div" tabindex="1"></div>
+            </div>
+
+            <div style="height: 8px"></div>
+
+            <div style="height: 30px">
+                <div id="starting_mix_select" class="select-div" tabindex="1"></div>
+            </div>
+
+            <div style="height: 8px"></div>
+
+            <div style="height: 30px">
+                <div id="ending_mix_select" class="select-div" tabindex="1"></div>
+            </div>
+        </div>
+    </div>
+
+    <div th:unless="${altLayout}">
+        <link rel="stylesheet" type="text/css" href="/css/piu/pretty_select_simple.css">
+
+        <div>
+            <div>Play Mix</div>
+            <div>
+                <div id="play_mix_select" class="select-div" tabindex="1"></div>
+            </div>
+            <div>Start/End Mix</div>
+            <div>
+                <div id="starting_mix_select" class="select-div" tabindex="1"></div>
+            </div>
+            <div>
+                <div id="ending_mix_select" class="select-div" tabindex="1"></div>
+            </div>
+        </div>
+    </div>
+
+    <script type="text/javascript" th:inline="javascript">
+        includeMix = true;
+
+        const isMixEnabled = {};
+        for (let mix of mixes) {
+            isMixEnabled[mix] = false;
+        }
+
+        function fromMixToMix(fromMix, toMix) {
+            let startIndex = getMixIndex(fromMix);
+            let stopIndex = getMixIndex(toMix);
+            return mixes.slice(startIndex, stopIndex + 1)
+        }
+
+        function getMixIndex(mix) {
+            let result = mixes.indexOf(mix);
+            if (result < 0) {
+                throw new Error("No such mix: " + mix);
+            }
+            return result;
+        }
+
+        const __playMixId = "playMix";
+        const __fromMixId = "fromMix";
+        const __toMixId = "toMix";
+
+        function constructMixes(playMixId) {
+            let playMix = document.getElementById("play_mix_select");
+            let startingMix = document.getElementById("starting_mix_select");
+            let endingMix = document.getElementById("ending_mix_select");
+
+            let option = `
+            <input class="selectopt" name="{name}" type="radio" id="{id}" onclick="update_mixes('{name}')">
+            <label for="{id}" class="option">{mix}</label>
+            `;
+
+            for (let mix of mixes) {
+                playMix.innerHTML += option
+                    .replaceAll("{name}", __playMixId).replaceAll("{id}", "play" + mix).replace("{mix}", mix);
+                startingMix.innerHTML += option
+                    .replaceAll("{name}", __fromMixId).replaceAll("{id}", "from" + mix).replace("{mix}", mix);
+                endingMix.innerHTML += option
+                    .replaceAll("{name}", __toMixId).replaceAll("{id}", "to" + mix).replace("{mix}", mix);
+            }
+
+            if (!mixes.includes(playMixId)) {
+                playMixId = defaultMix;
+            }
+            if (!mixes.includes(playMixId)) {
+                playMixId = mixes[mixes.length - 1];
+            }
+
+            document.getElementById("play" + playMixId).checked = true;
+            document.getElementById("from" + mixes[0]).checked = true;
+            document.getElementById("to" + playMixId).checked = true;
+        }
+
+        window.addEventListener('load', () => {
+            let playMix = getCookie(cookiePlayMix, defaultMix);
+            constructMixes(playMix);
+            update_mixes();
+        });
+
+        function update_mixes(source) {
+            for (let mix of mixes) {
+                isMixEnabled[mix] = false;
+            }
+
+            let playMix = document.querySelector(`input[name="${__playMixId}"]:checked`).id.substring(4);
+            let fromMix = document.querySelector(`input[name="${__fromMixId}"]:checked`).id.substring(4);
+            let toMix = document.querySelector(`input[name="${__toMixId}"]:checked`).id.substring(2);
+
+            let playMixIndex = getMixIndex(playMix);
+            let fromMixIndex = getMixIndex(fromMix);
+            let toMixIndex = getMixIndex(toMix);
+
+            if (fromMixIndex > toMixIndex) {
+                if (source === __fromMixId) {
+                    document.getElementById("to" + fromMix).checked = true;
+                    toMix = fromMix;
+                    toMixIndex = fromMixIndex;
+                } else {
+                    document.getElementById("from" + toMix).checked = true;
+                    fromMix = toMix;
+                    fromMixIndex = toMixIndex;
+                }
+            }
+
+            if (playMixIndex < fromMixIndex) {
+                document.getElementById("from" + playMix).checked = true;
+                fromMix = playMix;
+            }
+            if (playMixIndex < toMixIndex) {
+                document.getElementById("to" + playMix).checked = true;
+                toMix = playMix;
+            }
+
+            if (source === __playMixId) {
+                songReload(playMix);
+                document.getElementById("to" + playMix).checked = true;
+                toMix = playMix;
+            }
+
+            for (let mix of fromMixToMix(fromMix, toMix)) {
+                isMixEnabled[mix] = true;
+            }
+
+            settingsChanged();
+        }
+
+        function filter_mix(song, chart) {
+            let mix = chart.mix;
+            return isMixEnabled[mix];
+        }
+        chartFilters.push(filter_mix);
+    </script>
+
+
+</div>

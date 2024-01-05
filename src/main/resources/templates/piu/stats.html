@@ -7,13 +7,28 @@
 </head>
 <body>
 
+<div th:replace="util/cookies :: cookies"></div>
+
 <div id="settings">
     <input id="showdiff" type="text" value="S20">
     <input id="player" type="text" value="2493">
+
+    Mix:
+    <select id="grading">
+        <option value="XX">XX</option>
+        <option value="Phoenix">Phoenix</option>
+    </select>
+
     <button onclick="displayResults(
         document.getElementById('showdiff').value,
-        document.getElementById('player').value)">Go</button>
+        document.getElementById('player').value,
+        document.getElementById('grading').value)">Go</button>
 </div>
+
+<div id="latest">
+    <span>Latest update from  <a id="usage" href="https://pumpking.top" target="_blank" rel="noopener noreferrer">Pumpking</a>: <span id="latest-update"></span></span>
+</div>
+
 
 <div id="field" class="field">
 </div>
@@ -29,23 +44,106 @@
 
     //const songs = [[${songs}]];
 
-    const results = [[${results}]];
+    let results = null;
+    const latestUpdate = [[${latest}]];
 
-    displayResults('S20', '2493');
+    let currGrading = null;
+    const gradingXX = 'XX';
+    const gradingPhoenix = 'Phoenix';
 
-    function displayResults(difficulty, username) {
+    function getLocalTime() {
+        function formatLocalDate(date) {
+            let year = date.getFullYear();
+            let month = (date.getMonth() + 1).toString().padStart(2, '0'); // months are 0-indexed in JS
+            let day = date.getDate().toString().padStart(2, '0');
+            let hours = date.getHours().toString().padStart(2, '0');
+            let minutes = date.getMinutes().toString().padStart(2, '0');
+            let seconds = date.getSeconds().toString().padStart(2, '0');
+
+            return `${year}-${month}-${day} ${hours}:${minutes}:${seconds}`;
+        }
+
+        if (latestUpdate !== null) {
+            let time =  new Date(latestUpdate.replace(' ', 'T') + 'Z');
+            return formatLocalDate(time);
+        } return "";
+    }
+
+    document.getElementById("latest-update").innerHTML = getLocalTime();
+
+    const cookieDifficulty = 'difficulty';
+    const cookieNickname = 'nickname';
+    const cookieGrading = 'grading';
+
+    {
+        let currDiff = getCookie(cookieDifficulty, 'S20');
+        let currName = getCookie(cookieNickname, '2493');
+        let currGrading = getCookie(cookieGrading, gradingXX);
+
+        if (currGrading !== gradingXX && currGrading !== gradingPhoenix) {
+            currGrading = gradingXX;
+            setCookie(cookieGrading, gradingXX);
+        }
+
+        displayResults(currDiff, currName, currGrading);
+
+        document.getElementById('showdiff').value = currDiff;
+        document.getElementById('player').value = currName;
+        document.getElementById('grading').value = currGrading;
+    }
+
+    function displayResults(difficulty, username, grading) {
+        if (grading !== currGrading) {
+            fetch("/piu/stats/results?mix=" + grading)
+                .then(response => {
+                    // Check if the request was successful
+                    if (!response.ok) {
+                        throw new Error(`HTTP error! status: ${response.status}`);
+                    }
+                    return response.json();
+                })
+                .then(data => {
+                    // Handle your JSON data here
+                    currGrading = grading;
+                    results = data;
+                    displayResults(difficulty, username, grading);
+                })
+                .catch(error => {
+                    // Handle any errors here
+                    console.error('There has been a problem with your fetch operation:', error);
+                });
+            return;
+        }
+
+        setCookie(cookieDifficulty, difficulty);
+        setCookie(cookieNickname, username);
+        setCookie(cookieGrading, grading);
+
         const chosenCharts = [];
 
         for (let res of results) {
-            if (res.chart.difficulty.name === difficulty) {
+            if (res.pump_difficulty === difficulty) {
                 chosenCharts.push(res);
             }
         }
 
-        chosenCharts.sort((a, b) => b.difficulty - a.difficulty);
+        // constructing
+        let field = document.getElementById('field');
+        field.innerHTML = '';
 
-        let firstDiff = chosenCharts[0].difficulty;
-        let lastDiff = chosenCharts[chosenCharts.length - 1].difficulty;
+        if (chosenCharts.length === 0) {
+            return;
+        }
+
+        chosenCharts.forEach(d => {
+            if (d.pumpking_difficulty === 0) {
+                d.pumpking_difficulty = parseInt(difficulty.slice(1));
+            }
+        });
+        chosenCharts.sort((a, b) => b.pumpking_difficulty - a.pumpking_difficulty);
+
+        let firstDiff = chosenCharts[0].pumpking_difficulty;
+        let lastDiff = chosenCharts[chosenCharts.length - 1].pumpking_difficulty;
 
         let buckets = 10;
         let bucketsSize = (firstDiff - lastDiff) / buckets;
@@ -55,24 +153,19 @@
             diffThresholds[i] = firstDiff - bucketsSize * (i + 1.01);
         }
 
-         chartsSorted = Array(buckets).fill(0);
+        let chartsSorted = Array(buckets).fill(0);
         for (let i = 0; i < buckets; i++) {
             chartsSorted[i] = [];
         }
 
         for (let chart of chosenCharts) {
             for (let i = 0; i < buckets; i++) {
-                if (chart.difficulty >= diffThresholds[i]) {
+                if (chart.pumpking_difficulty >= diffThresholds[i]) {
                     chartsSorted[i].push(chart);
                     break;
                 }
             }
         }
-
-
-        // constructing
-        let field = document.getElementById('field');
-        field.innerHTML = '';
 
         for (let i = 0; i < buckets; i++) {
 
@@ -84,7 +177,7 @@
             }
 
             for (let chart of charts) {
-                sumDiff += chart.difficulty;
+                sumDiff += chart.pumpking_difficulty;
             }
 
             let avgDiff = ((sumDiff / chartsSorted[i].length * 10) | 0) / 10;
@@ -94,14 +187,15 @@
             str += '<div class="songs">'
 
             for (let chart of charts) {
-                str += "<div class=\"cell\" style=\"background-image: url('" + chart.song.card + "')\">";
+                str += "<div class=\"cell\" style=\"background-image: url('" + chart.song_card + "')\">";
 
                 let grade = '';
+                let score = '';
                 let classes = '';
                 let gradesForPlayer = [];
                 for (let res of chart.results) {
-                    if (res.player === username) {
-                        gradesForPlayer.push(res.grade);
+                    if (res.player.toLowerCase() === username.toLowerCase()) {
+                        gradesForPlayer.push(res);
                     }
                 }
 
@@ -122,28 +216,134 @@
                     '?': 7
                 }
 
+                let isPass = false;
+
                 if (gradesForPlayer.length > 0) {
-                    gradesForPlayer.sort((a, b) => sortGrade[b] - sortGrade[a])
-                    grade = gradesForPlayer[0];
+                    gradesForPlayer.sort((a, b) => sortGrade[b.grade] - sortGrade[a.grade])
+                    score  = gradesForPlayer[0];
+
+                    grade = score.grade;
 
                     if (grade === 'S' || grade === 'SS' || grade === 'SSS') {
+                        isPass = true;
                         classes += 'gold';
                     }
 
                     if (grade.endsWith('+')) {
+                        isPass = true;
                         grade = grade.substring(0, grade.length - 1);
                         classes += 'pass';
                     }
                 }
 
-                str += "<div class=\"grade" + (classes? ' ' + classes: '') + "\">" + grade + "</div>";
-                str += "</div>";
+                let phoenixScore = null;
+                if (grading === gradingPhoenix) {
+                    phoenixScore = calculatePhoenixScore(score);
+                    if (phoenixScore === 0 && grade !== '') {
+                        if (grade === 'SSS') {
+                            grade = '???';
+                        } else if (grade === 'SS') {
+                            grade = '??';
+                        } else {
+                            grade = '?';
+                        }
+                    }
+                }
+
+                if (grade[0] === '?' || grade === '') {
+                    str += "<div class=\"grade" + (classes? ' ' + classes: '') + "\">" + grade + "</div>";
+                    str += "</div>";
+                } else {
+                    if (grading === gradingXX) {
+                        if (!isPass) {
+                            grade += '-';
+                        }
+
+                        let gradePath = "/img/piu/grades/xx/shadow/" + grade + ".png"
+                        str += "<div class=\"grade grade_img\" style=\"background-image: url('" + gradePath + "')\"></div>"
+                        str += "</div>";
+
+                    } else if (grading === gradingPhoenix) {
+                        grade = convertToPhoenixGrading(phoenixScore);
+                        if (!isPass) {
+                            grade += '-';
+                        }
+
+                        let gradePath = "/img/piu/grades/phoenix/shadow/" + grade + ".png"
+                        str += "<div class=\"grade grade_img\" style=\"background-image: url('" + gradePath + "')\"></div>"
+                        str += "</div>";
+                    }
+
+                }
+
+
             }
 
             str += "</div></div>";
 
             field.innerHTML += str;
         }
+    }
+
+    function calculatePhoenixScore(score) {
+        let perfects = score.perfects;
+        let greats = score.greats;
+        let goods = score.goods;
+        let bads = score.bads;
+        let misses = score.misses;
+        let totalSteps = perfects + greats + goods + bads + misses;
+        let combo = score.max_combo;
+
+        return (995000*(perfects+0.6*greats+0.2*goods+0.1*bads)/(totalSteps)+5000*(combo/(totalSteps))) | 0;
+    }
+
+    function convertToPhoenixGrading(phoenixScore) {
+        if (phoenixScore >= 995_000) {
+            return 'SSS+';
+        }
+        if (phoenixScore >= 990_000) {
+            return 'SSS';
+        }
+        if (phoenixScore >= 985_000) {
+            return 'SS+';
+        }
+        if (phoenixScore >= 980_000) {
+            return 'SS';
+        }
+        if (phoenixScore >= 975_000) {
+            return 'S+';
+        }
+        if (phoenixScore >= 970_000) {
+            return 'S';
+        }
+        if (phoenixScore >= 960_000) {
+            return 'AAA+';
+        }
+        if (phoenixScore >= 950_000) {
+            return 'AAA';
+        }
+        if (phoenixScore >= 925_000) {
+            return 'AA+';
+        }
+        if (phoenixScore >= 900_000) {
+            return 'AA';
+        }
+        if (phoenixScore >= 800_000) {
+            return 'A+';
+        }
+        if (phoenixScore >= 750_000) {
+            return 'A';
+        }
+        if (phoenixScore >= 700_000) {
+            return 'B';
+        }
+        if (phoenixScore >= 600_000) {
+            return 'C';
+        }
+        if (phoenixScore >= 450_000) {
+            return 'D';
+        }
+        return 'F';
     }
 
 

@@ -12,7 +12,6 @@ public class PumpkingChartResults implements Comparable<PumpkingChartResults> {
     List<PumpkingResult> bestGradeResults;
     PumpkingChart chart;
 
-
     @Override
     public int compareTo(PumpkingChartResults o) {
         return chart.trackName.compareTo(o.chart.trackName);

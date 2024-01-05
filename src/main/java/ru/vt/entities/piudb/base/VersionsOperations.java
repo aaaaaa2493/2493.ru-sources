@@ -1,10 +1,10 @@
 package ru.vt.entities.piudb.base;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import ru.vt.dto.MixFromTo;
 import ru.vt.entities.piudb.ChartVersion;
 import ru.vt.entities.piudb.Mix;
 import ru.vt.entities.piudb.Operation;
-import ru.vt.entities.piudb.Operation.OperationValues;
 import ru.vt.entities.piudb.Version;
 import ru.vt.services.MixService;
 import ru.vt.utils.Utils;
@@ -21,14 +21,9 @@ public interface VersionsOperations {
     List<Operation> getOperations();
 
     @JsonIgnore
-    default Mix getMinMix() {
-        return Utils.ifNotNull(getStartingFromMix(), Version::getMix);
-    }
-
-    @JsonIgnore
     default Version getStartingFromMix() {
         for (var cv: Inner.getChartVersions(this)) {
-            if (cv.getOperation().getOperationId() != OperationValues.DELETE.operationId) {
+            if (cv.getOperation().isExist()) {
                 return cv.getVersion();
             }
         }
@@ -36,25 +31,36 @@ public interface VersionsOperations {
     }
 
     @JsonIgnore
-    default Mix getMaxMix() {
-        var versions = Inner.getChartVersions(this);
-        if (versions.size() == 0) {
+    default Mix getMinMix() {
+        var ranges = getChartExistMixRange();
+        if (ranges.size() == 0) {
             return null;
         }
+        return ranges.get(0).getFrom();
+    }
 
-        var latestVersion = versions.get(versions.size() - 1);
-
-        if (latestVersion.getOperation().getOperationId() == OperationValues.DELETE.operationId) {
-            return latestVersion.getVersion().getMix().getParentMix();
-        } else {
-            // if last action is not DELETE then it's the latest Mix
-            return MixService.latestMix;
+    @JsonIgnore
+    default Mix getMaxMix() {
+        var ranges = getChartExistMixRange();
+        if (ranges.size() == 0) {
+            return null;
         }
+        return ranges.get(ranges.size() - 1).getTo();
+    }
+
+    @JsonIgnore
+    default boolean existInMix(Mix mix) {
+        return Utils.any(getChartExistMixRange(), r -> r.between(mix));
     }
 
     @JsonIgnore
     default List<ChartVersion> getChartVersions() {
         return Inner.getChartVersions(this);
+    }
+
+    @JsonIgnore
+    default List<MixFromTo> getChartExistMixRange() {
+        return Inner.getChartExistMixRange(this);
     }
 
     @JsonIgnore
@@ -103,6 +109,44 @@ public interface VersionsOperations {
 
             return sortedChartVersions;
         }
+
+
+        @JsonIgnore
+        private static final Map<VersionsOperations, List<MixFromTo>> chartExistMixRangeMap = new HashMap<>();
+
+        @JsonIgnore
+        private static List<MixFromTo> getChartExistMixRange(VersionsOperations vo) {
+            var chartExistMix = chartExistMixRangeMap.computeIfAbsent(vo, k -> new ArrayList<>());
+
+            Utils.synchronizeOnEmpty(chartExistMix, () -> {
+                List<MixFromTo> versionFromTos = new ArrayList<>();
+
+                Mix prevMix = null;
+                Operation prevOperation = null;
+                for (var version : getChartVersions(vo)) {
+                    Mix mix = version.getVersion().getMix();
+                    Operation operation = version.getOperation();
+
+                    if (prevMix != null) {
+                        if (operation.isDelete() && prevOperation != null) {
+                            versionFromTos.add(new MixFromTo(prevMix, mix.getParentMix()));
+                        }
+                    }
+
+                    prevMix = mix;
+                    prevOperation = operation;
+                }
+
+                if (prevOperation != null && prevOperation.isExist()) {
+                    versionFromTos.add(new MixFromTo(prevMix, MixService.latestMix));
+                }
+
+                chartExistMix.addAll(versionFromTos);
+            });
+
+            return chartExistMix;
+        }
+
     }
 
 }

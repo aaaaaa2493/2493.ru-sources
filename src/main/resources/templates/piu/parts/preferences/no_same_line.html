@@ -1,0 +1,31 @@
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+
+
+<div th:fragment="no_same_line" th:remove="tag">
+  <div class="input-div">
+    <input id="isnosameline" type="checkbox" checked onclick="update_modes('nosameline')">
+    <label id="isnosamelinelabel" for="isnosameline">No same line</label>
+  </div>
+
+  <script type="text/javascript" th:inline="javascript">
+    isNoSameLineSupported = true;
+
+    let isNoSameLine = true;
+
+    let initialChangeNoSameLine = document.getElementById("isnosameline").checked;
+    let changeNoSameLine = initialChangeNoSameLine;
+
+    function handleRedNoSameLineText(showRed) {
+      if (!isNoSameLine) {
+        return;
+      }
+
+      let nosamelinelabel = document.getElementById("isnosamelinelabel");
+      if (showRed) {
+        nosamelinelabel.classList.add("red_text");
+      } else {
+        nosamelinelabel.classList.remove("red_text");
+      }
+    }
+  </script>
+</div>

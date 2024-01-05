@@ -45,6 +45,18 @@ public class ChartRating implements Comparable<ChartRating> {
         return mode.abbreviation + (difficulty.value != null ? difficulty.value : difficulty.name);
     }
 
+    public String shortnamePadded() {
+        return shortnamePadded(4);
+    }
+
+    public String shortnamePadded(int padding) {
+        var str = shortname();
+        if (str.length() < padding) {
+            str += " ".repeat(padding - str.length());
+        }
+        return str;
+    }
+
     @Override
     public String toString() {
         var vs = getVersions();

@@ -1,6 +1,6 @@
 package ru.vt.entities.pumpking;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Data;
 
 import java.util.Map;
@@ -8,6 +8,5 @@ import java.util.Map;
 @Data
 public class PumpkingData {
     Map<String, PumpkingChartResults> data;
-    String lastUpdateOn;
-    @JsonIgnore Map<String, String> idToName;
+    @JsonProperty("lastUpdatedOn") String lastUpdatedOn;
 }

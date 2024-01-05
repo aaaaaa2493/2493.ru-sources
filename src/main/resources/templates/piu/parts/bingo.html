@@ -1,19 +1,80 @@
 <html lang="en" xmlns:th="http://www.thymeleaf.org">
 
-<div th:fragment="bingo" id="field" class="field">
-    <div th:each="row : ${#numbers.sequence(0, rows - 1, 1)}" th:id="${row}" class="row">
-        <th:block th:each="col : ${#numbers.sequence(0, columns - 1, 1)}">
-            <div th:replace="piu/parts/cell :: cell(${row + '' + col})"></div>
-        </th:block>
-    </div>
+<div th:fragment="bingo">
+
+    <div id="field" class="field"></div>
 
     <script id="song-list" type="text/javascript" th:inline="javascript">
-        const songs = [[${songs}]];
+        let songs = [];
+        const mixes = [[${mixes}]];
+        const defaultMix = [[${defaultMix}]];
 
-        const rows = [[${rows}]];
-        const columns = [[${columns}]];
-        const width = [[${width}]];
-        const height = [[${height}]];
+        let rows = [[${rows}]];
+        let columns = [[${columns}]];
+        let width = [[${width}]];
+        let height = [[${height}]];
+    </script>
+
+    <script id="basic-functions" type="text/javascript">
+        function isShowingBlock(block) {
+            return block.style.display === 'block' || block.style.display === 'flex'
+        }
+
+        function showBlock(block) {
+            if (block.id.endsWith('redwin') ||
+                block.id.endsWith('bluewin')
+            ) {
+                block.style.display = 'flex';
+            } else {
+                block.style.display = 'block';
+            }
+        }
+
+        function hideBlock(block) {
+            block.style.display = '';
+        }
+    </script>
+
+    <script id="generate-cells" type="text/javascript" th:inline="javascript">
+
+        function generateField() {
+            let fieldHtml = ``;
+
+            for (let row = 0; row < rows; row++) {
+                fieldHtml += `<div id="${row}" class="row">`;
+
+                for (let col = 0; col < columns; col++) {
+                    let cellId = `${row}${col}`;
+                    fieldHtml += `
+                        <div id="${cellId}" class="cell" onclick="clicked(this.id)" style="width: 150px; height: 105px;">
+                            <div id="${cellId}names" class="filler players_names">
+                                <div id="${cellId}p1name" class="p1"></div>
+                                <div id="${cellId}p2name" class="p2"></div>
+                            </div>
+
+                            <div id="${cellId}bluewin" class="filler blue"></div>
+                            <div id="${cellId}redwin" class="filler red"></div>
+                            <div id="${cellId}draw" class="filler draw"></div>
+                            <div id="${cellId}selected" class="filler selected"></div>
+                            <div id="${cellId}inprogress" class="filler inprogress"></div>
+                            <div id="${cellId}lock" class="filler lock"></div>
+
+                            <div id="${cellId}info" class="filler cellinfo">
+                                <div id="${cellId}song" class="songname"></div>
+                                <div id="${cellId}cut" class="cutname"></div>
+                                <div id="${cellId}diff" class="diffname"></div>
+                            </div>
+                        </div>
+                    `;
+                }
+
+                fieldHtml += `</div>`;
+            }
+
+            document.getElementById("field").innerHTML = fieldHtml;
+        }
+
+        generateField();
     </script>
 
     <script id="setup-cells" type="text/javascript" th:inline="javascript">
@@ -45,14 +106,11 @@
         for (let r = 0; r < rows; r++) {
             for (let c = 0; c < columns; c++) {
                 let cellId = r + '' + c;
-                let cell = document.getElementById(cellId);
 
                 if (isCenterNamesCell(r, c)) {
-                    let center = document.getElementById(cellId);
-                    center.classList.add("center");
-                    cell.innerHTML =
-                        '<div id="p1name" class="p1">P1</div>' +
-                        '<div id="p2name" class="p2">P2</div>' + cell.innerHTML;
+                    showBlock(document.getElementById(cellId + 'names'));
+                } else {
+                    showBlock(document.getElementById(cellId + 'info'));
                 }
             }
         }
@@ -64,8 +122,12 @@
                 let cellId = r + '' + c;
                 let cell = document.getElementById(cellId);
 
-                cell.style["width"] = width + "px";
-                cell.style["height"] = height + "px";
+                cell.style.width = width + "px";
+                cell.style.height = height + "px";
+
+                let fillerElements = document.querySelectorAll('.filler');
+                fillerElements.forEach(e => e.style.width = width + "px");
+                fillerElements.forEach(e => e.style.height = height + "px");
             }
         }
     </script>
@@ -114,8 +176,8 @@
         }
 
         function rs(){
-            var WDT = $(".row").width() -45,
-                HGH = WDT*3 / 4;
+            let WDT = $(".row").width() -45,
+                HGH = WDT*9 / 16;
 
             $("#settings").width(WDT);
             $("hr").width(WDT-30);
@@ -124,7 +186,6 @@
             let e = document.getElementById('00');
             e.style["width"] = WDT + "px";
             e.style["height"] = HGH + "px";
-
         }
 
         window.addEventListener('load', function(event){
@@ -136,6 +197,10 @@
         });
 
         function loader(){
+            if (includeNoLoader && isNoLoader) {
+                return;
+            }
+
             $("#loader").css({
                 "display":"flex"
             });
@@ -174,7 +239,8 @@
             "DESTRUCIMATE": "DESTRUCI- MATE",
             "The Quick Brown Fox Jumps Over The Lazy Dog": "TQBFJOTLD",
             "Hypnosis(SynthWulf Mix)": "Hypnosis (SynthWulf Mix)",
-            "Nakakapagpabagabag": "Nakakapag- pabagabag"
+            "Nakakapagpabagabag": "Nakakapag- pabagabag",
+            "Pneumonoultramicroscopicsilicovolcanoconiosis": "Pneumonoultra microscopicsilico volcanoconiosis",
         }
 
         const fontchange = {
@@ -185,6 +251,8 @@
             "Blaze emotion (Band version)": "21px",
             "Repeatorment Remix": "20px",
             "Indestructible": "21px",
+            "Pneumonoultramicroscopicsilicovolcanoconiosis": "17px",
+            "GOODBOUNCE": "20px",
         }
 
 
@@ -239,75 +307,37 @@
             return getInProgressCells();
         }
 
-        function getCandidatesCharts() {
+        function getCandidatesCharts(for_preview) {
             let candidates = [];
 
             for (let song of songs) {
+                next_chart:
                 for (let chart of song.charts) {
-
-                    if (selectedCharts.includes(chart.chartId)) {
-                        continue;
-                    }
-
-                    if (includeMix && !filter_mix(chart.mix)) {
-                        continue;
-                    }
-
-                    if (includeBpm && !filter_bpm(song.song.bpm)) {
-                        continue;
-                    }
-
-                    let songCut = song.song.cut;
-                    if (includeCut) {
-                        if (!filter_cut(songCut)) {
+                    if (!for_preview) {
+                        if (selectedCharts.includes(chart.chart_id)) {
                             continue;
                         }
-                        songCut = get_simpler_cut(songCut);
                     }
 
-                    let difficulty = chart.difficulty.difficulty;
-                    if (difficulty < minDifficulty || difficulty > maxDifficulty) {
-                        continue;
-                    }
-
-                    let coop = chart.difficulty.coop;
-                    if (coop && !isCoop) {
-                        continue;
-                    }
-                    if (!coop && isCoop) {
-                        continue;
-                    }
-
-                    let performance = chart.difficulty.performance;
-                    if (performance && !isPerformance && !isOnlyPerformance) {
-                        continue;
-                    }
-                    if (!performance && isOnlyPerformance) {
-                        continue;
-                    }
-
-                    let single = chart.difficulty.single;
-                    if (single && !isSingle) {
-                        continue;
-                    }
-
-                    let double = chart.difficulty.double;
-                    if (double && !isDouble) {
-                        continue;
+                    for (let filter of chartFilters) {
+                        if (!filter(song, chart)) {
+                            continue next_chart;
+                        }
                     }
 
                     candidates.push({
-                        name: song.song.name,
+                        songId: song.song_id,
+                        chartId: chart.chart_id,
+                        name: song.name,
                         diff: chart.difficulty.name,
-                        diffNum: difficulty,
-                        cut: songCut,
-                        card: song.song.card,
-                        cardBig: song.song.cardBig,
-                        chartId: chart.chartId,
-                        single: single,
-                        double: double,
-                        performance: performance,
-                        coop: coop,
+                        diffNum: chart.difficulty.difficulty,
+                        cut: includeCut ? get_simpler_cut(song.cut) : song.cut,
+                        card: song.card,
+                        cardBig: song.card_big,
+                        single: chart.difficulty.single,
+                        double: chart.difficulty.double,
+                        performance: chart.difficulty.performance,
+                        coop: chart.difficulty.coop,
                     });
                 }
             }
@@ -323,7 +353,7 @@
         }
 
         function getChartFromCell(cellId) {
-            return chartIdToChart[ cellsToCharts[cellId] ];
+            return chartIdToChart[cellsToCharts[cellId] ];
         }
 
         function getChartsFromCells(cellsIds) {
@@ -376,6 +406,21 @@
         }
 
         function chooseSinglesOrDoubles(cellId, sumSingles, sumDoubles) {
+            const simplePercents = true;
+
+            if (simplePercents) {
+                let totalSum = sumSingles + sumDoubles;
+                if (totalSum === 0) {
+                    return Math.random() > 0.5;
+                } else {
+                    let currDoublePercentage = sumDoubles / totalSum;
+                    return currDoublePercentage > 0.5;
+                }
+            }
+
+
+            // more complex algo, seems to be worse
+
             if (isNoSameLineSupported && isNoSameLine && doesMakeSameLine(cellId, true)) {
                 return false;
             }
@@ -395,16 +440,14 @@
                 currDoublePercentage = sumDoubles / totalSum;
             }
 
-            // returns true if chooses Singles, returns false if chooses Doubles
-            return currSinglePercentage < singlePercentage;
+            let diffPercentage = currSinglePercentage - currDoublePercentage;
 
-            //let diffPercentage = currSinglePercentage - currDoublePercentage;
+            let improvedSinglePercentage = singlePercentage - diffPercentage;
 
-            //let improvedSinglePercentage = singlePercentage - diffPercentage;
-            //let randomSingleDouble = Math.random();
+            let randomSingleDouble = Math.random();
 
             // returns true if chooses Singles, returns false if chooses Doubles
-            //return improvedSinglePercentage > randomSingleDouble;
+            return improvedSinglePercentage > randomSingleDouble;
         }
 
         function chooseDifficulty(sumDiff, sumAllDiff) {
@@ -453,7 +496,7 @@
 
         function randomize() {
             let cellsToChange = shuffleCells(getCellsToChange());
-            let candidates = getCandidatesCharts();
+            let candidates = getCandidatesCharts(false);
 
             let sumSingles = 0;
             let sumDoubles = 0;
@@ -464,6 +507,7 @@
             }
 
             let cannotRandomizeCellSameLine = false;
+            let randomizedCharts = [];
 
             for (let cellId of cellsToChange) {
                 if (candidates.length === 0) {
@@ -523,9 +567,16 @@
                 }
 
                 writeChartInfoToCell(cellId, item);
+                randomizedCharts.push(item);
             }
 
             if (initialRandomize && cannotRandomizeCellSameLine) {
+                clearTable();
+                randomize();
+                return;
+            }
+
+            if (initialRandomize && isNoSameLineSupported && isNoSameLine && haveSameLineOnTable()) {
                 clearTable();
                 randomize();
                 return;
@@ -543,7 +594,14 @@
             lockIrrelevantCells();
             determineNotInterestingCells();
 
-            console.log(ALL_CELLS.filter(c => getChartFromCell(c).single).length, ALL_CELLS.filter(c => getChartFromCell(c).double).length);
+            for (let chart of randomizedCharts) {
+                if (includeNoRepeat) {
+                    process_no_repeat(chart);
+                }
+                if (includePreview) {
+                    update_preview(getCandidatesCharts(true));
+                }
+            }
         }
 
         function clicked(cellId) {
@@ -554,10 +612,10 @@
 
             let selectedDiv = document.getElementById(cellId + "selected");
 
-            if (selectedDiv.style.display === 'block') {
-                selectedDiv.style.display = '';
+            if (isShowingBlock(selectedDiv)) {
+                hideBlock(selectedDiv);
             } else {
-                selectedDiv.style.display = 'block';
+                showBlock(selectedDiv);
             }
 
             determineNotInterestingCells();
@@ -565,22 +623,22 @@
 
         function isCellSelected(cellId) {
             let selected = document.getElementById(cellId + "selected");
-            return selected.style.display === 'block';
+            return isShowingBlock(selected);
         }
 
         function isCellInProgress(cellId) {
             let inprogress = document.getElementById(cellId + "inprogress");
-            return inprogress.style.display === 'block';
+            return isShowingBlock(inprogress);
         }
 
         function isCellLocked(cellId) {
             let lock = document.getElementById(cellId + "lock");
-            return lock.style.display === 'block';
+            return isShowingBlock(lock);
         }
 
         function lockCell(cellId) {
             let lock = document.getElementById(cellId + "lock");
-            lock.style.display = 'block';
+            showBlock(lock);
 
             let cell = document.getElementById(cellId);
             cell.classList.add("locked");
@@ -588,7 +646,7 @@
 
         function unlockCell(cellId) {
             let lock = document.getElementById(cellId + "lock");
-            lock.style.display = '';
+            hideBlock(lock);
 
             let cell = document.getElementById(cellId);
             cell.classList.remove("locked");
@@ -598,20 +656,17 @@
             let blue = document.getElementById(cellId + "bluewin");
             let red = document.getElementById(cellId + "redwin");
             let draw = document.getElementById(cellId + "draw");
-
-            return blue.style.display === 'block'
-                || red.style.display === 'block'
-                || draw.style.display === 'block';
+            return isShowingBlock(blue) || isShowingBlock(red) || isShowingBlock(draw);
         }
 
         function isCellBlueWin(cellId) {
             let blue = document.getElementById(cellId + "bluewin");
-            return blue.style.display === 'block';
+            return isShowingBlock(blue);
         }
 
         function isCellRedWin(cellId) {
             let red = document.getElementById(cellId + "redwin");
-            return red.style.display === 'block';
+            return isShowingBlock(red);
         }
 
         function resetCell(cellId) {
@@ -629,8 +684,8 @@
             let lock = document.getElementById(cellId + "lock");
 
             for (let item of [blue, red, draw, selected, inprogress, lock]) {
-                if (item.style.display === 'block') {
-                    item.style.display = '';
+                if (isShowingBlock(item)) {
+                    hideBlock(item);
                 }
             }
         }
@@ -649,7 +704,7 @@
                 resetCell(cellId);
 
                 if (cls) {
-                    document.getElementById(cellId + cls).style.display = 'block';
+                    showBlock(document.getElementById(cellId + cls));
 
                     if (isDetermination) {
                         document.getElementById(cellId).classList.add(determinedCls);
@@ -661,7 +716,7 @@
                 for (let cellId of ALL_CELLS) {
                     if (isCellInProgress(cellId)) {
                         resetCell(cellId);
-                        document.getElementById(cellId + cls).style.display = 'block';
+                        showBlock(document.getElementById(cellId + cls));
                         document.getElementById(cellId).classList.add(determinedCls);
                     }
                 }
@@ -681,7 +736,7 @@
                 let itemIndex = Math.floor(Math.random() * availableCells.length);
                 let item = availableCells[itemIndex];
 
-                document.getElementById(item + "inprogress").style.display = 'block';
+                showBlock(document.getElementById(item + "inprogress"));
             }
 
             if (!foundSelected && cls === 'reset' && ALL_CELLS.some(c => isCellInProgress(c))) {

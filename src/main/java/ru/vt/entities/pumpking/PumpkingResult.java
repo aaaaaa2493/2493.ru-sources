@@ -13,4 +13,10 @@ public class PumpkingResult {
     int rankMode;
     int score;
     String grade;
+    int perfects;
+    int greats;
+    int goods;
+    int bads;
+    int misses;
+    int maxCombo;
 }

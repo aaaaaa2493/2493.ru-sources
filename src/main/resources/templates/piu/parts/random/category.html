@@ -1,0 +1,83 @@
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+
+
+<div th:fragment="category" th:remove="tag">
+    <div class="input-div">
+        <input id="isoriginal" type="checkbox" checked onclick="update_categories()">
+        <label for="isoriginal">Original</label>
+    </div>
+
+    <div class="input-div">
+        <input id="iskpop" type="checkbox" checked onclick="update_categories()">
+        <label for="iskpop">K-pop</label>
+    </div>
+
+    <div class="input-div">
+        <input id="isworldmusic" type="checkbox" checked onclick="update_categories()">
+        <label for="isworldmusic">World Music</label>
+    </div>
+
+    <div class="input-div">
+        <input id="isjmusic" type="checkbox" checked onclick="update_categories()">
+        <label for="isjmusic">J-Music</label>
+    </div>
+
+    <div class="input-div">
+        <input id="isxross" type="checkbox" checked onclick="update_categories()">
+        <label for="isxross">Xross</label>
+    </div>
+
+    <script type="text/javascript" th:inline="javascript">
+        includeCategory = true;
+
+        let isOriginal = true;
+        let isKpop = true;
+        let isWorldMusic = true;
+        let isJmusic = true;
+        let isXross = true;
+
+        window.addEventListener('load', () => {
+            update_categories();
+        });
+
+        function update_categories() {
+            isOriginal = document.getElementById("isoriginal").checked;
+            isKpop = document.getElementById("iskpop").checked;
+            isWorldMusic = document.getElementById("isworldmusic").checked;
+            isJmusic = document.getElementById("isjmusic").checked;
+            isXross = document.getElementById("isxross").checked;
+            settingsChanged();
+        }
+
+        function filter_category(song, chart) {
+            let songCategory = song.category;
+
+            if (songCategory === "ORIGINAL") {
+                if (!isOriginal) {
+                    return false;
+                }
+            } else if (songCategory === "K-POP") {
+                if (!isKpop) {
+                    return false;
+                }
+            } else if (songCategory === "WORLD MUSIC") {
+                if (!isWorldMusic) {
+                    return false;
+                }
+            } else if (songCategory === "J-MUSIC") {
+                if (!isJmusic) {
+                    return false;
+                }
+            } else if (songCategory === "XROSS") {
+                if (!isXross) {
+                    return false;
+                }
+            } else {
+                throw Error("Can't find category '" + songCategory + "'");
+            }
+            return true;
+        }
+        chartFilters.push(filter_category);
+    </script>
+
+</div>

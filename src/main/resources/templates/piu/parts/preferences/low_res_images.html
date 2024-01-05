@@ -1,0 +1,20 @@
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+
+
+<div th:fragment="low_res_images" th:remove="tag">
+    <div class="input-div">
+        <input id="islowresimages" type="checkbox" onclick="update_low_res_images()">
+        <label for="islowresimages">Low-res images</label>
+    </div>
+
+    <script type="text/javascript" th:inline="javascript">
+        window.addEventListener('load', () => {
+            update_low_res_images();
+        });
+
+        function update_low_res_images() {
+            useHighResImages = !document.getElementById("islowresimages").checked;
+        }
+    </script>
+
+</div>

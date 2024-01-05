@@ -85,7 +85,7 @@ public class GithubClient {
             IssueCommentEvent.getName(), false
     ));
 
-    private String id;
+    private final String id;
     private WebSocketSession handler;
     private Pattern ownerFilter = Pattern.compile("");
     private Pattern repoFilter = Pattern.compile("");

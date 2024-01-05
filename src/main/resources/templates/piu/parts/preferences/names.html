@@ -1,0 +1,30 @@
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+
+
+<div th:fragment="names" id="players_names">
+    <div id="p1namelabel">P1:</div>
+    <input id="player1_name" type="text" value="A" style="float: left" oninput="update_names()">
+    <div id="p2namelabel">P2:</div>
+    <input id="player2_name" type="text" value="B" style="float: left" oninput="update_names()">
+
+    <script type="text/javascript" th:inline="javascript">
+
+        isNamesSupported = true;
+
+        window.addEventListener('load', () => {
+            update_names();
+        });
+        function update_names() {
+            if (!isNamesSupported) {
+                return;
+            }
+
+            let p1name = document.getElementById("player1_name").value;
+            let p2name = document.getElementById("player2_name").value;
+
+            document.querySelectorAll(".p1").forEach(e => e.innerHTML = p1name);
+            document.querySelectorAll(".p2").forEach(e => e.innerHTML = p2name);
+        }
+    </script>
+
+</div>

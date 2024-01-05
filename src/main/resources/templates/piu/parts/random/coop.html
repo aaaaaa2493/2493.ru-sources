@@ -1,0 +1,61 @@
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+
+
+<div th:fragment="coop" th:remove="tag">
+    <div id="iscoopdiv" class="input-div">
+        <input id="iscoop" type="checkbox" onclick="update_coop()">
+        <label for="iscoop">Coop only</label>
+    </div>
+
+    <script type="text/javascript" th:inline="javascript">
+        includeCoop = true;
+        let isCoop = false;
+
+        let hasCoop = false;
+
+        function initCoop() {
+            hasCoop = false;
+            outer:
+            for (let song of songs) {
+                for (let chart of song.charts) {
+                    if (chart.difficulty.coop) {
+                        hasCoop = true;
+                        break outer;
+                    }
+                }
+            }
+
+            if (hasCoop) {
+                document.getElementById("iscoopdiv").style.display = 'block';
+            } else {
+                document.getElementById("iscoopdiv").style.display = 'none';
+            }
+        }
+
+        initNewSongsFuncs.push(initCoop);
+
+        window.addEventListener('load', () => {
+            update_coop();
+        });
+        function update_coop() {
+            isCoop = document.getElementById("iscoop").checked;
+            settingsChanged();
+        }
+
+        function filter_coop(song, chart) {
+            if (!hasCoop) {
+                return true;
+            }
+
+            let coop = chart.difficulty.coop;
+            if (coop && !isCoop) {
+                return false;
+            }
+            if (!coop && isCoop) {
+                return false;
+            }
+            return true;
+        }
+        chartFilters.push(filter_coop);
+    </script>
+</div>

@@ -1,0 +1,266 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Pump it Up Scoring</title>
+    <link rel="stylesheet" type="text/css" href="/css/piu/scoring.css">
+    <link rel="application/x-font-ttf" href="/fonts/RobotoMono-Regular.ttf">
+</head>
+<body>
+    Calculate Pump it Up Phoenix Score
+    <br><br>
+
+    <div class="field-container">
+        <div class="field">
+            <label for="perfects">Perfects:</label>
+            <input type="text" id="perfects" name="perfects" oninput="changed()">
+        </div>
+        <div class="field">
+            <label for="greats">Greats:</label>
+            <input type="text" id="greats" name="greats" oninput="changed()">
+        </div>
+        <div class="field">
+            <label for="goods">Goods:</label>
+            <input type="text" id="goods" name="goods" oninput="changed()">
+        </div>
+        <div class="field">
+            <label for="bads">Bads:</label>
+            <input type="text" id="bads" name="bads" oninput="changed()">
+        </div>
+        <div class="field">
+            <label for="misses">Misses:</label>
+            <input type="text" id="misses" name="misses" oninput="changed()">
+        </div>
+        <div class="field">
+            <label for="max-combo">Max Combo:</label>
+            <input type="text" id="max-combo" name="max-combo" oninput="changed()">
+        </div>
+        <div class="field">
+            <label for="total-steps">Total Steps:</label>
+            <input type="text" id="total-steps" name="total-steps" oninput="changed()">
+        </div>
+        <div class="field">
+            <label for="stage-pass">Stage Pass:</label>
+            <input type="checkbox" id="stage-pass" name="stage-pass" checked onclick="changed()" >
+        </div>
+    </div>
+
+    <div id="scoring-side">
+        <div id="phoenix-score">
+             <span id="score" style="font-family: 'Roboto Mono', monospace; font-size: 50px">1000000</span>
+        </div>
+        <div id="grade" class="grade" style="background-image: url('/img/piu/grades/phoenix/shadow/SSS+.png')"></div>
+    </div>
+
+    <script>
+        function check_for_non_digits() {
+            let inputs = [
+                document.getElementById("perfects"),
+                document.getElementById("greats"),
+                document.getElementById("goods"),
+                document.getElementById("bads"),
+                document.getElementById("misses"),
+                document.getElementById("max-combo"),
+                document.getElementById("total-steps")
+            ];
+
+            inputs.forEach((input) => {
+                input.value = input.value.replace(/\D/g, '');
+            });
+        }
+
+        function changed() {
+            check_for_non_digits();
+
+            let perfects_input = document.getElementById("perfects");
+            let greats_input = document.getElementById("greats");
+            let goods_input = document.getElementById("goods");
+            let bads_input = document.getElementById("bads");
+            let misses_input = document.getElementById("misses");
+            let max_combo_input = document.getElementById("max-combo");
+            let total_steps_input = document.getElementById("total-steps");
+
+            perfects_input.placeholder = '';
+            greats_input.placeholder = '';
+            goods_input.placeholder = '';
+            bads_input.placeholder = '';
+            misses_input.placeholder = '';
+            max_combo_input.placeholder = '';
+            total_steps_input.placeholder = '';
+
+            let perfects_str = perfects_input.value;
+            let greats_str = greats_input.value;
+            let goods_str = goods_input.value;
+            let bads_str = bads_input.value;
+            let misses_str = misses_input.value;
+            let max_combo_str = max_combo_input.value;
+            let total_steps_str = total_steps_input.value;
+
+            if ((perfects_str + greats_str + goods_str + bads_str + misses_str + max_combo_str + total_steps_str).length === 0) {
+                set_score(1_000_000);
+                return;
+            }
+
+            let perfects = perfects_str ? parseInt(perfects_str) : 0;
+            let greats = greats_str ? parseInt(greats_str) : 0;
+            let goods = goods_str ? parseInt(goods_str) : 0;
+            let bads = bads_str ? parseInt(bads_str) : 0;
+            let misses = misses_str ? parseInt(misses_str) : 0;
+
+            let max_combo = max_combo_str ? parseInt(max_combo_str) : 0;
+            let total_steps = total_steps_str ? parseInt(total_steps_str) : 0;
+
+            if (total_steps_str.length === 0) {
+                total_steps = perfects + greats + goods + bads + misses;
+                total_steps_input.placeholder = total_steps;
+            }
+
+            if (perfects_str && greats_str && goods_str && bads_str && misses_str) {
+                total_steps = perfects + greats + goods + bads + misses;
+                total_steps_input.value = "";
+                total_steps_input.placeholder = total_steps;
+            }
+
+            let steps_left = total_steps;
+            if (perfects_str) {
+                steps_left -= perfects;
+            }
+            if (greats_str) {
+                steps_left -= greats;
+            }
+            if (goods_str) {
+                steps_left -= goods;
+            }
+            if (bads_str) {
+                steps_left -= bads;
+            }
+            if (misses_str) {
+                steps_left -= misses;
+            }
+
+            if (!perfects_str) {
+                perfects = steps_left;
+                perfects_input.placeholder = perfects;
+                steps_left = 0;
+            }
+            if (!greats_str) {
+                greats = steps_left;
+                greats_input.placeholder = greats;
+                steps_left = 0;
+            }
+            if (!goods_str) {
+                goods = steps_left;
+                goods_input.placeholder = goods;
+                steps_left = 0;
+            }
+            if (!bads_str) {
+                bads = steps_left;
+                bads_input.placeholder = bads;
+                steps_left = 0;
+            }
+            if (!misses_str) {
+                misses = steps_left;
+                misses_input.placeholder = misses;
+            }
+
+            if (!max_combo_str) {
+                max_combo = perfects + greats;
+                max_combo_input.placeholder = perfects + greats;
+            }
+
+            set_score(calculatePhoenixScore({
+                perfects: perfects,
+                greats: greats,
+                goods: goods,
+                bads: bads,
+                misses: misses,
+                totalSteps: total_steps,
+                maxCombo: max_combo
+            }));
+        }
+
+        function calculatePhoenixScore(score) {
+            let perfects = score.perfects;
+            let greats = score.greats;
+            let goods = score.goods;
+            let bads = score.bads;
+            let misses = score.misses;
+            let totalSteps = perfects + greats + goods + bads + misses;
+            let combo = score.maxCombo;
+
+            return (995000*(perfects+0.6*greats+0.2*goods+0.1*bads)/(totalSteps)+5000*(combo/(totalSteps))) | 0;
+        }
+
+        function set_score(score) {
+            document.getElementById("score").innerHTML = score;
+            let stage_pass = document.getElementById("stage-pass").checked;
+            let grade = convertToPhoenixGrading(score);
+
+            if (!stage_pass) {
+                grade += '-';
+            }
+
+            document.getElementById("grade").style.backgroundImage =
+                "url('/img/piu/grades/phoenix/shadow/" + grade + ".png')";
+        }
+
+    function convertToPhoenixGrading(phoenixScore) {
+        console.log(phoenixScore);
+
+        if (phoenixScore >= 995_000) {
+            return 'SSS+';
+        }
+        if (phoenixScore >= 990_000) {
+            return 'SSS';
+        }
+        if (phoenixScore >= 985_000) {
+            return 'SS+';
+        }
+        if (phoenixScore >= 980_000) {
+            return 'SS';
+        }
+        if (phoenixScore >= 975_000) {
+            return 'S+';
+        }
+        if (phoenixScore >= 970_000) {
+            return 'S';
+        }
+        if (phoenixScore >= 960_000) {
+            return 'AAA+';
+        }
+        if (phoenixScore >= 950_000) {
+            return 'AAA';
+        }
+        if (phoenixScore >= 925_000) {
+            return 'AA+';
+        }
+        if (phoenixScore >= 900_000) {
+            return 'AA';
+        }
+        if (phoenixScore >= 800_000) {
+            return 'A+';
+        }
+        if (phoenixScore >= 750_000) {
+            return 'A';
+        }
+        if (phoenixScore >= 700_000) {
+            return 'B';
+        }
+        if (phoenixScore >= 600_000) {
+            return 'C';
+        }
+        if (phoenixScore >= 450_000) {
+            return 'D';
+        }
+        if (phoenixScore >= 0) {
+            return 'F';
+        }
+        return '';
+    }
+
+    </script>
+
+
+
+</body>
+</html>

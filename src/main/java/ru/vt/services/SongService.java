@@ -5,21 +5,19 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import ru.vt.dao.SongRepository;
-import ru.vt.dto.ChartResults;
-import ru.vt.dto.SongCharts;
+import ru.vt.dto.SongDto;
+import ru.vt.entities.korean.KoreanData;
 import ru.vt.entities.piudb.Chart;
-import ru.vt.entities.piudb.Cut.CutValues;
 import ru.vt.entities.piudb.Mix;
 import ru.vt.entities.piudb.Mix.MixValues;
 import ru.vt.entities.piudb.Song;
-import ru.vt.entities.piudb.SongTitle;
-import ru.vt.entities.pumpking.PumpkingData;
-import ru.vt.utils.Utils;
+import ru.vt.utils.Memorizer;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
+import java.util.function.Function;
+
+import static ru.vt.entities.piudb.Mix.MixValues.XX;
 
 @Service
 public class SongService {
@@ -33,11 +31,7 @@ public class SongService {
     MixService mixService;
 
     private final List<Song> allSongs = new ArrayList<>();
-    private final List<ChartResults> pumpkingResults = new ArrayList<>();
 
-    public List<ChartResults> getResults() {
-        return new ArrayList<>(pumpkingResults);
-    }
 
     public List<Song> getAllSongs() {
         if (allSongs.isEmpty()) {
@@ -48,6 +42,20 @@ public class SongService {
             }
         }
         return new ArrayList<>(allSongs);
+    }
+
+    @Autowired
+    ResourceExistsService existsService;
+
+    public String getCardBigForMix(Song song, Mix mix) {
+        while (mix.enumValue().ordinal() >= XX.ordinal()) {
+            var mixCardBig = "/img/card_big/" + mix + "/"  + song.getIdentifier() + ".png";
+            if (existsService.resourceExists(mixCardBig)) {
+                return mixCardBig;
+            }
+            mix = mix.getParentMix();
+        }
+        return song.getCardBig();
     }
 
     private void generateAllSongs() {
@@ -68,185 +76,71 @@ public class SongService {
             }
         }
 
+        Mix latest = mixService.getLatestMix();
+
         log.debug("Songs after removing dups: " + allSongs.size());
-        log.debug("Songs for " + mixService.getLatestMix() + ": " +
-                getAllSongsForMix(mixService.getLatestMix().getMixId()).size());
+        log.debug("Songs in " + latest + ": " + allSongs.stream().filter(s -> s.hasChartsForMix(latest)).count());
+        log.debug("Charts in " + latest + ": " + allSongs.stream().mapToInt(s -> s.getChartsForMix(latest).size()).sum());
     }
 
-    public List<SongCharts> getAllSongsForMix(int mixId) {
-        List<SongCharts> songsForMix = new ArrayList<>();
-        Mix mix = mixService.getById(mixId);
+    private final Function<Integer, List<SongDto>> songMemo = Memorizer.memorize(mixId -> {
+        List<SongDto> songsForMix = new ArrayList<>();
+        Mix mix = mixService.get(mixId);
 
         for (var song: getAllSongs()) {
             List<Chart> charts = song.getChartsForMix(mix);
             if (charts.isEmpty()) {
                 continue;
             }
-            songsForMix.add(new SongCharts(song, charts));
+            var card = getCardBigForMix(song, mix);
+            songsForMix.add(new SongDto(song, mix, card));
         }
 
         return songsForMix;
+    });
+
+    public List<SongDto> getAllSongsForMix(int mixId) {
+        return songMemo.apply(mixId);
     }
 
-    public void enrichPumpkingData(PumpkingData data) {
-        Map<String, String> corrections = new HashMap<>();
-        corrections.put("Close Your Eyes", "Close Your Eye");
-        corrections.put("Can Can", "Radetzky Can Can");
-        corrections.put("Will o' the Wisp", "Will-O-The-Wisp");
-        corrections.put("Do It -Reggae Style-", "Do It Reggae Style");
-        corrections.put("Flew Far Faster", "FFF");
-        corrections.put("Log-In", "Log In");
-        corrections.put("Ai, Yurete", "Ai, Yurete...");
-        corrections.put("Sudden Romance (PIU Edit)", "Sudden Romance [PIU Edit]");
-        corrections.put("Ren'ai Yuusha", "Renai Yuusha");
-        corrections.put("Bad &infin; End &infin; Night", "Bad ∞ End ∞ Night");
-        corrections.put("Papasito (ft. KuTiNA)", "Papasito feat. KuTiNA");
-        corrections.put("The End of the World (ft. Skizzo)", "The End of the World ft. Skizzo");
-        corrections.put("2006 Love Song", "2006. LOVE SONG");
-        corrections.put("BanYa-P Classic Mix", "Banya-P Classic Remix");
-        corrections.put("Canon-D", "Canon D");
-        corrections.put("Do You Know That -Old School-", "Do U Know That-Old School");
-        corrections.put("Final Audition 3 U.F", "Final Audition 3");
-        corrections.put("Final Audition episode 1", "Final Audition Ep. 1");
-        corrections.put("Final Audition episode 2-1", "Final Audition Ep. 2-1");
-        corrections.put("Final Audition episode 2-2", "Final Audition Ep. 2-2");
-        corrections.put("Final Audition episode 2-X", "Final Audition Ep. 2-X");
-        corrections.put("Four Seasons of Loneliness", "FOUR SEASONS OF LONELINESS verβ feat. sariyajin");
-        corrections.put("Hi-Bi", "Hi Bi");
-        corrections.put("Jam o' Beat", "Jam O Beat");
-        corrections.put("K.O.A. -Alice in Wonderworld-", "K.O.A : Alice In Wonderworld");
-        corrections.put("Love is a Danger Zone 2 (D&G Ver.)", "Love is a Danger Zone pt.2 another");
-        corrections.put("Miss's Story", "Miss S' story");
-        corrections.put("Pumptris (8Bit ver.)", "Pumptris 8Bit ver.");
-        corrections.put("Pumptris (8bit ver.)", "Pumptris 8Bit ver.");
-        corrections.put("Tream Vook of the War", "Tream Vook of the war REMIX");
-        corrections.put("What Are You Doin'?", "What Are You Doin?");
-        corrections.put("X-Tree", "XTREE");
-        corrections.put("X-Treme", "X Treme");
-        corrections.put("Four Seasons of Loneliness ver B feat. Sariyajin",
-                "FOUR SEASONS OF LONELINESS verβ feat. sariyajin");
+    public List<SongDto> getAllSongsForMix(MixValues mix) {
+        return getAllSongsForMix(mix.mixId);
+    }
 
-        Utils.synchronizeOnEmpty(pumpkingResults, () -> {
-            List<SongCharts> allSongs = getAllSongsForMix(MixValues.XX.mixId);
-
-            for (var d : data.getData().values().stream().sorted().toList()) {
-                String trackName = d.getChart().getTrackName()
-                        .replace("[SHORT]", "")
-                        .replace("[FULL]", "")
-                        .strip();
-
-                String searchableTrackName = corrections.getOrDefault(trackName, trackName)
-                        .toLowerCase()
-                        .replace(" ", "");
-
-                List<SongCharts> sameTitleAndCut = allSongs.stream()
-                        .filter(st -> {
-                            Song s = st.getSong();
-
-                            List<String> titles = new ArrayList<>(
-                                    s.getSongTitles().stream().map(SongTitle::getTitle).toList());
-                            titles.add(s.getName());
-
-                            for (var t : titles) {
-                                t = t.replace("Love is a Danger Zone pt. 2",
-                                                "Love is a Danger Zone 2")
-                                        .replace(" ", "")
-                                        .replace("’", "'")
-                                        .toLowerCase();
-
-                                if (searchableTrackName.equals(t)) {
-                                    return true;
-                                }
+    public void enrichChartStyles() {
+        songData:
+        for (var songData : KoreanData.data) {
+            for (var song : getAllSongs()) {
+                if (songData.getSongId().equals(song.getIdentifier())) {
+                    chartData:
+                    for (var chartData : songData.getCharts()) {
+                        for (var chart : song.getCharts()) {
+                            if (!chart.existInMix(mixService.get(XX))) {
+                                continue;
                             }
-
-                            return false;
-                        })
-                        .filter(st -> {
-                            var duration = d.getChart().getDuration();
-                            int cutId = CutValues.fromPumpking(duration).cutId;
-                            return st.getSong().getCutId() == cutId;
-                        })
-                        .toList();
-
-                String fullTrackName = trackName
-                        + " " + d.getChart().getChartLabel()
-                        + " " + d.getChart().getDuration();
-
-                if (sameTitleAndCut.isEmpty()) {
-                    throw new RuntimeException("Can't enrich Pumpking Data " +
-                            "- no song candidate of " + fullTrackName);
-
-                } else if (sameTitleAndCut.size() > 1) {
-                    throw new RuntimeException("Can't enrich Pumpking Data " +
-                            "- multiple song candidates " + fullTrackName);
-
-                } else {
-                    SongCharts songCharts = sameTitleAndCut.get(0);
-                    String label = d.getChart().getChartLabel().toUpperCase();
-
-                    if (label.contains("COOP")) {
-                        label = label.replace("COOP", "C");
-                    }
-
-                    List<Chart> chartCandidates = new ArrayList<>();
-
-                    for (var c : songCharts.getCharts()) {
-                        if (c.getLastDifficulty().shortname().equals(label)) {
-                            chartCandidates.add(c);
-                        }
-                    }
-
-                    if (chartCandidates.isEmpty()) {
-                        throw new RuntimeException("Can't enrich Pumpking Data " +
-                                "- no chart candidate of " + fullTrackName);
-
-                    } else if (chartCandidates.size() > 1) {
-                        throw new RuntimeException("Can't enrich Pumpking Data " +
-                                "- many chart candidates of " + fullTrackName);
-                    }
-
-                    Chart chart = chartCandidates.get(0);
-                    var results = d.getResults();
-                    var bestGrade = d.getBestGradeResults();
-
-                    for (var result : results) {
-                        if (bestGrade != null) {
-                            for (var bestResult : bestGrade) {
-                                if (bestResult.getPlayer().equals(result.getPlayer())) {
-                                    result.setGrade(bestResult.getGrade());
-                                    result.setScore(bestResult.getScore());
-                                    result.setRankMode(bestResult.getRankMode());
-                                    break;
+                            if (chart.getDifficultyForMix(mixService.get(XX)).getName().equals(chartData.getDifficulty())) {
+                                if (chart.getStyles() != null && chart.getStyles().size() != 0) {
+                                    throw new IllegalStateException(
+                                        "Cannot set the style of the chart more than once\n"
+                                            + song + "\n\n" + chart);
                                 }
+                                chart.setStyles(chartData.getStyles());
+                                continue chartData;
                             }
                         }
-                        result.setPlayer(data.getIdToName().get(result.getPlayer()));
+                        throw new IllegalStateException("Can't find chart " +
+                            chartData.getDifficulty() + " in song\n" + song);
                     }
-
-                    pumpkingResults.add(new ChartResults(
-                            songCharts.getSong(), chart, results, d.getChart().getDifficulty()));
+                    continue songData;
                 }
             }
-        });
 
-        for (var songChart : getAllSongsForMix(MixService.latestMix.getMixId())) {
-            var song = songChart.getSong();
-            var realCharts = songChart.getCharts();
-            var pumkingCharts = pumpkingResults.stream()
-                    .filter(pr -> pr.getSong().equals(song))
-                    .map(ChartResults::getChart)
-                    .toList();
-
-            for (var rc : realCharts) {
-                if (!pumkingCharts.contains(rc)) {
-                    pumpkingResults.add(new ChartResults(song, rc, new ArrayList<>(), 0.0));
-                }
-            }
+            // No such song in Mix
+            //throw new IllegalStateException("Can't find song "
+            //    + songData.getSongId() + " " + songData.getName());
         }
-
-        log.debug("Pumpking Analyzed OK");
+        log.debug("Chart styles Analyzed OK");
     }
-
 
 
 }

@@ -1,4 +1,9 @@
 
+body {
+    margin-left: 8px;
+    margin-top: 8px;
+}
+
 .songname {
     height: 75%;
     text-align:center;
@@ -20,45 +25,50 @@
 
 .blue {
     background-color: #0d96ff96;
+    z-index: 2;
 }
 
 .red {
     background-color: #e71d308a;
+    z-index: 2;
+}
+
+.draw {
+    background: linear-gradient(35deg, #e71d308a 0%, #e71d308a 50%, #0d96ff96 50%, #0d96ff96 100%);
+    z-index: 2;
 }
 
 .selected {
     background-color: #4e4e4e75;
+    z-index: 2;
 }
 
 .inprogress {
-    width: 0;
-    height: 0;
+    width: 0 !important;
+    height: 0 !important;
     border-top: 40px solid transparent;
     border-left: 70px solid #02915699;
     border-bottom: 40px solid transparent;
     margin-top: 12px;
     margin-left: 40px;
+    z-index: 2;
+}
+
+.lock {
+    background-image: url(/img/piu/lock.png);
+    background-size: cover;
+    width: 80px !important;
+    height: 80px !important;
+    margin-top: 8px;
+    margin-left: 32px;
+    z-index: 2;
 }
 
 .makeinprogress {
     background-color: #02915699;
 }
 
-.lock {
-    background-image: url(/img/piu/lock.png);
-    background-size: cover;
-    width: 80px;
-    height: 80px;
-    margin-top: 8px;
-    margin-left: 32px;
-}
-
-.draw {
-    background: linear-gradient(35deg, #e71d308a 0%, #e71d308a 50%, #0d96ff96 50%, #0d96ff96 100%);
-}
-
 .center {
-    display: block;
     background: linear-gradient(35deg, #e71d30a8 0%, #e71d30a8 50%, #0d96ffa8 50%, #0d96ffa8 100%);
 }
 

@@ -3,7 +3,9 @@
 <head>
     <meta charset="UTF-8">
     <title>Pump it Up Randomizer</title>
-    <meta th:replace="piu/parts/skins :: ${skin}(true)">
+    <link rel="stylesheet" type="text/css" href="/css/reset.css">
+    <link th:replace="piu/parts/skins :: ${skin}(true)">
+    <link rel="application/x-font-ttf" href="/fonts/tahoma.ttf">
 </head>
 <body>
 
@@ -11,7 +13,7 @@
 
 <br>
 
-<div th:replace="piu/parts/settings/settings :: settings"></div>
+<div th:replace="piu/parts/settings :: settings"></div>
 
 </body>
 

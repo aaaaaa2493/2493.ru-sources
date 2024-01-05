@@ -1,0 +1,253 @@
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+
+<div th:fragment="settings" th:remove="tag">
+
+    <div th:replace="util/cookies :: cookies"></div>
+
+    <script type="text/javascript" th:inline="javascript">
+        let includeMix = false;
+        let includeCut = false;
+        let includeBpm = false;
+        let includeCategory = false;
+        let includeChartStyles = false;
+        let includeNoRepeat = false;
+        let includeNoLoader = false;
+        let includePreview = false;
+
+        let includePerformance = false;
+        let includeCoop = false;
+        let includeMode = false;
+        let includeDifficulty = false;
+
+        let isLockingSupported = false;
+        let isNoSameLineSupported = false;
+        let isNamesSupported = false;
+
+        let useHighResImages = false;
+
+        let initNewSongsFuncs = [];
+        let chartFilters = [];
+
+        const cookiePlayMix = "playMix";
+    </script>
+
+    <div th:if="${isBingo}">
+        <div id="switchbuttons" style="float: left; width: 90px;margin-left: 17px;display: none;">
+            <button onclick="switch_settings()" style="float: left; width: 100%">
+                Settings
+            </button>
+        </div>
+
+        <div id="managerbuttons" style="padding-left: 15px">
+            <button id="makeinprogress" class="makeinprogress" onclick="changeCellState('inprogress')">In progress</button>
+            <button id="makeredwin" class="red" onclick="changeCellState('redwin')">Red wins</button>
+            <button id="makebluewin" class="blue" onclick="changeCellState('bluewin')">Blue wins</button>
+            <button id="makedraw" class="draw" onclick="changeCellState('draw')">Draw</button>
+            <button id="resetcell" onclick="changeCellState('reset')">Reset</button>
+        </div>
+
+        <script th:inline="javascript">
+            document.getElementById("managerbuttons").style.display = 'none';
+            function switch_settings() {
+                let settings = document.getElementById("settings");
+                let managed = document.getElementById("managerbuttons");
+                let settingsButton = document.getElementById("switchbuttons");
+                if (managed.style.display === 'none') {
+                    settings.style.display = 'none'
+                    managed.style.display = 'block';
+                    settingsButton.style.display = 'block';
+                } else {
+                    settings.style.display = 'block';
+                    managed.style.display = 'none';
+                    settingsButton.style.display = 'none';
+                }
+            }
+        </script>
+    </div>
+
+    <div id="settings" class="settings_block">
+        <div th:unless="${altLayout}">
+            <div class="settings-section">
+                <div id="settingsbutton-inside" style="margin-top: -3px;margin-bottom: 2px;">
+                    <button onclick="switch_settings()" style="width: 90px">
+                        Settings
+                    </button>
+                </div>
+                <div th:if="${isBingo}">
+                    <div th:replace="piu/parts/preferences/names :: names"></div>
+                </div>
+                <div th:replace="piu/parts/random/difficulty :: minmax"></div>
+                <div th:replace="piu/parts/random/bpm :: bpmminmax"></div>
+                <details>
+                    <summary>Percents</summary>
+                    <div th:replace="piu/parts/random/difficulty :: percents"></div>
+                </details>
+            </div>
+
+            <div class="settings-section">
+                <div th:replace="piu/parts/random/modes :: single_double"></div>
+                <div th:if="${isBingo}">
+                    <div th:replace="piu/parts/preferences/no_same_line :: no_same_line"></div>
+                </div>
+                <div th:replace="piu/parts/random/modes :: percents"></div>
+            </div>
+
+            <div class="settings-section">
+                <div th:replace="piu/parts/random/mix :: mix"></div>
+            </div>
+
+            <div class="settings-section">
+                <div th:replace="piu/parts/random/cut :: cut"></div>
+                <div th:replace="piu/parts/preferences/preview :: preview"></div>
+                <div th:replace="piu/parts/preferences/buttons :: randomize"></div>
+            </div>
+
+            <div class="settings-section">
+                <div th:replace="piu/parts/random/category :: category"></div>
+                <div th:replace="piu/parts/preferences/buttons :: clear"></div>
+            </div>
+
+            <div class="settings-section">
+                <div th:replace="piu/parts/random/styles :: styles"></div>
+
+            </div>
+
+            <div class="settings-section">
+                <div th:replace="piu/parts/random/coop :: coop"></div>
+                <div th:replace="piu/parts/random/performance :: performance"></div>
+                <div th:if="${isBingo}">
+                    <div th:replace="piu/parts/preferences/lock_charts :: lock_charts"></div>
+                </div>
+            </div>
+        </div>
+
+        <div th:if="${altLayout}">
+            <div class="setting-line">
+                <div class="setting-container-left">
+                    <div th:replace="piu/parts/random/modes :: single_double"></div>
+                </div>
+
+                <div id="sdperc_container" class="setting-container-left">
+                    <div th:replace="piu/parts/random/modes :: percents"></div>
+                </div>
+
+                <div class="setting-container-right">
+                    <div th:replace="piu/parts/random/difficulty :: minmax"></div>
+                </div>
+            </div>
+
+            <div th:replace="piu/parts/preferences/buttons :: randomize"></div>
+
+            <details open>
+                <summary>&nbspMixes and modes</summary>
+                <div th:replace="piu/parts/random/mix :: mix"></div>
+
+                <div style="float: left;padding-top: 0; margin-left: 10px; margin-top: -4px">
+                    <div th:replace="piu/parts/preferences/preview :: preview"></div>
+                    <div th:replace="piu/parts/random/bpm :: bpmminmax"></div>
+                </div>
+
+                <hr>
+
+                <div style="float: left;">
+                    <div th:replace="piu/parts/random/cut :: cut"></div>
+                </div>
+                <div style="float: left;">
+                    <div th:replace="piu/parts/random/category :: category"></div>
+                </div>
+                <div style="float: left;">
+                    <div th:replace="piu/parts/random/styles :: styles"></div>
+                </div>
+                <div style="float: left">
+                    <div th:replace="piu/parts/random/performance :: performance"></div>
+                    <div th:replace="piu/parts/random/coop :: coop"></div>
+                </div>
+            </details>
+
+            <hr>
+
+            <details>
+                <summary>&nbspPercents</summary>
+                <div th:replace="piu/parts/random/difficulty :: percents"></div>
+            </details>
+
+            <hr>
+
+            <details>
+                <summary>&nbspSettings</summary>
+                <div style="float: left">
+                    <div th:replace="piu/parts/preferences/no_loader :: no_loader"></div>
+                    <div th:replace="piu/parts/preferences/no_repeat :: no_repeat"></div>
+                    <div th:replace="piu/parts/preferences/low_res_images :: low_res_images"></div>
+                </div>
+            </details>
+
+            <br>
+
+            <div id="usage">
+                Using <a href="https://github.com/AnyhowStep/pump-out-sqlite3-dump" target="_blank" rel="noopener noreferrer">AnyhowStep's database</a>
+            </div>
+
+        </div>
+
+
+    </div>
+
+    <script type="text/javascript" th:inline="javascript">
+        let initialRandomize = true;
+
+        function resetSettings() {
+            initialRandomize = true;
+            document.getElementById("random").innerHTML = randomizeText;
+
+            if (isNoSameLineSupported) {
+                changeNoSameLine = initialChangeNoSameLine;
+                document.getElementById("isnosamelinelabel").classList.remove("red_text");
+            }
+        }
+
+        function initNewSongs() {
+            for (let initFunc of initNewSongsFuncs) {
+                initFunc();
+            }
+            settingsChanged();
+        }
+
+        function settingsChanged() {
+            if (includePreview) {
+                update_preview(getCandidatesCharts(true));
+            }
+        }
+
+        function songReload(mix) {
+            fetch("/piu/random/songs?mix=" + mix)
+                .then(response => {
+                    // Check if the request was successful
+                    if (!response.ok) {
+                        throw new Error(`HTTP error! status: ${response.status}`);
+                    }
+                    return response.json();
+                })
+                .then(data => {
+                    // Handle your JSON data here
+                    songs = data;
+                    initNewSongs();
+                    setCookie(cookiePlayMix, mix);
+                })
+                .catch(error => {
+                    // Handle any errors here
+                    console.error('There has been a problem with your fetch operation:', error);
+                });
+        }
+
+        window.addEventListener('load', () => {
+            if (songs.length === 0) {
+                songReload(getCookie(cookiePlayMix, defaultMix));
+            } else {
+                initNewSongs();
+            }
+        });
+
+    </script>
+
+</div>

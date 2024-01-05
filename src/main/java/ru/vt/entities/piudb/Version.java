@@ -1,11 +1,14 @@
 package ru.vt.entities.piudb;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.Data;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.Id;
+import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
+import javax.persistence.OneToOne;
 
 @Data
 @Entity
@@ -20,7 +23,10 @@ public class Version implements Comparable<Version> {
     @Column(name = "internalTitle")
     String name;
 
-    Integer parentVersionId;
+    @OneToOne
+    @JoinColumn(name = "parentVersionId")
+    @JsonIgnore
+    Version parentVersion;
 
     int sortOrder;
 

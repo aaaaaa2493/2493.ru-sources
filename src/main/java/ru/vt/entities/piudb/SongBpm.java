@@ -1,5 +1,6 @@
 package ru.vt.entities.piudb;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.Data;
 
 import javax.persistence.Entity;
@@ -10,6 +11,7 @@ import javax.persistence.Id;
 public class SongBpm {
 
     @Id
+    @JsonIgnore
     int songBpmId;
 
     double bpmMin;
@@ -23,16 +25,16 @@ public class SongBpm {
 
         final String bpmMinStr;
         if (bpmMin == (int) bpmMin) {
-            bpmMinStr = (int) bpmMin + "";
+            bpmMinStr = String.valueOf((int) bpmMin);
         } else {
-            bpmMinStr = bpmMin + "";
+            bpmMinStr = String.valueOf(bpmMin);
         }
 
         final String bpmMaxStr;
         if (bpmMax == (int) bpmMax) {
-            bpmMaxStr = (int) bpmMax + "";
+            bpmMaxStr = String.valueOf((int) bpmMax);
         } else {
-            bpmMaxStr = bpmMax + "";
+            bpmMaxStr = String.valueOf(bpmMax);
         }
 
         if (bpmMin == bpmMax) {

@@ -8,12 +8,14 @@ build/
 !gradle/wrapper/gradle-wrapper.jar
 !**/src/main/**/build/
 !**/src/test/**/build/
+ssh/
+deploy/
 
 # Project files
 venv
 db
 
-Dockerfile
+deploy/2493/Dockerfile
 
 ### STS ###
 .apt_generated
@@ -36,4 +38,4 @@ out/
 !**/src/main/**/out/
 !**/src/test/**/out/
 
-
+deploy.sh

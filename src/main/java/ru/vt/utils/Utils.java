@@ -1,5 +1,10 @@
 package ru.vt.utils;
 
+import ru.vt.configuration.WebSocketConfiguration;
+
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Iterator;
@@ -96,12 +101,54 @@ public class Utils {
         }
     }
 
+    public static <T> T readJson(String content, Class<T> clazz) throws IOException {
+        var mapper = WebSocketConfiguration.objectMapper();
+        return mapper.readValue(content, clazz);
+    }
+
+    public static <T> T readJsonFromFile(String file, Class<T> clazz) throws IOException {
+        return readJson(Files.readString(Path.of(file)), clazz);
+    }
+
     public static <T, K> T ifNotNull(K obj, Function<K, T> func) {
         if (obj == null) {
             return null;
         } else {
             return func.apply(obj);
         }
+    }
+
+    public static <T> boolean any(List<T> list, Function<T, Boolean> func) {
+        for (T elem : list) {
+            if (func.apply(elem)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    public static <T> boolean all(List<T> list, Function<T, Boolean> func) {
+        for (T elem : list) {
+            if (!func.apply(elem)) {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    public static String pad(String orig, int length) {
+        if (orig.length() < length) {
+            return orig + " ".repeat(length - orig.length());
+        }
+        return orig;
+    }
+
+    public static String capitalize(String s) {
+        if (s.length() == 0) {
+            return s;
+        }
+        s = s.toLowerCase();
+        return Character.toUpperCase(s.charAt(0)) + s.substring(1);
     }
 
 }

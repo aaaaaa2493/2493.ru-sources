@@ -27,6 +27,7 @@ body {
     float: left;
     height: inherit;
     font-size: 50px;
+    min-width: 120px;
 }
 
 .songs {
@@ -37,10 +38,13 @@ body {
 }
 
 .cell {
+    position: relative;
     width: 150px;
-    height: 105px;
+    height: 115px;
     float: left;
     background-size: cover;
+    background-repeat: no-repeat;
+    background-position: center;
 }
 
 .grade {
@@ -91,8 +95,61 @@ input[type=text] {
 
 button {
     float: left;
+    margin-left: 10px;
 }
 
-#settings {
+#settings, #latest {
     margin: 10px;
+}
+
+#usage {
+    color: black;
+}
+
+
+.grade_img {
+    position: absolute;
+    top: 52%;
+    left: 60%;
+    transform: translate(-50%, -50%);
+
+    /* Define your grade size */
+    height: 56%;
+    width: 100%;
+
+    /* Position your grade inside the cell */
+
+
+    /* If the image is not the exact size of the div, you might need these */
+    background-size: contain;
+    background-repeat: no-repeat;
+    background-position: center;
+
+    /* Initially show the grade */
+    opacity: 1;
+
+    /* Transition for smooth disappearing */
+    transition: opacity .5s ease;
+}
+
+.cell:hover .grade_img {
+    /* On hover, hide the grade */
+    opacity: 0;
+}
+
+
+
+
+select {
+    width: 100px;
+    border-radius: 4px;
+    margin-left: 10px;
+}
+
+/* Style the dropdown arrow */
+select::-ms-expand {
+    display: none;
+}
+select:hover {
+    cursor: pointer;
 }

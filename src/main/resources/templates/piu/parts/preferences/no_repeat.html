@@ -1,0 +1,61 @@
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+
+
+<div th:fragment="no_repeat" th:remove="tag">
+    <div class="input-div">
+        <input id="isnochartrepeat" type="checkbox" onclick="update_no_repeat()">
+        <label for="isnochartrepeat">No chart repeat</label>
+    </div>
+    <div class="input-div">
+        <input id="isnosongrepeat" type="checkbox" onclick="update_no_repeat()">
+        <label for="isnosongrepeat">No song repeat</label>
+    </div>
+
+    <script type="text/javascript" th:inline="javascript">
+        includeNoRepeat = true;
+
+        let isNoChartRepeat = false;
+        let isNoSongRepeat = false;
+
+        let usedChartsIds = [];
+        let usedSongIds = [];
+
+        window.addEventListener('load', () => {
+            update_no_repeat();
+        });
+
+        function process_no_repeat(chart) {
+            usedChartsIds.push(chart.chartId);
+            usedSongIds.push(chart.songId);
+        }
+
+        function update_no_repeat() {
+            isNoChartRepeat = document.getElementById("isnochartrepeat").checked;
+            isNoSongRepeat = document.getElementById("isnosongrepeat").checked;
+            if (!isNoChartRepeat) {
+                usedChartsIds = [];
+            }
+            if (!isNoSongRepeat) {
+                usedSongIds = [];
+            }
+            settingsChanged();
+        }
+
+        function filter_no_repeat(song, chart) {
+            let chartId = chart.chart_id;
+            let songId = song.song_id;
+
+            if (isNoSongRepeat && usedSongIds.includes(songId)) {
+                return false;
+            }
+
+            if (isNoChartRepeat && usedChartsIds.includes((chartId))) {
+                return false;
+            }
+
+            return true;
+        }
+        chartFilters.push(filter_no_repeat);
+    </script>
+
+</div>

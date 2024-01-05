@@ -21,8 +21,4 @@ public class Artist {
         return name;
     }
 
-    //@ManyToMany(fetch = FetchType.LAZY)
-    //@JoinTable(name = "songArtist")
-    //List<Song> artists;
-
 }

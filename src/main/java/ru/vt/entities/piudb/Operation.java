@@ -32,6 +32,14 @@ public class Operation {
     @Column(name = "internalTitle")
     String name;
 
+    public boolean isDelete() {
+        return operationId == OperationValues.DELETE.operationId;
+    }
+
+    public boolean isExist() {
+        return !isDelete();
+    }
+
     @Override
     public String toString() {
         return name;

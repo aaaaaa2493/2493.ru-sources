@@ -22,10 +22,11 @@ dependencies {
     //implementation 'org.springframework.boot:spring-boot-devtools'
     testImplementation 'org.springframework.boot:spring-boot-starter-test'
 
-    implementation 'org.xerial:sqlite-jdbc:3.39.3.0'
+    implementation 'org.xerial:sqlite-jdbc:3.42.0.0'
     implementation 'com.fasterxml.jackson.datatype:jackson-datatype-jsr310'
 
     implementation 'org.kohsuke:github-api:1.308'
+    implementation 'com.squareup.okhttp3:okhttp:4.9.3'
 
     compileOnly 'org.projectlombok:lombok:1.18.24'
     annotationProcessor 'org.projectlombok:lombok:1.18.24'
@@ -37,14 +38,20 @@ tasks.named('test') {
 
 bootJar {
     archiveFileName = '2493.jar'
+    doLast {
+        copy {
+            from "$buildDir/libs"
+            into "./deploy/2493"
+            include '2493.jar'
+        }
+    }
 }
 
-task createFatJar(type: Jar) {
-    duplicatesStrategy = DuplicatesStrategy.EXCLUDE
-    from {
-        configurations.runtimeClasspath.collect { it.isDirectory() ? it : zipTree(it) }
-    }
-    with jar
+task copyDb(type: Copy) {
+    from './db'
+    into './deploy/2493/db'
+}
 
-    rename 'build/libs/2493(.+).jar', 'build/libs/2493.jar'
+wrapper {
+    gradleVersion = '8.1.1'
 }

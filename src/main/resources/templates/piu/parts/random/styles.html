@@ -1,0 +1,107 @@
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+
+
+<div th:fragment="styles" th:remove="tag">
+    <div class="input-div">
+        <input id="isdrill" type="checkbox" checked onclick="update_chart_styles()">
+        <label for="isdrill">Drill</label>
+    </div>
+
+    <div class="input-div">
+        <input id="isgimmick" type="checkbox" checked onclick="update_chart_styles()">
+        <label for="isgimmick">Gimmick</label>
+    </div>
+
+    <div class="input-div">
+        <input id="istwist" type="checkbox" checked onclick="update_chart_styles()">
+        <label for="istwist">Twist</label>
+    </div>
+
+    <div class="input-div">
+        <input id="isbracket" type="checkbox" checked onclick="update_chart_styles()">
+        <label for="isbracket">Bracket</label>
+    </div>
+
+    <div class="input-div">
+        <input id="ishalf" type="checkbox" checked onclick="update_chart_styles()">
+        <label for="ishalf">Side/Half</label>
+    </div>
+
+    <div class="input-div">
+        <input id="isnostyle" type="checkbox" checked onclick="update_chart_styles()">
+        <label for="isnostyle">No style</label>
+    </div>
+
+    <script type="text/javascript" th:inline="javascript">
+        includeChartStyles = true;
+
+        let isDrill = true;
+        let isGimmick = true;
+        let isTwist = true;
+        let isBracket = true;
+        let isSideHalf = true;
+        let isNoChartStyle = true;
+
+        window.addEventListener('load', () => {
+            update_chart_styles();
+        });
+
+        function isStyleActive(style) {
+            if (style === "DRILL") {
+                return isDrill;
+            } else if (style === "GIMMICK") {
+                return isGimmick;
+            } else if (style === "TWIST") {
+                return isTwist;
+            } else if (style === "BRACKET") {
+                return isBracket;
+            } else if (style === "SIDEHALF") {
+                return isSideHalf;
+            }
+            throw Error("Wrong chart style: " + style);
+        }
+
+        function update_chart_styles() {
+            isDrill = document.getElementById("isdrill").checked;
+            isGimmick = document.getElementById("isgimmick").checked;
+            isTwist = document.getElementById("istwist").checked;
+            isBracket = document.getElementById("isbracket").checked;
+            isSideHalf = document.getElementById("ishalf").checked;
+            isNoChartStyle = document.getElementById("isnostyle").checked;
+            settingsChanged();
+        }
+
+        function filter_chart_style(song, chart) {
+            let chartStyles = chart.styles;
+
+            if (chartStyles.length === 0) {
+                return isNoChartStyle;
+            }
+
+            let enabledStyles = 0;
+            enabledStyles += isDrill;
+            enabledStyles += isGimmick;
+            enabledStyles += isTwist;
+            enabledStyles += isBracket;
+            enabledStyles += isSideHalf;
+
+            if (enabledStyles < 2.5) {
+                for (let style of chartStyles) {
+                    if (isStyleActive(style)) {
+                        return true;
+                    }
+                }
+                return false;
+            } else {
+                for (let style of chartStyles) {
+                    if (!isStyleActive(style)) {
+                        return false;
+                    }
+                }
+                return true;
+            }
+        }
+        chartFilters.push(filter_chart_style);
+    </script>
+
+</div>

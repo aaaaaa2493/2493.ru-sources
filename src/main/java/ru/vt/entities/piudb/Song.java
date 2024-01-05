@@ -5,6 +5,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Data;
 import org.hibernate.annotations.LazyCollection;
 import org.hibernate.annotations.LazyCollectionOption;
+import org.hibernate.annotations.OrderBy;
 import ru.vt.entities.piudb.base.VersionsOperations;
 import ru.vt.services.MixService;
 import ru.vt.utils.Utils;
@@ -17,6 +18,7 @@ import javax.persistence.JoinTable;
 import javax.persistence.ManyToMany;
 import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
+import java.util.Comparator;
 import java.util.List;
 
 @Data
@@ -27,17 +29,22 @@ public class Song implements VersionsOperations {
     int songId;
 
     @ManyToOne
-    @JsonIgnore
     Cut cut;
 
-    @JsonProperty
-    public String getCut() {
-        return cut.name;
+    public boolean isArcade() {
+        return cut.isArcade();
     }
 
-    @JsonIgnore
-    public int getCutId() {
-        return cut.cutId;
+    public boolean isFullSong() {
+        return cut.isFullSong();
+    }
+
+    public boolean isRemix() {
+        return cut.isRemix();
+    }
+
+    public boolean isShortCut() {
+        return cut.isShortCut();
     }
 
     @Column(name = "internalTitle")
@@ -46,7 +53,6 @@ public class Song implements VersionsOperations {
     @OneToMany
     @LazyCollection(LazyCollectionOption.FALSE)
     @JoinTable(name = "chart")
-    @JsonIgnore
     List<Chart> charts;
 
     public List<Chart> getCharts() {
@@ -62,17 +68,19 @@ public class Song implements VersionsOperations {
 
     public List<Chart> getChartsForMix(Mix mix) {
         return getCharts().stream()
-                .filter(c -> c.getMinMix().sortOrder <= mix.sortOrder
-                        && c.getMaxMix().sortOrder >= mix.sortOrder)
+                .filter(c -> c.existInMix(mix))
                 .toList();
+    }
+
+    public boolean hasChartsForMix(Mix mix) {
+        return !getChartsForMix(mix).isEmpty();
     }
 
     @ManyToMany
     @LazyCollection(LazyCollectionOption.FALSE)
-    @JsonIgnore
+    @OrderBy(clause = "sortOrder")
     List<Artist> artists;
 
-    @JsonProperty
     public List<String> getArtists() {
         return artists.stream().map(a -> a.name).toList();
     }
@@ -80,27 +88,22 @@ public class Song implements VersionsOperations {
     @OneToMany
     @JoinTable(name = "songVersion")
     @LazyCollection(LazyCollectionOption.FALSE)
-    @JsonIgnore
     List<Version> versionsOperations;
 
     @OneToMany
     @JoinTable(name = "songVersion")
     @LazyCollection(LazyCollectionOption.FALSE)
-    @JsonIgnore
     List<Operation> operations;
 
     @OneToMany
     @LazyCollection(LazyCollectionOption.FALSE)
     @JoinTable(name = "songBpm")
-    @JsonIgnore
     List<SongBpm> bpm;
 
     @ManyToOne
     @JoinTable(name = "songCategory")
-    @JsonIgnore
     Category category;
 
-    @JsonProperty
     public String getCategory() {
         return category.name;
     }
@@ -117,10 +120,13 @@ public class Song implements VersionsOperations {
     @JsonIgnore
     List<SongGameIdentifier> gameIdentifier;
 
-    @JsonProperty
     public String getIdentifier() {
-        if (gameIdentifier.size() >= 1) {
-            return gameIdentifier.get(gameIdentifier.size() - 1).gameIdentifier;
+        if (gameIdentifier.size() == 1) {
+            return gameIdentifier.get(0).gameIdentifier;
+        } else if (gameIdentifier.size() > 1) {
+            var sorted = gameIdentifier.stream().sorted(
+                Comparator.comparing(SongGameIdentifier::lastAppearance)).toList();
+            return sorted.get(sorted.size() - 1).gameIdentifier;
         }
         return null;
     }
@@ -130,20 +136,17 @@ public class Song implements VersionsOperations {
     @LazyCollection(LazyCollectionOption.FALSE)
     List<SongCard> card;
 
-    @JsonProperty
     public String getCard() {
         var sorted = card.stream().sorted().toList();
         return sorted.get(0).path;
     }
 
-    @JsonProperty
     public String getCardBig() {
         return "/img/card_big/" + getIdentifier() + ".png";
     }
 
-    @JsonIgnore
-    public List<String> getAllCards() {
-        return card.stream().sorted().map(s -> s.path).toList();
+    public List<SongCard> getAllCards() {
+        return card.stream().sorted().toList();
     }
 
     @JsonProperty
@@ -157,27 +160,43 @@ public class Song implements VersionsOperations {
         return bpm.get(0);
     }
 
-    @Override
-    public String toString() {
+    public String printForMix(Mix mix) {
         String song =  "Song(id=" + getSongId() +
-                " | title=" + getName() +
-                " | artists=" + Utils.join(", ", getArtists()) +
-                " | category=" + getCategory() +
-                " | mix=" + getStartingFromMix() +
-                " | id=" + getIdentifier() +
-                " | cut=" + getCut() +
-                " | bpm=" + getBpm() +
-                " | card=" + getCard() + ")";
+            " | title=" + getName() +
+            " | artists=" + Utils.join(", ", getArtists()) +
+            " | category=" + getCategory() +
+            " | mix=" + getStartingFromMix() +
+            " | id=" + getIdentifier() +
+            " | cut=" + getCut() +
+            " | bpm=" + getBpm() +
+            " | card=" + getCard() + ")";
 
-        String charts = Utils.join("\n", getCharts());
-        if (charts.length() != 0) {
-            charts += "\n";
+        var charts = mix == null ? getCharts() : getChartsForMix(mix);
+
+        String chartsStr = "";
+        if (charts.size() != 0) {
+            var mixPadding = charts.stream().mapToInt(e -> e.getMixInfo().length()).max().getAsInt();
+            var stepmakersPadding = charts.stream().mapToInt(e -> e.getStepmakersStr().length()).max().getAsInt();
+            Mix finalMix = mix;
+            var stylesPadding = charts.stream().mapToInt(e -> e.getStylesStrForMix(finalMix).length()).max().getAsInt();
+
+            chartsStr = Utils.join("\n",
+                charts.stream().map(c -> c.printChartForMix(
+                    finalMix, 5, 4, mixPadding, stepmakersPadding, stylesPadding)).toList()) + "\n";
         }
 
-        Mix latest = MixService.latestMix;
-        String chartsForMix = "charts for " + latest + " : " + getChartsForMix(latest).size();
+        if (mix == null) {
+            mix = MixService.latestMix;
+        }
 
-        return song + "\n" + charts + chartsForMix + "\n";
+        String chartsForMix = "charts for " + mix + " : " + getChartsForMix(mix).size();
+
+        return song + "\n" + chartsStr + chartsForMix + "\n";
+    }
+
+    @Override
+    public String toString() {
+        return printForMix(null);
     }
 
     @Override

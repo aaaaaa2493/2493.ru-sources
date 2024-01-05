@@ -9,85 +9,78 @@ import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.OneToOne;
-import java.util.NoSuchElementException;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.Map;
 
 @Data
 @Entity
 public class Mix {
 
     public enum MixValues {
-        The1st(32),
-        The2nd(31),
-        The3rd(30),
-        TheOBG(29),
-        Collection(28),
-        PerfectCollection(27),
-        Extra(26),
-        Premiere(24),
-        Prex(23),
-        Rebirth(22),
-        Premiere2(21),
-        Prex2(20),
-        Premiere3(19),
-        Prex3(18),
-        Exceed(17),
-        Exceed2(16),
-        Zero(15),
-        NX(14),
-        NX2(13),
-        NXAbsolute(12),
-        Fiesta(11),
-        FiestaEx(9),
-        Fiesta2(7),
-        Prime(1),
-        Prime2(33),
-        XX(34);
+        The1st(32, "1st"),
+        The2nd(31, "2nd"),
+        The3rd(30, "3rd"),
+        SeasonEvolution(29, "Season Evolution"),
+        Collection(28, "Collection"),
+        PerfectCollection(27, "Perfect Collection"),
+        Extra(26, "Extra"),
+        Premiere(24, "Premiere"),
+        Prex(23, "Prex"),
+        Rebirth(22, "Rebirth"),
+        Premiere2(21, "Premiere 2"),
+        Prex2(20, "Prex 2"),
+        Premiere3(19, "Premiere 3"),
+        Prex3(18, "Prex 3"),
+        Exceed(17, "Exceed"),
+        Exceed2(16, "Exceed 2"),
+        Zero(15, "Zero"),
+        NX(14, "NX"),
+        NX2(13, "NX2"),
+        NXAbsolute(12, "NX Absolute"),
+        Fiesta(11, "Fiesta"),
+        FiestaEx(9,"Fiesta EX"),
+        Fiesta2(7, "Fiesta 2"),
+        Prime(1, "Prime"),
+        Prime2(33, "Prime 2"),
+        XX(34, "XX"),
+        Phoenix(35, "Phoenix"),
+
+        ;
 
         public final int mixId;
+        public final String str;
 
-        MixValues(int mixId) {
+        MixValues(int mixId, String str) {
             this.mixId = mixId;
+            this.str = str;
         }
 
-        static MixValues of(int mixId) {
+        public static MixValues of(int mixId) {
+            return intToMix.get(mixId);
+        }
+
+        public static MixValues of(String mix) {
+            return strToMix.get(mix);
+        }
+
+        public static final Map<String, MixValues> strToMix;
+        public static final Map<Integer, MixValues> intToMix;
+
+        static {
+            var strMix = new HashMap<String, MixValues>();
+            var intMix = new HashMap<Integer, MixValues>();
             for (var mix : MixValues.values()) {
-                if (mix.mixId == mixId) {
-                    return mix;
-                }
+                strMix.put(mix.str, mix);
+                intMix.put(mix.mixId, mix);
             }
-            throw new NoSuchElementException("For mixId = " + mixId);
+            strToMix = Collections.unmodifiableMap(strMix);
+            intToMix = Collections.unmodifiableMap(intMix);
         }
 
         @Override
         public String toString() {
-            return switch (this) {
-                case The1st -> "1st";
-                case The2nd -> "2nd";
-                case The3rd -> "3rd";
-                case TheOBG -> "The O.B.G.";
-                case Collection -> "Collection";
-                case PerfectCollection -> "Perfect Collection";
-                case Extra -> "Extra";
-                case Premiere -> "Premiere";
-                case Prex -> "Prex";
-                case Rebirth -> "Rebirth";
-                case Premiere2 -> "Premiere 2";
-                case Prex2 -> "Prex 2";
-                case Premiere3 -> "Premiere 3";
-                case Prex3 -> "Prex 3";
-                case Exceed -> "Exceed";
-                case Exceed2 -> "Exceed 2";
-                case Zero -> "Zero";
-                case NX -> "NX";
-                case NX2 -> "NX2";
-                case NXAbsolute -> "NXA";
-                case Fiesta -> "Fiesta";
-                case FiestaEx -> "Fiesta Ex";
-                case Fiesta2 -> "Fiesta 2";
-                case Prime -> "Prime";
-                case Prime2 -> "Prime 2";
-                case XX -> "XX";
-            };
+            return str;
         }
     }
 
@@ -109,8 +102,17 @@ public class Mix {
 
     int sortOrder;
 
+    public MixValues enumValue() {
+        return MixValues.of(mixId);
+    }
+
     public String toString() {
-        return MixValues.of(mixId).toString();
+        var mix = enumValue();
+        if (mix != null) {
+            return mix.toString();
+        } else {
+            return "???";
+        }
     }
 
 }

@@ -4,6 +4,7 @@ import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.PropertyNamingStrategies;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
+import lombok.NonNull;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -25,7 +26,7 @@ public class WebSocketConfiguration implements WebSocketConfigurer {
     private String githubToken;
 
     @Override
-    public void registerWebSocketHandlers(WebSocketHandlerRegistry webSocketHandlerRegistry) {
+    public void registerWebSocketHandlers(@NonNull WebSocketHandlerRegistry webSocketHandlerRegistry) {
         if (monitorGithub) {
             webSocketHandlerRegistry.addHandler(new GithubSocket(githubToken), githubWsPath);
         }

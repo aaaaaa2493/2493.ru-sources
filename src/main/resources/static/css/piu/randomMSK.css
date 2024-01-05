@@ -18,11 +18,15 @@ body {
 .blue {
     background: linear-gradient(35deg, #4acfec, #0d96ff90);
     outline: 10px solid #1d5383;
+    justify-content: center;
+    align-items: center;
 }
 
 .red {
     background: linear-gradient(35deg, #e71d30, #f85c3980);
     outline: 10px solid #7b1f1f;
+    justify-content: center;
+    align-items: center;
 }
 
 .selected, .inprogress {
@@ -50,11 +54,6 @@ body {
     background: linear-gradient(15deg, #e71d308a 0%, #f85c39 49%, #4acfec 51%, #0d96ff96 100%);
 }
 
-.center {
-    background: linear-gradient(15deg, #e71d308a 0%, #f85c39 49%, #4acfec 51%, #0d96ff96 100%);
-    text-shadow: 2px 2px 6px #00000050;
-}
-
 .locked .diffname {
     display: none;
 }
@@ -67,20 +66,29 @@ body {
     filter: grayscale(1);
 }
 
-.cell .red:before {
+.cell .red::before {
     content: "✖";
     color: #7b1f1f;
     font-size: 75px;
     font-weight: 600;
-    padding-left: 45px;
 }
 
-.cell .blue:before {
+.cell .blue::before {
     content: "✖";
     color: #1d5383;
     font-size: 75px;
     font-weight: 600;
-    padding-left: 45px;
+}
+
+.cell .draw::before, .players_names::before {
+    content: "";
+    position: absolute;
+    inset: -9px;
+    background: linear-gradient(15deg, #7b1f1f 0%, #7b1f1f 49%, #1d5383 51%, #1d5383 100%);
+    filter: blur(0px);
+    transform: translate3d(0px,0px,-1px);
+    clip-path: polygon(-100vmax -100vmax,100vmax -100vmax,100vmax 100vmax,-100vmax 100vmax,-100vmax -100vmax,calc(10px - 0px) calc(10px - 0px),calc(10px - 0px) calc(100% - 0px - 10px),calc(100% - 0px - 10px) calc(100% - 0px - 10px),calc(100% - 0px - 10px) calc(10px - 0px),calc(10px - 0px) calc(10px - 0px));
+    pointer-events: none;
 }
 
 .p1, .p2 {
@@ -99,4 +107,9 @@ body {
 
 #resetcell, #settingbutton button {
     background: #150f1b;
+}
+
+.players_names {
+    background: linear-gradient(15deg, #e71d308a 0%, #f85c39 49%, #4acfec 51%, #0d96ff96 100%);
+    text-shadow: 2px 2px 6px #00000050;
 }

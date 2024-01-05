@@ -1,0 +1,70 @@
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+
+
+<div th:fragment="performance" th:remove="tag">
+    <div id="isperformancediv" class="input-div">
+        <input id="isperformance" type="checkbox" onclick="update_performance()">
+        <label for="isperformance">Performance</label>
+    </div>
+
+    <div id="isallperformancediv"  class="input-div">
+        <input id="isallperformance" type="checkbox" onclick="update_performance()">
+        <label for="isallperformance">Perf. only</label>
+    </div>
+
+    <script type="text/javascript" th:inline="javascript">
+        includePerformance = true;
+
+        let isPerformance = true;
+        let isOnlyPerformance = false;
+        let hasPerformance = false;
+
+        function initPerformance() {
+            hasPerformance = false;
+            outer:
+            for (let song of songs) {
+                for (let chart of song.charts) {
+                    if (chart.difficulty.performance) {
+                        hasPerformance = true;
+                        break outer;
+                    }
+                }
+            }
+
+            if (hasPerformance) {
+                document.getElementById("isperformancediv").style.display = 'block';
+                document.getElementById("isallperformancediv").style.display = 'block';
+            } else {
+                document.getElementById("isperformancediv").style.display = 'none';
+                document.getElementById("isallperformancediv").style.display = 'none';
+            }
+        }
+
+        window.addEventListener('load', () => {
+            update_performance();
+        });
+
+        initNewSongsFuncs.push(initPerformance);
+        function update_performance() {
+            isPerformance = document.getElementById("isperformance").checked;
+            isOnlyPerformance = document.getElementById("isallperformance").checked;
+            settingsChanged();
+        }
+
+        function filter_performance(song, chart) {
+            if (!hasPerformance) {
+                return true;
+            }
+
+            let performance = chart.difficulty.performance;
+            if (performance && !isPerformance && !isOnlyPerformance) {
+                return false;
+            }
+            if (!performance && isOnlyPerformance) {
+                return false;
+            }
+            return true;
+        }
+        chartFilters.push(filter_performance);
+    </script>
+</div>

@@ -1,0 +1,70 @@
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+
+
+<div th:fragment="preview" th:remove="tag">
+    <div id="preview-div">
+        <div id="preview-count">
+            <span id="songs_count_label"></span>
+            <span id="songs_count"></span>
+            <span id="preview_divider"></span>
+            <span id="chart_count_label"></span>
+            <span id="chart_count"></span>
+        </div>
+    </div>
+
+    <script type="text/javascript" th:inline="javascript">
+        includePreview = true;
+
+        let songsCountName = "Songs: ";
+        let chartsCountName = "Charts: ";
+        let previewCountDivider = " | ";
+
+        let includeSongCountPreview = true;
+        let includeChartCountPreview = true;
+
+        window.addEventListener('load', () => {
+            document.getElementById("songs_count_label").innerHTML = songsCountName;
+            document.getElementById("chart_count_label").innerHTML = chartsCountName;
+            document.getElementById("preview_divider").innerHTML = previewCountDivider;
+        });
+
+        function update_preview(suitableCharts) {
+            let songsSet = [];
+            for (let chart of suitableCharts) {
+                if (!songsSet.includes(chart.songId)) {
+                    songsSet.push(chart.songId);
+                }
+            }
+
+            if (includeSongCountPreview && includeChartCountPreview) {
+                document.getElementById("songs_count_label").innerHTML = songsCountName;
+                document.getElementById("songs_count").innerHTML = "" + songsSet.length;
+                document.getElementById("preview_divider").innerHTML = previewCountDivider;
+                document.getElementById("chart_count_label").innerHTML = chartsCountName;
+                document.getElementById("chart_count").innerHTML = "" + suitableCharts.length;
+
+            } else if (includeSongCountPreview) {
+                document.getElementById("songs_count_label").innerHTML = songsCountName;
+                document.getElementById("songs_count").innerHTML = "" + songsSet.length;
+                document.getElementById("preview_divider").innerHTML = "";
+                document.getElementById("chart_count_label").innerHTML = "";
+                document.getElementById("chart_count").innerHTML = "" ;
+
+            } else if (includeChartCountPreview) {
+                document.getElementById("songs_count_label").innerHTML = "";
+                document.getElementById("songs_count").innerHTML = "";
+                document.getElementById("preview_divider").innerHTML = "";
+                document.getElementById("chart_count_label").innerHTML = chartsCountName;
+                document.getElementById("chart_count").innerHTML = "" + suitableCharts.length;
+
+            } else {
+                document.getElementById("songs_count_label").innerHTML = "";
+                document.getElementById("songs_count").innerHTML = "";
+                document.getElementById("preview_divider").innerHTML = "";
+                document.getElementById("chart_count_label").innerHTML = "";
+                document.getElementById("chart_count").innerHTML = "" ;
+            }
+        }
+    </script>
+
+</div>
