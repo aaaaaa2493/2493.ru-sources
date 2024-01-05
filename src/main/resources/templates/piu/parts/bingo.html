@@ -33,6 +33,18 @@
         function hideBlock(block) {
             block.style.display = '';
         }
+
+        function getCellId(row, col) {
+            return `${row}-${col}`;
+        }
+
+        function getCellRow(cellId) {
+            return parseInt(cellId.split('-')[0], 10);
+        }
+
+        function getCellColumn(cellId) {
+            return parseInt(cellId.split('-')[1], 10);
+        }
     </script>
 
     <script id="generate-cells" type="text/javascript" th:inline="javascript">
@@ -44,7 +56,7 @@
                 fieldHtml += `<div id="${row}" class="row">`;
 
                 for (let col = 0; col < columns; col++) {
-                    let cellId = `${row}${col}`;
+                    let cellId = getCellId(row, col);
                     fieldHtml += `
                         <div id="${cellId}" class="cell" onclick="clicked(this.id)" style="width: 150px; height: 105px;">
                             <div id="${cellId}names" class="filler players_names">
@@ -92,7 +104,7 @@
 
         for (let r = 0; r < rows; r++) {
             for (let c = 0; c < columns; c++) {
-                let cellId = r + '' + c;
+                let cellId = getCellId(r, c);
 
                 if (!isCenterNamesCell(r, c)) {
                     ALL_CELLS.push(cellId);
@@ -105,7 +117,7 @@
     <script th:if="${isBingo}" type="text/javascript" th:inline="javascript">
         for (let r = 0; r < rows; r++) {
             for (let c = 0; c < columns; c++) {
-                let cellId = r + '' + c;
+                let cellId = getCellId(r, c);
 
                 if (isCenterNamesCell(r, c)) {
                     showBlock(document.getElementById(cellId + 'names'));
@@ -119,7 +131,7 @@
     <script th:unless="${altLayout}" type="text/javascript" th:inline="javascript">
         for (let r = 0; r < rows; r++) {
             for (let c = 0; c < columns; c++) {
-                let cellId = r + '' + c;
+                let cellId = getCellId(r, c);
                 let cell = document.getElementById(cellId);
 
                 cell.style.width = width + "px";
@@ -171,7 +183,7 @@
                     </div>
                 </div>`;
 
-            let elem = document.getElementById("00");
+            let elem = document.getElementById(getCellId(0, 0));
             elem.innerHTML = loader + elem.innerHTML;
         }
 
@@ -183,7 +195,7 @@
             $("hr").width(WDT-30);
             $("#random").width(WDT-30);
 
-            let e = document.getElementById('00');
+            let e = document.getElementById(getCellId(0, 0));
             e.style["width"] = WDT + "px";
             e.style["height"] = HGH + "px";
         }
@@ -353,7 +365,7 @@
         }
 
         function getChartFromCell(cellId) {
-            return chartIdToChart[cellsToCharts[cellId] ];
+            return chartIdToChart[cellsToCharts[cellId]];
         }
 
         function getChartsFromCells(cellsIds) {
@@ -364,11 +376,11 @@
         }
 
         function getCellsSameRow(cellId) {
-            return ALL_CELLS.filter(c => c !== cellId && c[0] === cellId[0]);
+            return ALL_CELLS.filter(c => c !== cellId && getCellRow(c) === getCellRow(cellId));
         }
 
         function getCellsSameCol(cellId) {
-            return ALL_CELLS.filter(c => c !== cellId && c[1] === cellId[1]);
+            return ALL_CELLS.filter(c => c !== cellId && getCellColumn(c) === getCellColumn(cellId));
         }
 
         function doesMakeSameLine(cellId, wantSingle) {
@@ -402,7 +414,7 @@
         }
 
         function haveSameLineOnTable() {
-            return ALL_CELLS.some(c => c !== null && doesMakeSameLine(c, getChartsFromCells([c])[0].single));
+            return ALL_CELLS.some(c => c !== null && doesMakeSameLine(c, getChartFromCell(c).single));
         }
 
         function chooseSinglesOrDoubles(cellId, sumSingles, sumDoubles) {
