@@ -27,10 +27,22 @@
         const NAMES_PLAYER_1 = "p1name";
         const NAMES_PLAYER_2 = "p2name";
 
-        const TYPE_RANDOM = "info";
+        const TYPE_PLAYABLE = "playable";
+        const RANDOM_BACKGROUND = "background";
         const RANDOM_SONG = "song";
         const RANDOM_CUT = "cut";
         const RANDOM_DIFFICULTY = "diff";
+
+        const TYPE_EMPTY = "empty";
+
+        const TYPE_TEXT = "text";
+        const TEXT_INNER = "textinner";
+
+        const TYPE_RANDOMIZER = "randomizer";
+        const RANDOMIZER_TEXT = "randomizertext";
+        const RANDOMIZER_ICON = "randomizericon";
+        const RANDOMIZER_ICON_SPAN = "randomizericonspan";
+
 
         const OVERLAYS = [
             BLUE_WIN,
@@ -43,29 +55,47 @@
 
         const CELL_TYPES = [
             TYPE_NAMES,
-            TYPE_RANDOM,
+            TYPE_PLAYABLE,
+            TYPE_EMPTY,
+            TYPE_RANDOMIZER,
         ];
 
         function isShowingBlock(block) {
             return block.style.display === 'block' || block.style.display === 'flex'
         }
 
-        function showBlock(block) {
-            if (CELL_TYPES.some(e => block.id.endsWith(e))) {
-                let cellId = extractCellId(block.id);
-                CELL_TYPES.forEach(e => hideBlock(getBlock(cellId, e)));
-            }
-
+        function showBlock(block, saveOverlay=true) {
             if (block.id.endsWith(RED_WIN) ||
-                block.id.endsWith(BLUE_WIN)
+                block.id.endsWith(BLUE_WIN) ||
+                block.id.endsWith(TYPE_TEXT)
             ) {
                 block.style.display = 'flex';
             } else {
                 block.style.display = 'block';
             }
+
+            let overlayArray = OVERLAYS.filter(e => block.id.endsWith(e));
+            if (saveOverlay && overlayArray.length === 1) {
+                let cellId = extractCellId(block.id);
+                let overlay = overlayArray[0];
+
+                let currOverlays = field_configuration.cells[cellId].overlays;
+                if (!currOverlays) {
+                    currOverlays = [];
+                }
+
+                if (!currOverlays.includes(overlay)) {
+                    currOverlays.push(overlay);
+                }
+
+                field_configuration.cells[cellId].overlays = currOverlays;
+            }
         }
 
-        function byId(cellId, addon) {
+        function byId(cellId, addon, extra) {
+            if (addon && extra) {
+                return document.getElementById(getBlockId(cellId, addon, extra));
+            }
             if (addon) {
                 return document.getElementById(getBlockId(cellId, addon));
             }
@@ -74,13 +104,38 @@
 
         function hideBlock(block) {
             block.style.display = '';
+
+            let overlayArray = OVERLAYS.filter(e => block.id.endsWith(e));
+            if (overlayArray.length === 1) {
+                let cellId = extractCellId(block.id);
+                let overlay = overlayArray[0];
+
+                let currOverlays = field_configuration.cells[cellId].overlays;
+                if (!currOverlays) {
+                    return;
+                }
+
+                let index = currOverlays.indexOf(overlay);
+                if (index >= 0) {
+                    currOverlays.splice(index, 1);
+                }
+
+                if (currOverlays.length === 0) {
+                    delete field_configuration.cells[cellId].overlays;
+                } else {
+                    field_configuration.cells[cellId].overlays = currOverlays;
+                }
+            }
         }
 
-        function getBlock(cellId, addon) {
-            return byId(getBlockId(cellId, addon));
+        function getBlock(cellId, addon, extra) {
+            return byId(getBlockId(cellId, addon, extra));
         }
 
-        function getBlockId(cellId, addon) {
+        function getBlockId(cellId, addon, extra) {
+            if (extra) {
+                return `${cellId}-${addon}-${extra}`
+            }
             return `${cellId}-${addon}`;
         }
 
@@ -107,58 +162,70 @@
     </script>
 
     <script id="generate-cells" type="text/javascript" th:inline="javascript">
-
-        function generateField() {
-            let fieldHtml = ``;
-
-            for (let row = 0; row < rows; row++) {
-                fieldHtml += `<div id="${row}" class="row">`;
-
-                for (let col = 0; col < columns; col++) {
-                    let cellId = getCellId(row, col);
-                    fieldHtml += `
-                        <div id="${cellId}" class="cell" onclick="clicked(this.id)">
-                            <div id="${getBlockId(cellId, TYPE_NAMES)}" class="filler players_names">
-                                <div id="${getBlockId(cellId, NAMES_PLAYER_1)}" class="p1"></div>
-                                <div id="${getBlockId(cellId, NAMES_PLAYER_2)}" class="p2"></div>
-                            </div>
-
-                            <div id="${getBlockId(cellId, BLUE_WIN)}" class="filler blue"></div>
-                            <div id="${getBlockId(cellId, RED_WIN)}" class="filler red"></div>
-                            <div id="${getBlockId(cellId, DRAW)}" class="filler draw"></div>
-                            <div id="${getBlockId(cellId, SELECTED)}" class="filler selected"></div>
-                            <div id="${getBlockId(cellId, IN_PROGRESS)}" class="filler inprogress"></div>
-                            <div id="${getBlockId(cellId, LOCKED)}" class="filler lock"></div>
-
-                            <div id="${getBlockId(cellId, TYPE_RANDOM)}" class="filler cellinfo">
-                                <div id="${getBlockId(cellId, RANDOM_SONG)}" class="songname"></div>
-                                <div id="${getBlockId(cellId, RANDOM_CUT)}" class="cutname"></div>
-                                <div id="${getBlockId(cellId, RANDOM_DIFFICULTY)}" class="diffname"></div>
-                            </div>
-                        </div>
-                    `;
-                }
-
-                fieldHtml += `</div>`;
-            }
-
-            byId("field").innerHTML = fieldHtml;
-        }
-
-        generateField();
-    </script>
-
-    <script id="setup-cells" type="text/javascript" th:inline="javascript">
         const ALL_CELLS = [];
         const cellsToCharts = {};
         const selectedCharts = [];
         const chartIdToChart = {};
 
-        const centerRow = rows / 2 | 0;
-        const centerCol = columns / 2 | 0;
-
         function isCenterNamesCell(row, col) {
+            const centerRow = rows / 2 | 0;
+            const centerCol = columns / 2 | 0;
             return rows > 1 && columns > 1 && row === centerRow && col === centerCol;
+        }
+
+        function emptyConfiguration() {
+            return {
+                field: {
+                    rows: rows,
+                    columns: columns,
+                    width: width,
+                    height: height,
+                },
+                cells: {
+
+                },
+                settings: {
+                    lock_charts: true,
+                    plus1_full_row: true,
+                    plus1_full_col: true,
+                    counter: 0,
+                },
+                variables: {
+                    blue_name: "A",
+                    red_name: "B",
+                    blue_score: 0,
+                    red_score: 0,
+                },
+            };
+        }
+
+        let field_configuration = emptyConfiguration();
+
+        function isCellTypePlayable(row, col) {
+            return isCellOfType(row, col, TYPE_PLAYABLE);
+        }
+
+        function isCellIdOfType(cellId, type) {
+            return field_configuration.cells[cellId].type === type;
+        }
+
+        function isCellOfType(row, col, type) {
+            return isCellIdOfType(getCellId(row, col), type);
+        }
+
+        for (let row = 0; row < rows; row++) {
+            for (let col = 0; col < columns; col++) {
+                let cellId = getCellId(row, col);
+                if (isCenterNamesCell(row, col)) {
+                    field_configuration.cells[cellId] = {
+                        type: TYPE_NAMES
+                    }
+                } else {
+                    field_configuration.cells[cellId] = {
+                        type: TYPE_PLAYABLE
+                    }
+                }
+            }
         }
 
         function clearCellObjects() {
@@ -180,12 +247,10 @@
 
         function generateCellObjects() {
             clearCellObjects();
-
             for (let r = 0; r < rows; r++) {
                 for (let c = 0; c < columns; c++) {
                     let cellId = getCellId(r, c);
-
-                    if (!isCenterNamesCell(r, c)) {
+                    if (isCellTypePlayable(r, c)) {
                         ALL_CELLS.push(cellId);
                         cellsToCharts[cellId] = null;
                     }
@@ -193,36 +258,126 @@
             }
         }
 
-        generateCellObjects();
-    </script>
+        function generateField() {
+            rows = field_configuration.field.rows;
+            columns = field_configuration.field.columns;
+            width = field_configuration.field.width;
+            height = field_configuration.field.height;
 
-    <script th:if="${isBingo}" type="text/javascript" th:inline="javascript">
-        for (let r = 0; r < rows; r++) {
-            for (let c = 0; c < columns; c++) {
-                let cellId = getCellId(r, c);
+            let fieldHtml = ``;
 
-                if (isCenterNamesCell(r, c)) {
-                    showBlock(byId(cellId, TYPE_NAMES));
-                } else {
-                    showBlock(byId(cellId, TYPE_RANDOM));
+            for (let row = 0; row < rows; row++) {
+                fieldHtml += `<div id="${row}" class="row">`;
+
+                for (let col = 0; col < columns; col++) {
+                    let cellId = getCellId(row, col);
+                    fieldHtml += `
+                        <div id="${cellId}" class="cell" onclick="clicked(this.id)" style="width: ${width}px; height: ${height}px">
+                            <div id="${getBlockId(cellId, TYPE_PLAYABLE)}" class="filler cellinfo" style="background-size: 100% 100%;">
+                                <div id="${getBlockId(cellId, RANDOM_BACKGROUND)}" class="song_background">
+                                    <div id="${getBlockId(cellId, RANDOM_SONG)}" class="songname"></div>
+                                    <div id="${getBlockId(cellId, RANDOM_CUT)}" class="cutname"></div>
+                                    <div id="${getBlockId(cellId, RANDOM_DIFFICULTY)}" class="diffname"></div>
+                                </div>
+                            </div>
+
+                            <div id="${getBlockId(cellId, TYPE_NAMES)}" class="filler players_names">
+                                <div id="${getBlockId(cellId, NAMES_PLAYER_1)}" class="p1"></div>
+                                <div id="${getBlockId(cellId, NAMES_PLAYER_2)}" class="p2"></div>
+                            </div>
+
+                            <div id="${getBlockId(cellId, TYPE_RANDOMIZER)}" class="filler randomizer">
+                                <div id="${getBlockId(cellId, RANDOMIZER_TEXT)}" class="randomizer_text"></div>
+                                <div id="${getBlockId(cellId, RANDOMIZER_ICON)}" class="randomizer_icon">
+                                    <span id="${getBlockId(cellId, RANDOMIZER_ICON_SPAN)}">⭮</span>
+                                </div>
+                            </div>
+
+                            <div id="${getBlockId(cellId, BLUE_WIN)}" class="filler blue"></div>
+                            <div id="${getBlockId(cellId, RED_WIN)}" class="filler red"></div>
+                            <div id="${getBlockId(cellId, DRAW)}" class="filler draw"></div>
+                            <div id="${getBlockId(cellId, SELECTED)}" class="filler selected"></div>
+                            <div id="${getBlockId(cellId, IN_PROGRESS)}" class="filler inprogress"></div>
+                            <div id="${getBlockId(cellId, LOCKED)}" class="filler lock"></div>
+
+                            <div id="${getBlockId(cellId, TYPE_EMPTY)}" class="filler empty"></div>
+                        </div>
+                    `;
+                }
+
+                fieldHtml += `</div>`;
+            }
+
+            byId("field").innerHTML = fieldHtml;
+
+            generateCellObjects();
+
+            for (let r = 0; r < rows; r++) {
+                for (let c = 0; c < columns; c++) {
+                    let cellId = getCellId(r, c);
+                    let cell = byId(cellId);
+                    let cellConfig = field_configuration.cells[cellId];
+                    cell.classList.remove("playable_cell");
+                    cell.classList.remove("non_playable_cell");
+
+                    if (isCellTypePlayable(r, c)) {
+                        cell.classList.add("playable_cell");
+
+                        showBlock(byId(cellId, TYPE_PLAYABLE));
+                        let chart = cellConfig.chart;
+                        if (chart) {
+                            writeChartInfoToCell(cellId, chart);
+                        }
+                    } else {
+                        cell.classList.add("non_playable_cell");
+
+                        if (isCellOfType(r, c, TYPE_NAMES)) {
+                            showBlock(byId(cellId, TYPE_NAMES));
+                        } else if (isCellOfType(r, c, TYPE_EMPTY)) {
+                            showBlock(byId(cellId, TYPE_EMPTY));
+                        } else if (isCellOfType(r, c, TYPE_RANDOMIZER)) {
+                            showBlock(byId(cellId, TYPE_RANDOMIZER));
+                            randomizerCellConfigure(cellId, cellConfig);
+
+                            byId(cellId, RANDOMIZER_ICON_SPAN).addEventListener('click', function(event) {
+                                event.stopPropagation();
+                                randomizeCellReroll(cellId, cellConfig);
+                            });
+                        }
+                    }
+
+                    if (cellConfig.overlays) {
+                        for (let o of cellConfig.overlays) {
+                            showBlock(byId(getBlockId(cellId, o)));
+                        }
+                    }
+
+                    if (cellConfig.components) {
+                        for (let config of cellConfig.components) {
+                            if (config.type === TYPE_TEXT) {
+                                cell.appendChild(createTextCell(cellId, config));
+                                textCellConfigure(cellId, config);
+                            }
+                        }
+                    }
                 }
             }
-        }
-    </script>
 
-    <script th:unless="${altLayout}" type="text/javascript" th:inline="javascript">
-        for (let r = 0; r < rows; r++) {
-            for (let c = 0; c < columns; c++) {
-                let cell = getCell(r, c);
-
-                cell.style.width = width + "px";
-                cell.style.height = height + "px";
-
-                let fillerElements = document.querySelectorAll('.filler');
-                fillerElements.forEach(e => e.style.width = width + "px");
-                fillerElements.forEach(e => e.style.height = height + "px");
+            if (isNamesSupported) {
+                if (field_configuration.variables.blue_name && field_configuration.variables.red_name) {
+                    set_names(field_configuration.variables.blue_name, field_configuration.variables.red_name);
+                }
             }
+
+            if (isLockingSupported) {
+                setLockCharts(field_configuration.settings.lock_charts);
+            }
+
+            lockIrrelevantCells();
+            determineNotInterestingCells();
         }
+
+        window.addEventListener("load", generateField);
     </script>
 
 
@@ -264,8 +419,10 @@
                     </div>
                 </div>`;
 
-            let elem = getCell(0, 0);
-            elem.innerHTML = loader + elem.innerHTML;
+            window.addEventListener("load", () => {
+                let elem = getCell(0, 0);
+                elem.innerHTML = loader + elem.innerHTML;
+            });
         }
 
         function rs() {
@@ -279,6 +436,10 @@
             let e = getCell(0, 0);
             e.style["width"] = WDT + "px";
             e.style["height"] = HGH + "px";
+
+            let inner = byId(getCellId(0, 0), TYPE_PLAYABLE);
+            inner.style["width"] = "100%";
+            inner.style["height"] = "100%";
         }
 
         window.addEventListener('load', rs);
@@ -343,13 +504,102 @@
             "GOODBOUNCE": "20px",
         }
 
+        function isPlayableSpaceSquare() {
+            if (field_configuration.field.rows === 1 || field_configuration.field.columns === 1) {
+                return false;
+            }
+
+            let prevLeft = -1;
+            let prevRight = -1;
+
+            for (let r = 0; r < rows; r++) {
+                let currLeft = -1;
+                let currRight = -1;
+                for (let c = 0; c < columns; c++) {
+                    if (isCellTypePlayable(r, c) || isCellOfType(r, c, TYPE_NAMES)) {
+                        if (currLeft === -1 || currLeft > c) {
+                            currLeft = c;
+                        }
+                        if (currRight === -1 || currRight < c) {
+                            currRight = c;
+                        }
+                    }
+                }
+
+                if (currLeft !== -1 && currRight !== -1) {
+                    if (prevLeft === -1) {
+                        prevLeft = currLeft;
+                    }
+                    if (prevRight === -1) {
+                        prevRight = currRight;
+                    }
+                    if (prevLeft !== currLeft) {
+                        return false;
+                    }
+                    if (prevRight !== currRight) {
+                        return false;
+                    }
+                }
+            }
+
+            let prevUp = -1;
+            let prevDown = -1;
+
+            for (let c = 0; c < columns; c++) {
+                let currUp = -1;
+                let currDown = -1;
+                for (let r = 0; r < rows; r++) {
+                    if (isCellTypePlayable(r, c) || isCellOfType(r, c, TYPE_NAMES)) {
+                        if (currUp === -1 || currUp > r) {
+                            currUp = r;
+                        }
+                        if (currDown === -1 || currDown < r) {
+                            currDown = r;
+                        }
+                    }
+                }
+
+                if (currUp !== -1 && currDown !== -1) {
+                    if (prevUp === -1) {
+                        prevUp = currUp;
+                    }
+                    if (prevDown === -1) {
+                        prevDown = currDown;
+                    }
+                    if (prevUp !== currUp) {
+                        return false;
+                    }
+                    if (prevDown !== currDown) {
+                        return false;
+                    }
+                }
+            }
+
+            return prevDown - prevUp === prevRight - prevLeft;
+        }
+
+        function isSquareField() {
+            return isPlayableSpaceSquare();
+        }
+
+        function isNoSameLineForRow() {
+            return isNoSameLineSupported && isNoSameLine && isSquareField();
+        }
+
+        function isNoSameLineForColumn() {
+            return isNoSameLineSupported && isNoSameLine && isSquareField();
+        }
+
+        function isNoSameLineForDiagonals() {
+            return isNoSameLineSupported && isNoSameLine && isSquareField();
+        }
 
         function isMainDiagonalCell(cellId) {
-            return cellId[0] === cellId[1];
+            return isSquareField() && getCellRow(cellId) === getCellColumn(cellId);
         }
 
         function isSideDiagonalCell(cellId) {
-            return Number(cellId[0]) + Number(cellId[1]) === rows - 1;
+            return isSquareField() && Number(getCellRow(cellId)) + Number(getCellColumn(cellId)) === rows - 1;
         }
 
         function isDiagonalCell(cellId) {
@@ -363,6 +613,16 @@
                 return ALL_CELLS.filter(c => c !== cellId && isSideDiagonalCell(c));
             }
             return undefined;
+        }
+
+        function getChosenCells() {
+            let chosen = [];
+            for (let r = 0; r < rows; r++) {
+                for (let c = 0; c < columns; c++) {
+                    chosen.push(getCellId(r, c));
+                }
+            }
+            return chosen.filter(c => isCellSelected(c));
         }
 
         function getSelectedCells() {
@@ -464,31 +724,37 @@
         }
 
         function doesMakeSameLine(cellId, wantSingle) {
-            let sameRowCells = getCellsSameRow(cellId);
-            let sameRowCharts = getChartsFromCells(sameRowCells);
+            if (isNoSameLineForRow()) {
+                let sameRowCells = getCellsSameRow(cellId);
+                let sameRowCharts = getChartsFromCells(sameRowCells);
 
-            if (sameRowCells.length === sameRowCharts.length &&
-                sameRowCharts.every(c => wantSingle && c.single || !wantSingle && c.double)) {
-                return true;
-            }
-
-            let sameColCells = getCellsSameCol(cellId);
-            let sameColCharts = getChartsFromCells(sameColCells);
-
-            if (sameColCells.length === sameColCharts.length &&
-                sameColCharts.every(c => wantSingle && c.single || !wantSingle && c.double)) {
-                return true;
-            }
-
-            if (isDiagonalCell(cellId)) {
-                let sameDiagonalCells = getDiagonalCells(cellId);
-                let sameDiagonalCharts = getChartsFromCells(sameDiagonalCells);
-
-                if (sameDiagonalCells.length === sameDiagonalCharts.length &&
-                    sameDiagonalCharts.every(c => wantSingle && c.single || !wantSingle && c.double)) {
+                if (sameRowCells.length === sameRowCharts.length && sameRowCells.length !== 0 &&
+                    sameRowCharts.every(c => wantSingle && c.single || !wantSingle && c.double)) {
                     return true;
                 }
             }
+
+            if (isNoSameLineForColumn()) {
+                let sameColCells = getCellsSameCol(cellId);
+                let sameColCharts = getChartsFromCells(sameColCells);
+
+                if (sameColCells.length === sameColCharts.length && sameColCells.length !== 0 &&
+                    sameColCharts.every(c => wantSingle && c.single || !wantSingle && c.double)) {
+                    return true;
+                }
+            }
+
+             if (isNoSameLineForDiagonals()) {
+                 if (isDiagonalCell(cellId)) {
+                     let sameDiagonalCells = getDiagonalCells(cellId);
+                     let sameDiagonalCharts = getChartsFromCells(sameDiagonalCells);
+
+                     if (sameDiagonalCells.length === sameDiagonalCharts.length && sameDiagonalCells.length !== 0 &&
+                         sameDiagonalCharts.every(c => wantSingle && c.single || !wantSingle && c.double)) {
+                         return true;
+                     }
+                 }
+             }
 
             return false;
         }
@@ -498,27 +764,34 @@
         }
 
         function chooseSinglesOrDoubles(cellId, sumSingles, sumDoubles) {
-            const simplePercents = true;
-
-            if (simplePercents) {
-                let totalSum = sumSingles + sumDoubles;
-                if (totalSum === 0) {
-                    return Math.random() > 0.5;
-                } else {
-                    let currDoublePercentage = sumDoubles / totalSum;
-                    return currDoublePercentage > 0.5;
-                }
-            }
-
-
-            // more complex algo, seems to be worse
-
             if (isNoSameLineSupported && isNoSameLine && doesMakeSameLine(cellId, true)) {
                 return false;
             }
             if (isNoSameLineSupported && isNoSameLine && doesMakeSameLine(cellId, false)) {
                 return true;
             }
+
+            const simplePercents = true;
+
+            if (simplePercents) {
+                let totalSum = sumSingles + sumDoubles;
+                if (totalSum === 0) {
+                    let rand = Math.random();
+                    return rand < singlePercentage;
+                } else {
+                    let currSinglePercentage = sumSingles / totalSum;
+
+                    if (currSinglePercentage === singlePercentage) {
+                        let rand = Math.random();
+                        return rand < singlePercentage;
+                    } else {
+                        return currSinglePercentage < singlePercentage;
+                    }
+                }
+            }
+
+
+            // more complex algo, seems to be worse
 
             let totalSum = sumSingles + sumDoubles;
             let currSinglePercentage;
@@ -543,6 +816,80 @@
         }
 
         function chooseDifficulty(sumDiff, sumAllDiff) {
+
+            let useRobustRandomizer = true;
+
+            if (useRobustRandomizer) {
+
+                let shouldBeRandomized = {};
+                let somethingShouldBeRandomized = false;
+                let sumOffIdealPercentage = 0;
+                let offIdealPercentageForDiff = {};
+                let maxOffIdealPercentage = 0;
+
+                for (let currDiff in sumDiff) {
+                    if (sumAllDiff === 0) {
+                        shouldBeRandomized[currDiff] = percents[currDiff] > 0;
+                        continue;
+                    }
+
+                    let currentDiffPercent = sumDiff[currDiff] / sumAllDiff;
+                    let offIdealPercentage = percents[currDiff] - currentDiffPercent;
+
+                    let diffShouldBeRandomized = offIdealPercentage > 0;
+                    shouldBeRandomized[currDiff] = diffShouldBeRandomized;
+
+                    if (diffShouldBeRandomized) {
+                        somethingShouldBeRandomized = true;
+                        offIdealPercentageForDiff[currDiff] = offIdealPercentage;
+
+                        if (offIdealPercentage > maxOffIdealPercentage) {
+                            maxOffIdealPercentage = offIdealPercentage;
+                            sumOffIdealPercentage = 0;
+                        }
+
+                        if (offIdealPercentage === maxOffIdealPercentage) {
+                            sumOffIdealPercentage += offIdealPercentage;
+                        }
+                    }
+                }
+
+                let finalPercentagesDifficulties = {};
+
+                if (!somethingShouldBeRandomized || sumAllDiff === 0) {
+                    for (let currDiff in sumDiff) {
+                        finalPercentagesDifficulties[currDiff] = percents[currDiff];
+                    }
+                } else  {
+                    for (let currDiff in sumDiff) {
+                        if (!shouldBeRandomized[currDiff]) {
+                            finalPercentagesDifficulties[currDiff] = 0;
+                            continue;
+                        }
+                        if (offIdealPercentageForDiff[currDiff] !== maxOffIdealPercentage) {
+                            finalPercentagesDifficulties[currDiff] = 0;
+                            continue;
+                        }
+                        finalPercentagesDifficulties[currDiff] = offIdealPercentageForDiff[currDiff] / sumOffIdealPercentage;
+                    }
+                }
+
+                while (true) {
+                    let randomDifficulty = Math.random();
+
+                    for (let currDiff in finalPercentagesDifficulties) {
+                        let currPercents = finalPercentagesDifficulties[currDiff];
+                        randomDifficulty -= currPercents;
+                        if (randomDifficulty < 0) {
+                            return Number(currDiff);
+                        }
+                    }
+                }
+            }
+
+
+
+            // old algo, more variativity
             let updatedPercentagesDifficulties = {};
             for (let currDiff in sumDiff) {
                 if (sumAllDiff === 0) {
@@ -566,9 +913,10 @@
                     }
                 }
             }
+
         }
 
-        function filterCandidates(candidates, searchSingles, searchDoubles, chosenDifficulty) {
+        function filterCandidates(candidates, searchSingles, searchDoubles, chosenDifficulty, forceRandom) {
             let nonSelectedCandidates = candidates
                 .filter(c => !selectedCharts.includes(c.chartId));
 
@@ -579,7 +927,7 @@
                     c.coop
                 );
 
-            if (filteredCandidates.length === 0) {
+            if (filteredCandidates.length === 0 && forceRandom) {
                 filteredCandidates = nonSelectedCandidates
             }
 
@@ -601,49 +949,65 @@
             let cannotRandomizeCellSameLine = false;
             let randomizedCharts = [];
 
+            cellIdFor:
             for (let cellId of cellsToChange) {
                 if (candidates.length === 0) {
                     return;
                 }
 
-                let searchSingles = isSingle;
-                let searchDoubles = isDouble;
+                let searchSingles;
+                let searchDoubles;
+                let finalCandidates = [];
 
-                if (isCoop) {
-                    searchSingles = false;
-                    searchDoubles = false;
-                }
+                let counter = 0;
+                while (true) {
+                    counter++;
 
-                if (isNoSameLineSupported && isNoSameLine) {
-                    if (isSingle && doesMakeSameLine(cellId, true) &&
-                        isDouble && doesMakeSameLine(cellId, false)) {
-                        cannotRandomizeCellSameLine = true;
-                        continue;
+                    searchSingles = isSingle;
+                    searchDoubles = isDouble;
+
+                    if (isCoop) {
+                        searchSingles = false;
+                        searchDoubles = false;
+                    }
+
+                    if (isNoSameLineSupported && isNoSameLine) {
+                        if (isSingle && doesMakeSameLine(cellId, true) &&
+                            isDouble && doesMakeSameLine(cellId, false)) {
+                            cannotRandomizeCellSameLine = true;
+                            continue cellIdFor;
+                        }
+                    }
+
+                    if (isSingle && isDouble) {
+                        searchSingles = chooseSinglesOrDoubles(cellId, sumSingles, sumDoubles);
+                        searchDoubles= !searchSingles;
+                    } else if (isNoSameLineSupported && isNoSameLine) {
+                        if (isSingle && !isDouble && doesMakeSameLine(cellId, true) ||
+                            isDouble && !isSingle && doesMakeSameLine(cellId, false)) {
+                            cannotRandomizeCellSameLine = true;
+                            continue cellIdFor;
+                        }
+                    }
+
+                    let chosenDifficulty = chooseDifficulty(sumDiff, sumAllDiff);
+
+                    let forceChoose = counter === 1000;
+
+                    finalCandidates = filterCandidates(
+                        candidates, searchSingles, searchDoubles, chosenDifficulty, forceChoose);
+
+                    if (finalCandidates.length !== 0 || forceChoose) {
+                        break;
                     }
                 }
 
-                if (isSingle && isDouble) {
-                    searchSingles = chooseSinglesOrDoubles(cellId, sumSingles, sumDoubles);
-                    searchDoubles= !searchSingles;
-                } else if (isNoSameLineSupported && isNoSameLine) {
-                    if (isSingle && !isDouble && doesMakeSameLine(cellId, true) ||
-                        isDouble && !isSingle && doesMakeSameLine(cellId, false)) {
-                        cannotRandomizeCellSameLine = true;
-                        continue;
-                    }
-                }
-
-                let chosenDifficulty = chooseDifficulty(sumDiff, sumAllDiff);
-
-                let newerCandidates = filterCandidates(
-                    candidates, searchSingles, searchDoubles, chosenDifficulty);
-
-                if (newerCandidates.length === 0) {
+                if (finalCandidates.length === 0) {
                     break;
                 }
 
-                let itemIndex = Math.floor(Math.random() * newerCandidates.length);
-                let item = newerCandidates[itemIndex];
+                let itemIndex = Math.floor(Math.random() * finalCandidates.length);
+                let item = finalCandidates[itemIndex];
 
                 if (item.single) {
                     sumSingles++;
@@ -675,7 +1039,6 @@
             }
 
             if (initialRandomize) {
-                byId("random").innerHTML = afterRandomizeText;
                 initialRandomize = false;
             }
 
@@ -697,15 +1060,39 @@
         }
 
         function clicked(cellId) {
-            let selectedDiv = byId(cellId, SELECTED);
+            if (isConfigurationEnabled && !isConfigurationVisible() && !isCellIdOfType(cellId, TYPE_PLAYABLE)) {
+                return;
+            }
 
-            if (isShowingBlock(selectedDiv)) {
-                hideBlock(selectedDiv);
+            let selectedDiv = byId(cellId, SELECTED);
+            let showing = isShowingBlock(selectedDiv);
+
+            let chosen =  getChosenCells();
+
+            if (!isCtrlPressed) {
+                getChosenCells().forEach(cellId => hideBlock(byId(cellId, SELECTED)));
+                if (chosen.length > 1) {
+                    showBlock(selectedDiv);
+                } else {
+                    if (showing) {
+                        hideBlock(selectedDiv);
+                    } else {
+                        showBlock(selectedDiv);
+                    }
+                }
             } else {
-                showBlock(selectedDiv);
+                if (showing) {
+                    hideBlock(selectedDiv);
+                } else {
+                    showBlock(selectedDiv);
+                }
             }
 
             determineNotInterestingCells();
+
+            if (isConfigurationEnabled) {
+                configureOnSelect();
+            }
         }
 
         function isCellSelected(cellId) {
@@ -759,7 +1146,7 @@
         function resetCell(cellId) {
             unlockCell(cellId);
 
-            let cell = byId(cellId);
+            let cell = byId(cellId, TYPE_PLAYABLE);
             cell.classList.remove(determinedCls);
             cell.classList.remove(nonInterestingCls);
 
@@ -772,6 +1159,25 @@
         }
 
         function changeCellState(cls) {
+            let selectedOrInProgress = ALL_CELLS.filter(c => isCellInProgress(c) || isCellSelected(c));
+            if (combineInProgressAndSelected && cls === IN_PROGRESS && selectedOrInProgress.length > 1) {
+
+                let itemIndex = Math.floor(Math.random() * selectedOrInProgress.length);
+                let item = selectedOrInProgress[itemIndex];
+
+                showBlock(byId(item, SELECTED));
+
+                selectedOrInProgress
+                    .filter(s => s !== item)
+                    .forEach(s => {
+                        hideBlock(byId(s, SELECTED));
+                        hideBlock(byId(s, IN_PROGRESS));
+                    });
+
+                determineNotInterestingCells();
+                return;
+            }
+
             let foundSelected = false;
             const isDetermination = [RED_WIN, BLUE_WIN, DRAW].includes(cls);
 
@@ -782,27 +1188,43 @@
 
                 foundSelected = true;
 
-                resetCell(cellId);
-
                 if (cls !== 'reset') {
                     if (combineInProgressAndSelected && cls === IN_PROGRESS) {
+                        if (isConfigurationEnabled) {
+                            handleResettingCellFromWinning(cellId);
+                        }
+                        resetCell(cellId);
                         showBlock(byId(cellId, SELECTED));
                     } else {
-                        showBlock(byId(cellId, cls));
+                        let block = byId(cellId, cls);
+                        if (isConfigurationEnabled && !isShowingBlock(block)) {
+                            handleWinningCell(cellId, cls);
+                        }
+                        resetCell(cellId);
+                        showBlock(block);
                     }
 
                     if (isDetermination) {
-                        byId(cellId).classList.add(determinedCls);
+                        byId(cellId, TYPE_PLAYABLE).classList.add(determinedCls);
                     }
+                } else {
+                    if (isConfigurationEnabled) {
+                        handleResettingCellFromWinning(cellId);
+                    }
+                    resetCell(cellId);
                 }
             }
 
             if (!foundSelected && isDetermination) {
                 for (let cellId of ALL_CELLS) {
                     if (isCellInProgress(cellId)) {
+                        let block = byId(cellId, cls);
+                        if (isConfigurationEnabled && !isShowingBlock(block)) {
+                            handleWinningCell(cellId, cls);
+                        }
                         resetCell(cellId);
-                        showBlock(byId(cellId, cls));
-                        byId(cellId).classList.add(determinedCls);
+                        showBlock(block);
+                        byId(cellId, TYPE_PLAYABLE).classList.add(determinedCls);
                     }
                 }
             }
@@ -812,7 +1234,7 @@
                 ALL_CELLS.every(c => !isCellInProgress(c))) {
 
                 let availableCells = ALL_CELLS
-                    .filter(c => !isCellEmpty(c) && !isCellHasResult(c) && !isCellLocked(c));
+                    .filter(c => !isCellHasResult(c) && !isCellLocked(c));
 
                 if (availableCells.length === 0) {
                     break outerIf;
@@ -821,12 +1243,19 @@
                 let itemIndex = Math.floor(Math.random() * availableCells.length);
                 let item = availableCells[itemIndex];
 
-                showBlock(byId(item, IN_PROGRESS));
+                if (combineInProgressAndSelected) {
+                    showBlock(byId(item, SELECTED));
+                } else {
+                    showBlock(byId(item, IN_PROGRESS));
+                }
             }
 
             if (!foundSelected && cls === 'reset' && ALL_CELLS.some(c => isCellInProgress(c))) {
-                for (let cell of getInProgressCells()) {
-                    resetCell(cell);
+                for (let cellId of getInProgressCells()) {
+                    if (isConfigurationEnabled) {
+                        handleResettingCellFromWinning(cellId);
+                    }
+                    resetCell(cellId);
                 }
             }
 
@@ -838,14 +1267,14 @@
             let interestingCells = getSelectedCells() + getInProgressCells();
 
             for (let cellId of ALL_CELLS) {
-                let cell = byId(cellId);
+                let cell = byId(cellId, TYPE_PLAYABLE);
 
                 if (interestingCells.length === 0) {
                     cell.classList.remove(nonInterestingCls)
                     continue;
                 }
 
-                if (!isCellSelected(cellId) && !isCellInProgress(cellId) && !isCellHasResult(cellId)) {
+                if (!isCellSelected(cellId) && !isCellInProgress(cellId) && !isCellHasResult(cellId) && !isCellEmpty(cellId)) {
                     cell.classList.add(nonInterestingCls);
                 } else {
                     cell.classList.remove(nonInterestingCls);
@@ -916,7 +1345,7 @@
         function writeChartInfoToCell(cellId, chart) {
             makeNewCell(cellId);
 
-            let cell = byId(cellId);
+            let cell = byId(cellId, TYPE_PLAYABLE);
             let songname = byId(cellId, RANDOM_SONG);
             let cutname = byId(cellId, RANDOM_CUT);
             let diffname = byId(cellId, RANDOM_DIFFICULTY);
@@ -958,12 +1387,14 @@
             selectedCharts.push(chart.chartId);
             cellsToCharts[cellId] = chart.chartId;
             chartIdToChart[chart.chartId] = chart;
+
+            field_configuration.cells[cellId].chart = chart;
         }
 
         function makeNewCell(cellId) {
             resetCell(cellId);
 
-            let cell = byId(cellId);
+            let cell = byId(cellId, TYPE_PLAYABLE);
             let songname = byId(cellId, RANDOM_SONG);
             let cutname = byId(cellId, RANDOM_CUT);
             let diffname = byId(cellId, RANDOM_DIFFICULTY);
@@ -981,6 +1412,10 @@
             selectedCharts.splice(selectedCharts.indexOf(chartId), 1);
             cellsToCharts[cellId] = null;
 
+            if (field_configuration.cells[cellId].chart) {
+                delete field_configuration.cells[cellId].chart;
+            }
+
             songname.innerHTML = '';
             songname.style['font-size'] = '';
             cutname.innerHTML = '';
@@ -990,6 +1425,11 @@
 
         function clearTable() {
             resetSettings();
+
+            if (isConfigurationEnabled) {
+                updateVariableValue('blue_score', () => 0);
+                updateVariableValue('red_score', () => 0);
+            }
 
             for (let cellId of ALL_CELLS) {
                 makeNewCell(cellId);

@@ -8,6 +8,7 @@
 
     <script th:unless="${head}" type="text/javascript" th:inline="javascript">
         includeSongCountPreview = false;
+        defaultTextColor = '#000000';
     </script>
 </div>
 
@@ -43,7 +44,7 @@
         };
 
         function getCellsToChange() {
-            return ['00'];
+            return [getCellId(0, 0)];
         }
 
     </script>
@@ -164,10 +165,9 @@
         };
 
         randomizeText = "✨";
-        afterRandomizeText = "✨";
 
         function getCellsToChange() {
-            return ['00'];
+            return [getCellId(0, 0)];
         }
 
     </script>

@@ -187,6 +187,10 @@ public class Chart implements Comparable<Chart>, VersionsOperations {
         return Utils.join(", ", styles.stream().map(c -> c.str(isDouble)).toList());
     }
 
+    public boolean isLatestPatch() {
+        return getStartingFromMix().versionId == MixService.latestVersion.getVersionId();
+    }
+
     public String printChartForMix(
         Mix mix, int idPad, int diffPad, int mixPad, int stepmakersPad, int stylesPad) {
 

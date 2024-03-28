@@ -112,6 +112,7 @@ public class PiuConfiguration {
         PumpkingData data = Utils.readJsonFromFile("db/pumpking/pumpking.json", PumpkingData.class);
 
         log.debug("Latest Mix: " + mixService.getLatestMix());
+        log.debug("Latest Version: " + mixService.getLatestVersion());
 
         songService.getAllSongs(); // force generating
         songService.enrichChartStyles();

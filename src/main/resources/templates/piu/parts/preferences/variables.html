@@ -1,0 +1,46 @@
+<script id="variables" type="text/javascript" th:inline="javascript">
+    let includeMix = false;
+    let includeCut = false;
+    let includeBpm = false;
+    let includeCategory = false;
+    let includeChartStyles = false;
+    let includeNoRepeat = false;
+    let includeNoLoader = false;
+    let includePreview = false;
+
+    let includePerformance = false;
+    let includeOnlyLatestPatch = false;
+    let includeCoop = false;
+    let includeMode = false;
+    let includeDifficulty = false;
+
+    let isLockingSupported = false;
+    let isNoSameLineSupported = false;
+    let isNamesSupported = false;
+    let isConfigurationEnabled = false;
+
+    let combineInProgressAndSelected = false;
+
+    let useHighResImages = false;
+
+    let initNewSongsFuncs = [];
+    let chartFilters = [];
+
+    let defaultTextColor = '#ffffff';
+
+    const cookiePlayMix = "playMix";
+
+
+    let isCtrlPressed = false;
+    let isShiftPressed = false;
+
+    document.addEventListener('keydown', function(event) {
+        if (event.key === 'Control') {
+            isCtrlPressed = true;
+        }
+    });
+
+    document.addEventListener('keyup', function() {
+        isCtrlPressed = false;
+    });
+</script>

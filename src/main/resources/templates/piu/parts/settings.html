@@ -1,37 +1,7 @@
 <html lang="en" xmlns:th="http://www.thymeleaf.org">
 
 <div th:fragment="settings" th:remove="tag">
-
     <div th:replace="util/cookies :: cookies"></div>
-
-    <script type="text/javascript" th:inline="javascript">
-        let includeMix = false;
-        let includeCut = false;
-        let includeBpm = false;
-        let includeCategory = false;
-        let includeChartStyles = false;
-        let includeNoRepeat = false;
-        let includeNoLoader = false;
-        let includePreview = false;
-
-        let includePerformance = false;
-        let includeCoop = false;
-        let includeMode = false;
-        let includeDifficulty = false;
-
-        let isLockingSupported = false;
-        let isNoSameLineSupported = false;
-        let isNamesSupported = false;
-
-        let combineInProgressAndSelected = false;
-
-        let useHighResImages = false;
-
-        let initNewSongsFuncs = [];
-        let chartFilters = [];
-
-        const cookiePlayMix = "playMix";
-    </script>
 
     <div th:if="${isBingo}">
         <div id="switchbuttons" style="float: left; width: 90px;margin-left: 17px;display: none;">
@@ -49,19 +19,43 @@
         </div>
 
         <script th:inline="javascript">
-            document.getElementById("managerbuttons").style.display = 'none';
             function switch_settings() {
                 let settings = document.getElementById("settings");
+                let configuration = document.getElementById("configuration");
                 let managed = document.getElementById("managerbuttons");
                 let settingsButton = document.getElementById("switchbuttons");
-                if (managed.style.display === 'none') {
-                    settings.style.display = 'none'
-                    managed.style.display = 'block';
-                    settingsButton.style.display = 'block';
-                } else {
+                if (settings.style.display === 'none') {
+                    configuration.style.display = 'none';
                     settings.style.display = 'block';
                     managed.style.display = 'none';
                     settingsButton.style.display = 'none';
+                } else {
+                    configuration.style.display = 'none';
+                    settings.style.display = 'none'
+                    managed.style.display = 'block';
+                    settingsButton.style.display = 'block';
+                }
+            }
+
+            function switch_configuration() {
+                getChosenCells()
+                    .filter(cellId => !isCellIdOfType(cellId, TYPE_PLAYABLE) && isCellSelected(cellId))
+                    .forEach(cellId => hideBlock(getBlock(cellId, SELECTED)));
+
+                let settings = document.getElementById("settings");
+                let configuration = document.getElementById("configuration");
+                let managed = document.getElementById("managerbuttons");
+                let settingsButton = document.getElementById("switchbuttons");
+                if (configuration.style.display === 'none') {
+                    settings.style.display = 'none';
+                    configuration.style.display = 'block';
+                    managed.style.display = 'none';
+                    settingsButton.style.display = 'none';
+                } else {
+                    settings.style.display = 'none';
+                    configuration.style.display = 'none'
+                    managed.style.display = 'block';
+                    settingsButton.style.display = 'block';
                 }
             }
         </script>
@@ -72,7 +66,10 @@
             <div class="settings-section">
                 <div id="settingsbutton-inside" style="margin-top: -3px;margin-bottom: 2px;">
                     <button onclick="switch_settings()" style="width: 90px">
-                        Settings
+                        Close
+                    </button>
+                    <button onclick="switch_configuration()" style="width: 90px">
+                        Configure
                     </button>
                 </div>
                 <div th:if="${isBingo}">
@@ -117,6 +114,7 @@
             <div class="settings-section">
                 <div th:replace="piu/parts/random/coop :: coop"></div>
                 <div th:replace="piu/parts/random/performance :: performance"></div>
+                <div th:replace="piu/parts/random/latest-patch :: latest-patch"></div>
                 <div th:if="${isBingo}">
                     <div th:replace="piu/parts/preferences/lock_charts :: lock_charts"></div>
                 </div>
@@ -163,6 +161,7 @@
                 <div style="float: left">
                     <div th:replace="piu/parts/random/performance :: performance"></div>
                     <div th:replace="piu/parts/random/coop :: coop"></div>
+                    <div th:replace="piu/parts/random/latest-patch :: latest-patch"></div>
                 </div>
             </details>
 
@@ -193,8 +192,18 @@
 
         </div>
 
-
     </div>
+
+    <div th:replace="piu/parts/configuration :: #configuration"></div>
+
+    <script th:if="${isBingo}" type="text/javascript" th:inline="javascript">
+        document.getElementById("managerbuttons").style.display = 'none';
+        //document.getElementById("settings").style.display = 'none';
+        document.getElementById("configuration").style.display = 'none';
+    </script>
+    <script th:unless="${isBingo}" type="text/javascript" th:inline="javascript">
+        document.getElementById("configuration").style.display = 'none';
+    </script>
 
     <script type="text/javascript" th:inline="javascript">
         let initialRandomize = true;

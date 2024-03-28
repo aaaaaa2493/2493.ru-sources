@@ -124,17 +124,19 @@
             let sperc = document.getElementById("sperc");
             let dperc = document.getElementById("dperc");
 
-            let sum = (sperc.value | 0) + (dperc.value | 0);
-            let currSperc = ((sperc.value | 0) / sum * 100) | 0;
-            let currDperc = ((dperc.value | 0) / sum * 100) | 0;
+            let singles = sperc.value | 0;
+            let doubles = dperc.value | 0;
+            let sum = singles + doubles;
+            let currSperc = (singles / sum * 100) | 0;
+            let currDperc = (doubles / sum * 100) | 0;
 
             let spercDesc = document.getElementById("spercdesc");
             let dpercDesc = document.getElementById("dpercdesc");
             spercDesc.innerHTML = currSperc + "%";
             dpercDesc.innerHTML = currDperc + "%";
 
-            singlePercentage = currSperc / 100;
-            doublePercentage = currDperc / 100;
+            singlePercentage = singles / sum;
+            doublePercentage = doubles / sum;
         }
     </script>
 </div>

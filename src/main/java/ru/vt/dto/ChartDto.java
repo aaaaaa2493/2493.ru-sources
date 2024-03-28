@@ -18,7 +18,8 @@ public class ChartDto {
     final List<String> stepmakers;
     final String mix;
     final ChartDifficulty difficulty;
-    List<ChartStyle> styles;
+    final List<ChartStyle> styles;
+    final boolean isLatestPatch;
 
     public ChartDto(Chart chart, Mix mix) {
         this.chart = chart;
@@ -27,5 +28,6 @@ public class ChartDto {
         this.mix = chart.getMix();
         this.difficulty = chart.getDifficultyForMix(mix);
         this.styles = chart.getStyles();
+        this.isLatestPatch = chart.isLatestPatch();
     }
 }

@@ -2,9 +2,9 @@
 
 
 <div th:fragment="names" id="players_names">
-    <div id="p1namelabel">P1:</div>
+    <div id="p1namelabel">Blue:</div>
     <input id="player1_name" type="text" value="A" style="float: left" oninput="update_names()">
-    <div id="p2namelabel">P2:</div>
+    <div id="p2namelabel">Red:</div>
     <input id="player2_name" type="text" value="B" style="float: left" oninput="update_names()">
 
     <script type="text/javascript" th:inline="javascript">
@@ -12,8 +12,18 @@
         isNamesSupported = true;
 
         window.addEventListener('load', () => {
-            update_names();
+            set_names(
+                field_configuration.variables.blue_name,
+                field_configuration.variables.red_name
+            );
         });
+
+        function set_names(p1, p2) {
+            byId('player1_name').value = p1;
+            byId('player2_name').value = p2;
+            update_names();
+        }
+
         function update_names() {
             if (!isNamesSupported) {
                 return;
@@ -24,6 +34,11 @@
 
             document.querySelectorAll(".p1").forEach(e => e.innerHTML = p1name);
             document.querySelectorAll(".p2").forEach(e => e.innerHTML = p2name);
+
+            if (isConfigurationEnabled) {
+                updateVariableValue('blue_name', () => p1name);
+                updateVariableValue('red_name', () => p2name);
+            }
         }
     </script>
 

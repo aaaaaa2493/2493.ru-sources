@@ -72,11 +72,11 @@ body {
     background: linear-gradient(35deg, #e71d30a8 0%, #e71d30a8 50%, #0d96ffa8 50%, #0d96ffa8 100%);
 }
 
-.cellinfo {
+.song_background {
     background-color: rgba(255, 255, 255, 0.75);
 }
 
-.center .cellinfo {
+.center .song_background {
     background-color: rgba(255, 255, 255, 0);
 }
 

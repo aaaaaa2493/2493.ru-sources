@@ -1,0 +1,1365 @@
+<div id="configuration" class="settings_block">
+    <div class="settings-section">
+        <div id="configuration-button-inside" style="margin-top: -3px">
+            <button onclick="switch_settings()" style="width: 90px">
+                Settings
+            </button>
+            <button onclick="switch_configuration()" style="width: 90px">
+                Close
+            </button>
+        </div>
+        <div style="margin-top: 3px">
+            <label for="configuration-width" style="width: 35px; display: inline-block; text-align: center;">Width</label>
+            <input id="configuration-width" type="text" value="" style="width: 45px" oninput="changeWidth(this)">
+            <label for="configuration-height" style="width: 35px; display: inline-block;text-align: center;">Height</label>
+            <input id="configuration-height" type="text" value="" style="width: 45px" oninput="changeHeight(this)">
+        </div>
+        <div style="margin-top: 3px">
+            <span style="width: 35px; display: inline-block; text-align: center;">Left</span>
+            <button onclick="addColumnLeft()" style="width: 25px">+</button>
+            <button onclick="removeColumnLeft() " style="width: 25px">-</button>
+            <span style="width: 35px; display: inline-block;text-align: center;">Up</span>
+            <button onclick="addColumnUp()" style="width: 25px">+</button>
+            <button onclick="removeColumnUp()" style="width: 25px">-</button>
+        </div>
+        <div style="margin-top: 3px">
+            <span style="width: 35px; display: inline-block; text-align: center;">Right</span>
+            <button onclick="addColumnRight()" style="width: 25px">+</button>
+            <button onclick="removeColumnRight()" style="width: 25px">-</button>
+            <span style="width: 35px; display: inline-block;text-align: center;">Down</span>
+            <button onclick="addColumnDown()" style="width: 25px">+</button>
+            <button onclick="removeColumnDown()" style="width: 25px">-</button>
+        </div>
+
+        <div style="margin-top: 3px">
+            <button id="save-configuration" onclick="saveConfigurationConfig()" style="width: 91px">Save config</button>
+            <button id="load-configuration" onclick="loadConfigurationConfig()" style="width: 91px">Load config</button>
+        </div>
+
+        <div style="margin-top: 3px">
+            <input id="configuration-text" type="text" value="" style="width: 180px">
+        </div>
+    </div>
+
+    <div class="settings-section">
+        <div style="margin-top: -3px" onclick="changeCellTypePlayable()"><button style="width: 100px">Set Playable</button></div>
+        <div style="margin-top: 3px" onclick="changeCellTypeEmpty()"><button style="width: 100px">Set Empty</button></div>
+        <div style="margin-top: 3px" onclick="changeCellTypeNames()"><button style="width: 100px">Set Names</button></div>
+        <div style="margin-top: 3px" onclick="changeCellTypeRandom()"><button style="width: 100px">Set Random</button></div>
+        <div style="margin-top: 3px" onclick="addTextToCell()"><button style="width: 100px">Add Text</button></div>
+        <div style="margin-top: 3px" onclick="showVariablesConfiguration()"><button style="width: 100px">Variables</button></div>
+    </div>
+
+    <div id="text-configuration" class="settings-section" style="display: none">
+
+        <div style="margin-top: -3px; display: inline-block">Text Configuration</div>
+        <hr style="margin-top: 0;margin-bottom: 0;">
+
+        <div style="margin-top: 3px">
+
+            <div style="display: inline-block">
+                <div style="width: 25px"><label for="text-text-configuration">Text</label></div>
+                <textarea id="text-text-configuration" name="textarea" style="width:190px;height:72px;" oninput="textCellChangeText(this)"></textarea>
+            </div>
+
+            <div style="display: inline-block;vertical-align:top;">
+                <div>
+                    <label for="text-size-configuration" style="width: 50px; display: inline-block;">Text size</label>
+                    <input id="text-size-configuration" type="text" value="" style="width: 35px" oninput="textCellChangeSize(this)">
+                    <label for="text-color-configuration" style="width: 55px; display: inline-block; text-align: center;">Text color</label>
+                    <input id="text-color-configuration" data-coloris type="text" value="" style="width: 100px; text-align: left" oninput="textCellChangeColor(this)">
+                </div>
+
+                <div style="margin-top: 3px">
+                    <span style="width: 60px; display: inline-block;">Left-Right:</span>
+                    <span style="width: 30px; display: inline-block;">Align</span>
+                    <button onclick="textCellHorizontalAlignLeft()" style="width: 25px">⏴</button>
+                    <button onclick="textCellHorizontalAlignCenter()" style="width: 25px">|</button>
+                    <button onclick="textCellHorizontalAlignRight()" style="width: 25px">⏵</button>
+                    <label for="text-left-configuration" style="width: 35px; display: inline-block; text-align: center;">Offset</label>
+                    <input id="text-left-configuration" type="text" value="" style="width: 55px" oninput="textCellChangeLeft(this)">
+                </div>
+
+                <div style="margin-top: 3px">
+                    <span style="width: 60px; display: inline-block;">Up-Down:</span>
+                    <span style="width: 30px; display: inline-block;">Align</span>
+                    <button onclick="textCellVerticalAlignUp()" style="width: 25px">⏶</button>
+                    <button onclick="textCellVerticalAlignCenter()" style="width: 25px">—</button>
+                    <button onclick="textCellVerticalAlignDown()" style="width: 25px">⏷</button>
+                    <label for="text-top-configuration" style="width: 35px; display: inline-block; text-align: center;">Offset</label>
+                    <input id="text-top-configuration" type="text" value="" style="width: 55px" oninput="textCellChangeTop(this)">
+                </div>
+
+                <div style="margin-top: 3px">
+                    <button onclick="deleteComponent()" style="width: 55px">Delete</button>
+                </div>
+            </div>
+
+        </div>
+
+    </div>
+
+
+    <div id="randomizer-configuration" class="settings-section" style="display: none">
+        <div style="margin-top: -3px; display: inline-block">Randomizer Configuration</div>
+        <hr style="margin-top: 0;margin-bottom: 0;">
+
+        <div style="margin-top: 3px">
+            <label for="randomizer-text-configuration">Text</label>
+            <input id="randomizer-text-configuration" type="text" value="" style="width: 75px" oninput="randomizerCellChangeText(this)">
+            <label for="randomizer-size-configuration" style="width: 50px; display: inline-block;">Text size</label>
+            <input id="randomizer-size-configuration" type="text" value="" style="width: 35px" oninput="randomizerCellChangeSize(this)">
+            <label for="randomizer-color-configuration" style="width: 55px; display: inline-block; text-align: center;">Text color</label>
+            <input id="randomizer-color-configuration" data-coloris type="text" value="" style="width: 100px; text-align: left" oninput="randomizerCellChangeColor(this)">
+        </div>
+
+        <div style="margin-top: 3px">
+            Random variants:
+        </div>
+
+        <div id="randomizer-options" style="margin-top: 3px"></div>
+
+    </div>
+
+
+    <div id="variables-configuration" class="settings-section" style="display: none">
+        <div style="margin-top: -3px; display: inline-block">Variables Configuration</div>
+        <hr style="margin-top: 0;margin-bottom: 0;">
+
+        <div style="display: inline-block">
+            <div style="margin-top: 3px">
+                <span style="width: 60px; display: inline-block; text-align: end;">blue_score</span>
+                <label for="variables-blue-score-configuration"></label>
+                <input id="variables-blue-score-configuration" type="text" value="0" style="width: 35px" oninput="updateVariableValue('blue_score', () => this.value|0, true)">
+                <button onclick="updateVariableValue('blue_score', v => v+1)" style="width: 25px">+</button>
+                <button onclick="updateVariableValue('blue_score', v => v-1)" style="width: 25px">-</button>
+            </div>
+
+            <div style="margin-top: 3px">
+                <span style="width: 60px; display: inline-block; text-align: end;">red_score</span>
+                <label for="variables-red-score-configuration"></label>
+                <input id="variables-red-score-configuration" type="text" value="0" style="width: 35px" oninput="updateVariableValue('red_score', () => this.value|0, true)">
+                <button onclick="updateVariableValue('red_score', v => v+1)" style="width: 25px">+</button>
+                <button onclick="updateVariableValue('red_score', v => v-1)" style="width: 25px">-</button>
+            </div>
+
+            <div style="margin-top: 3px">
+                <input id="variables-configuration-full-row" type="checkbox" checked onclick="updatePlus1FullRow()">
+                <label for="variables-configuration-full-row">+1 on full row</label>
+            </div>
+
+            <div style="margin-top: 3px">
+                <input id="variables-configuration-full-column" type="checkbox" checked onclick="updatePlus1FullCol()">
+                <label for="variables-configuration-full-column">+1 on full column</label>
+            </div>
+        </div>
+
+        <div style="display: inline-block; vertical-align: top;">
+            <div style="margin-top: 6px">
+                <span style="width: 60px; display: inline-block; text-align: end;">blue_name</span>
+                <span id="variables-blue-name-configuration" style="text-decoration: underline;margin-left: 5px"></span>
+            </div>
+
+            <div style="margin-top: 6px">
+                <span style="width: 60px; display: inline-block; text-align: end;">red_name</span>
+                <span id="variables-red-name-configuration" style="text-decoration: underline;margin-left: 5px">></span>
+            </div>
+        </div>
+
+
+
+    </div>
+
+
+
+
+
+    <script>
+        isConfigurationEnabled = true;
+
+        let currentEditableComponent = null;
+        let variablePlus1onFullRow = true;
+        let variablePlus1onFullColumn = true;
+
+        function saveConfigurationConfig() {
+            byId('configuration-text').value = JSON.stringify(field_configuration);
+        }
+
+        function loadConfigurationConfig() {
+            closeAllConfigurations();
+            let text = byId('configuration-text').value;
+            field_configuration = JSON.parse(text);
+            generateField();
+            updateConfigurationFields();
+            byId('configuration-text').value = "";
+        }
+
+        function showVariablesConfiguration() {
+            if (byId('variables-configuration').style.display !== 'none') {
+                closeAllConfigurations();
+            } else {
+                closeAllConfigurations();
+                byId('variables-configuration').style.display = 'block';
+            }
+        }
+
+        function updateVariableValue(name, func, fromForm=false) {
+            if (field_configuration.variables[name] !== undefined) {
+                field_configuration.variables[name] = func(field_configuration.variables[name]);
+            }
+            for (let [cellId, config] of Object.entries(field_configuration.cells)) {
+                if (config.type === TYPE_RANDOMIZER) {
+                    randomizerCellConfigureText(cellId, config);
+                }
+                if (config.components) {
+                    for (let c of config.components) {
+                        textCellConfigureText(cellId, c);
+                    }
+                }
+            }
+            if (!fromForm) {
+                byId('variables-blue-score-configuration').value = field_configuration.variables.blue_score;
+                byId('variables-red-score-configuration').value = field_configuration.variables.red_score;
+                byId('variables-blue-name-configuration').innerText = field_configuration.variables.blue_name;
+                byId('variables-red-name-configuration').innerText = field_configuration.variables.red_name;
+            }
+        }
+
+        function updatePlus1FullRow() {
+            variablePlus1onFullRow = byId('variables-configuration-full-row').checked;
+            field_configuration.settings.plus1_full_row = variablePlus1onFullRow;
+        }
+
+        function updatePlus1FullCol() {
+            variablePlus1onFullColumn = byId('variables-configuration-full-column').checked;
+            field_configuration.settings.plus1_full_col = variablePlus1onFullColumn;
+        }
+
+        function handleWinningCell(cellId, cls) {
+            let arr = [];
+            if (cls === BLUE_WIN || cls === DRAW) {
+                if (isShowingBlock(getBlock(cellId, RED_WIN))) {
+                    updateVariableValue('red_score', v => v-1);
+                    arr.push(RED_WIN);
+                }
+                if (cls === BLUE_WIN) {
+                    updateVariableValue('blue_score', v => v+1);
+                }
+            }
+            if (cls === RED_WIN || cls === DRAW) {
+                if (isShowingBlock(getBlock(cellId, BLUE_WIN))) {
+                    updateVariableValue('blue_score', v => v-1);
+                    arr.push(BLUE_WIN);
+                }
+                if (cls === RED_WIN) {
+                    updateVariableValue('red_score', v => v+1);
+                }
+            }
+
+            for (let cls of arr) {
+                if (variablePlus1onFullRow) {
+                    let needMinusOneForRow = ALL_CELLS
+                        .filter(c => cellId !== c)
+                        .filter(c => getCellRow(cellId) === getCellRow(c))
+                        .every(c => isShowingBlock(getBlock(c, cls)));
+                    if (needMinusOneForRow) {
+                        updateVariableValue(cls === RED_WIN ? 'red_score' : 'blue_score', v => v-1);
+                    }
+                }
+                if (variablePlus1onFullColumn) {
+                    let needMinusOneForCol = ALL_CELLS
+                        .filter(c => cellId !== c)
+                        .filter(c => getCellColumn(cellId) === getCellColumn(c))
+                        .every(c => isShowingBlock(getBlock(c, cls)));
+                    if (needMinusOneForCol) {
+                        updateVariableValue(cls === RED_WIN ? 'red_score' : 'blue_score', v => v-1);
+                    }
+                }
+            }
+
+            if (cls === RED_WIN || cls === BLUE_WIN) {
+                if (variablePlus1onFullRow) {
+                    let needPlusOneForRow = ALL_CELLS
+                        .filter(c => cellId !== c)
+                        .filter(c => getCellRow(cellId) === getCellRow(c))
+                        .every(c => isShowingBlock(getBlock(c, cls)));
+                    if (needPlusOneForRow) {
+                        updateVariableValue(cls === RED_WIN ? 'red_score' : 'blue_score', v => v+1);
+                    }
+                }
+                if (variablePlus1onFullColumn) {
+                    let needPlusOneForCol = ALL_CELLS
+                        .filter(c => cellId !== c)
+                        .filter(c => getCellColumn(cellId) === getCellColumn(c))
+                        .every(c => isShowingBlock(getBlock(c, cls)));
+                    if (needPlusOneForCol) {
+                        updateVariableValue(cls === RED_WIN ? 'red_score' : 'blue_score', v => v+1);
+                    }
+                }
+            }
+        }
+
+        function handleResettingCellFromWinning(cellId) {
+            let arr = [];
+            if (isShowingBlock(getBlock(cellId, RED_WIN))) {
+                updateVariableValue('red_score', v => v-1);
+                arr.push(RED_WIN);
+            }
+            if (isShowingBlock(getBlock(cellId, BLUE_WIN))) {
+                updateVariableValue('blue_score', v => v-1);
+                arr.push(BLUE_WIN);
+            }
+            for (let cls of arr) {
+                if (variablePlus1onFullRow) {
+                    let needMinusOneForRow = ALL_CELLS
+                        .filter(c => cellId !== c)
+                        .filter(c => getCellRow(cellId) === getCellRow(c))
+                        .every(c => isShowingBlock(getBlock(c, cls)));
+                    if (needMinusOneForRow) {
+                        updateVariableValue(cls === RED_WIN ? 'red_score' : 'blue_score', v => v-1);
+                    }
+                }
+                if (variablePlus1onFullColumn) {
+                    let needMinusOneForCol = ALL_CELLS
+                        .filter(c => cellId !== c)
+                        .filter(c => getCellColumn(cellId) === getCellColumn(c))
+                        .every(c => isShowingBlock(getBlock(c, cls)));
+                    if (needMinusOneForCol) {
+                        updateVariableValue(cls === RED_WIN ? 'red_score' : 'blue_score', v => v-1);
+                    }
+                }
+            }
+        }
+
+        function increaseCounter(config) {
+            config.settings.counter = config.settings.counter + 1;
+            return config.settings.counter;
+        }
+
+        function adjustComponentPosition(element, deltaX, deltaY, config, left, top) {
+            let newLeft = element.offsetLeft + deltaX;
+            let newTop = element.offsetTop + deltaY;
+            element.style.left = `${element.offsetLeft + deltaX}px`;
+            element.style.top = `${element.offsetTop + deltaY}px`;
+
+            config.left = newLeft;
+            config.top = newTop;
+            byId(left).value = newLeft;
+            byId(top).value = newTop;
+        }
+
+        function updateConfigurationFields() {
+            byId('configuration-width').value = width;
+            byId('configuration-height').value = height;
+
+            byId('variables-configuration-full-row').checked = field_configuration.settings.plus1_full_row;
+            byId('variables-configuration-full-column').checked = field_configuration.settings.plus1_full_col;
+            updatePlus1FullRow();
+            updatePlus1FullCol();
+
+            updateVariableValue();
+        }
+
+        window.addEventListener("load", () => {
+            updateConfigurationFields();
+
+            document.addEventListener('keydown', function(event) {
+                if (!isConfigurationVisible()) {
+                    return;
+                }
+
+                if (currentEditableComponent) {
+                    let config = currentEditableComponent.config;
+                    let block = null;
+                    let left = null;
+                    let top = null;
+
+                    if (currentEditableComponent.type === TYPE_TEXT) {
+                        block = byId(currentEditableComponent.blockId);
+                        left = 'text-left-configuration';
+                        top = 'text-top-configuration';
+                    }
+
+                    if (block && left && top) {
+                        switch(event.key) {
+                            case 'ArrowUp':
+                                //adjustComponentPosition(block, 0, -1, config, left, top);
+                                break;
+                            case 'ArrowDown':
+                                //adjustComponentPosition(block, 0, 1, config, left, top);
+                                break;
+                            case 'ArrowLeft':
+                                //adjustComponentPosition(block, -1, 0, config, left, top);
+                                break;
+                            case 'ArrowRight':
+                                //adjustComponentPosition(block, 1, 0, config, left, top);
+                                break;
+                            case 'Delete':
+                                deleteComponent();
+                                break;
+                        }
+                    }
+                }
+            });
+        });
+
+        function isConfigurationVisible() {
+            return byId('configuration').style.display !== 'none';
+        }
+
+        function closeAllConfigurations() {
+            byId('text-configuration').style.display = 'none';
+            byId('randomizer-configuration').style.display = 'none';
+            byId('variables-configuration').style.display = 'none';
+        }
+
+        function configureOnSelect(cellId, blockId, type, config) {
+            currentEditableComponent = null;
+            closeAllConfigurations();
+
+            if (!isConfigurationVisible()) {
+                return;
+            }
+
+            if (type === TYPE_TEXT) {
+                currentEditableComponent = {
+                    cellId: cellId,
+                    blockId: blockId,
+                    type: type,
+                    config: config
+                };
+
+                byId('text-configuration').style.display = 'block';
+
+                byId('text-text-configuration').value = config.text;
+                byId('text-size-configuration').value = config.textSize;
+                byId('text-color-configuration').value = config.textColor;
+                byId('text-left-configuration').value = config.left;
+                byId('text-top-configuration').value = config.top;
+
+                document.querySelectorAll('.clr-field').forEach(e => e.style.color = config.textColor);
+            }
+
+            if (!cellId) {
+                let selectedCells = getChosenCells();
+                if (selectedCells.length === 1) {
+                    let cellId = selectedCells[0];
+                    let config = field_configuration.cells[cellId];
+
+                    if (config.type === TYPE_RANDOMIZER) {
+                        currentEditableComponent = {
+                            cellId: cellId,
+                            blockId: getBlockId(cellId, TYPE_RANDOMIZER),
+                            type: TYPE_RANDOMIZER,
+                            config: config
+                        };
+
+                        byId('randomizer-configuration').style.display = 'block';
+
+                        byId('randomizer-text-configuration').value = config.text;
+                        byId('randomizer-size-configuration').value = config.textSize;
+                        byId('randomizer-color-configuration').value = config.textColor;
+
+                        randomizerCellConfigureOptions(cellId, config);
+
+                        document.querySelectorAll('.clr-field').forEach(e => e.style.color = config.textColor);
+                    }
+                }
+            }
+        }
+
+
+        function _cloneFieldConfiguration() {
+            return JSON.parse(JSON.stringify(field_configuration));
+        }
+
+        function _makeEmptyCellsFieldConfiguration() {
+            let clone = _cloneFieldConfiguration();
+            clone.cells = {};
+            return clone;
+        }
+
+        function _normalizeFieldConfiguration(new_field_configuration) {
+            if (new_field_configuration.field.rows < 1)  {
+                new_field_configuration.field.rows = 1;
+            }
+            if (new_field_configuration.field.columns < 1)  {
+                new_field_configuration.field.columns = 1;
+            }
+            if (new_field_configuration.field.width < 1)  {
+                new_field_configuration.field.width = 1;
+            }
+            if (new_field_configuration.field.height < 1)  {
+                new_field_configuration.field.height = 1;
+            }
+            for (let [, value] of Object.entries(new_field_configuration.cells)) {
+                if (value.components) {
+                    value.components = value.components.filter(e => {
+                        if (e.type === 'text') {
+                            return e.text.length !== 0;
+                        } else {
+                            return true;
+                        }
+                    });
+
+                    if (value.components.length === 0) {
+                        delete value.components;
+                    }
+                }
+            }
+        }
+
+        function _createNewFields(new_field_configuration) {
+            for (let r = 0; r < new_field_configuration.field.rows; r++) {
+                for (let c = 0; c < new_field_configuration.field.columns; c++) {
+                    let cellId = getCellId(r, c);
+                    if (!new_field_configuration.cells[cellId]) {
+                        new_field_configuration.cells[cellId] = {
+                            type: TYPE_PLAYABLE
+                        };
+                    }
+                }
+            }
+        }
+
+        function addColumnLeft() {
+            if (!isConfigurationVisible()) {
+                return;
+            }
+
+            let new_field_configuration = _makeEmptyCellsFieldConfiguration();
+            new_field_configuration.field.columns++;
+
+            for (let [cellId, value] of Object.entries(field_configuration.cells)) {
+                let row = getCellRow(cellId);
+                let col = getCellColumn(cellId);
+                col++;
+                if (col < 0 || row < 0) {
+                    continue;
+                }
+                new_field_configuration.cells[getCellId(row, col)] = value;
+            }
+
+            _normalizeFieldConfiguration(new_field_configuration);
+            _createNewFields(new_field_configuration);
+            field_configuration = new_field_configuration;
+            generateField();
+        }
+
+        function removeColumnLeft() {
+            if (!isConfigurationVisible()) {
+                return;
+            }
+
+            let new_field_configuration = _makeEmptyCellsFieldConfiguration();
+            new_field_configuration.field.columns--;
+
+            for (let [cellId, value] of Object.entries(field_configuration.cells)) {
+                let row = getCellRow(cellId);
+                let col = getCellColumn(cellId);
+                col--;
+                if (col < 0 || row < 0) {
+                    continue;
+                }
+                new_field_configuration.cells[getCellId(row, col)] = value;
+            }
+
+            _normalizeFieldConfiguration(new_field_configuration);
+            _createNewFields(new_field_configuration);
+            field_configuration = new_field_configuration;
+            generateField();
+        }
+
+        function addColumnRight() {
+            if (!isConfigurationVisible()) {
+                return;
+            }
+
+            let new_field_configuration = _makeEmptyCellsFieldConfiguration();
+            new_field_configuration.field.columns++;
+
+            for (let [cellId, value] of Object.entries(field_configuration.cells)) {
+                let row = getCellRow(cellId);
+                let col = getCellColumn(cellId);
+                if (col < 0 || row < 0) {
+                    continue;
+                }
+                new_field_configuration.cells[getCellId(row, col)] = value;
+            }
+
+            _normalizeFieldConfiguration(new_field_configuration);
+            _createNewFields(new_field_configuration);
+            field_configuration = new_field_configuration;
+            generateField();
+        }
+
+        function removeColumnRight() {
+            if (!isConfigurationVisible()) {
+                return;
+            }
+
+            let new_field_configuration = _makeEmptyCellsFieldConfiguration();
+            new_field_configuration.field.columns--;
+
+            for (let [cellId, value] of Object.entries(field_configuration.cells)) {
+                let row = getCellRow(cellId);
+                let col = getCellColumn(cellId);
+                if (col < 0 || row < 0) {
+                    continue;
+                }
+                new_field_configuration.cells[getCellId(row, col)] = value;
+            }
+
+            _normalizeFieldConfiguration(new_field_configuration);
+            _createNewFields(new_field_configuration);
+            field_configuration = new_field_configuration;
+            generateField();
+        }
+
+        function addColumnUp() {
+            if (!isConfigurationVisible()) {
+                return;
+            }
+
+            let new_field_configuration = _makeEmptyCellsFieldConfiguration();
+            new_field_configuration.field.rows++;
+
+            for (let [cellId, value] of Object.entries(field_configuration.cells)) {
+                let row = getCellRow(cellId);
+                let col = getCellColumn(cellId);
+                row++;
+                if (col < 0 || row < 0) {
+                    continue;
+                }
+                new_field_configuration.cells[getCellId(row, col)] = value;
+            }
+
+            _normalizeFieldConfiguration(new_field_configuration);
+            _createNewFields(new_field_configuration);
+            field_configuration = new_field_configuration;
+            generateField();
+        }
+
+        function removeColumnUp() {
+            if (!isConfigurationVisible()) {
+                return;
+            }
+
+            let new_field_configuration = _makeEmptyCellsFieldConfiguration();
+            new_field_configuration.field.rows--;
+
+            for (let [cellId, value] of Object.entries(field_configuration.cells)) {
+                let row = getCellRow(cellId);
+                let col = getCellColumn(cellId);
+                row--;
+                if (col < 0 || row < 0) {
+                    continue;
+                }
+                new_field_configuration.cells[getCellId(row, col)] = value;
+            }
+
+            _normalizeFieldConfiguration(new_field_configuration);
+            _createNewFields(new_field_configuration);
+            field_configuration = new_field_configuration;
+            generateField();
+        }
+
+        function addColumnDown() {
+            if (!isConfigurationVisible()) {
+                return;
+            }
+
+            let new_field_configuration = _makeEmptyCellsFieldConfiguration();
+            new_field_configuration.field.rows++;
+
+            for (let [cellId, value] of Object.entries(field_configuration.cells)) {
+                let row = getCellRow(cellId);
+                let col = getCellColumn(cellId);
+                if (col < 0 || row < 0) {
+                    continue;
+                }
+                new_field_configuration.cells[getCellId(row, col)] = value;
+            }
+
+            _normalizeFieldConfiguration(new_field_configuration);
+            _createNewFields(new_field_configuration);
+            field_configuration = new_field_configuration;
+            generateField();
+        }
+
+        function removeColumnDown() {
+            if (!isConfigurationVisible()) {
+                return;
+            }
+
+            let new_field_configuration = _makeEmptyCellsFieldConfiguration();
+            new_field_configuration.field.rows--;
+
+            for (let [cellId, value] of Object.entries(field_configuration.cells)) {
+                let row = getCellRow(cellId);
+                let col = getCellColumn(cellId);
+                if (col < 0 || row < 0) {
+                    continue;
+                }
+                new_field_configuration.cells[getCellId(row, col)] = value;
+            }
+
+            _normalizeFieldConfiguration(new_field_configuration);
+            _createNewFields(new_field_configuration);
+            field_configuration = new_field_configuration;
+            generateField();
+        }
+
+        function changeWidth(obj) {
+            if (!isConfigurationVisible()) {
+                return;
+            }
+
+            obj.value = obj.value.replace(/\D/g, '');
+            let int = parseInt(obj.value);
+            if (int || int === 0) {
+                field_configuration.field.width = int;
+                generateField();
+            }
+        }
+
+        function changeHeight(obj) {
+            if (!isConfigurationVisible()) {
+                return;
+            }
+
+            obj.value = obj.value.replace(/\D/g, '');
+            let int = parseInt(obj.value);
+            if (int || int === 0) {
+                field_configuration.field.height = int;
+                generateField();
+            }
+        }
+
+        function changeCellTypeNames() {
+            if (!isConfigurationVisible()) {
+                return;
+            }
+
+            let selected = getChosenCells();
+
+            let new_field_configuration = _makeEmptyCellsFieldConfiguration();
+
+            for (let [cellId, value] of Object.entries(field_configuration.cells)) {
+                let row = getCellRow(cellId);
+                let col = getCellColumn(cellId);
+
+                if (selected.includes(cellId)) {
+                    new_field_configuration.cells[getCellId(row, col)] = {
+                        type: TYPE_NAMES
+                    };
+                    if (value.components) {
+                        new_field_configuration.cells[getCellId(row, col)].components = value.components;
+                    }
+                } else {
+                    new_field_configuration.cells[getCellId(row, col)] = value;
+                }
+            }
+
+            _normalizeFieldConfiguration(new_field_configuration);
+            _createNewFields(new_field_configuration);
+            field_configuration = new_field_configuration;
+            generateField();
+
+        }
+
+        function changeCellTypeRandom() {
+            if (!isConfigurationVisible()) {
+                return;
+            }
+
+            let selected = getChosenCells();
+
+            let new_field_configuration = _makeEmptyCellsFieldConfiguration();
+
+            for (let [cellId, value] of Object.entries(field_configuration.cells)) {
+                let row = getCellRow(cellId);
+                let col = getCellColumn(cellId);
+
+                if (selected.includes(cellId)) {
+                    new_field_configuration.cells[getCellId(row, col)] = {
+                        type: TYPE_RANDOMIZER,
+                        text: "?",
+                        textSize: "30",
+                        textColor: defaultTextColor,
+                        options: [{
+                            text: "Heads",
+                            coeff: 1,
+                        }, {
+                            text: "Tails",
+                            coeff: 1,
+                        }]
+                    };
+                    if (value.components) {
+                        new_field_configuration.cells[getCellId(row, col)].components = value.components;
+                    }
+                } else {
+                    new_field_configuration.cells[getCellId(row, col)] = value;
+                }
+            }
+
+            _normalizeFieldConfiguration(new_field_configuration);
+            _createNewFields(new_field_configuration);
+            field_configuration = new_field_configuration;
+            generateField();
+
+            for (let s of selected) {
+                showBlock(byId(s, SELECTED));
+            }
+            configureOnSelect();
+        }
+
+        function changeCellTypePlayable() {
+            if (!isConfigurationVisible()) {
+                return;
+            }
+
+            let selected = getChosenCells();
+
+            let new_field_configuration = _makeEmptyCellsFieldConfiguration();
+
+            for (let [cellId, value] of Object.entries(field_configuration.cells)) {
+                let row = getCellRow(cellId);
+                let col = getCellColumn(cellId);
+
+                if (selected.includes(cellId)) {
+                    new_field_configuration.cells[getCellId(row, col)] = {
+                        type: TYPE_PLAYABLE
+                    };
+                    if (value.components) {
+                        new_field_configuration.cells[getCellId(row, col)].components = value.components;
+                    }
+                } else {
+                    new_field_configuration.cells[getCellId(row, col)] = value;
+                }
+            }
+
+            _normalizeFieldConfiguration(new_field_configuration);
+            _createNewFields(new_field_configuration);
+            field_configuration = new_field_configuration;
+            generateField();
+
+        }
+
+        function changeCellTypeEmpty() {
+            if (!isConfigurationVisible()) {
+                return;
+            }
+
+            let selected = getChosenCells();
+
+            let new_field_configuration = _makeEmptyCellsFieldConfiguration();
+
+            for (let [cellId, value] of Object.entries(field_configuration.cells)) {
+                let row = getCellRow(cellId);
+                let col = getCellColumn(cellId);
+
+                if (selected.includes(cellId)) {
+                    new_field_configuration.cells[getCellId(row, col)] = {
+                        type: TYPE_EMPTY
+                    };
+                    if (value.components) {
+                        new_field_configuration.cells[getCellId(row, col)].components = value.components;
+                    }
+                } else {
+                    new_field_configuration.cells[getCellId(row, col)] = value;
+                }
+            }
+
+            _normalizeFieldConfiguration(new_field_configuration);
+            _createNewFields(new_field_configuration);
+            field_configuration = new_field_configuration;
+            generateField();
+        }
+
+        function addTextToCell() {
+            if (!isConfigurationVisible()) {
+                return;
+            }
+
+            let selected = getChosenCells();
+
+            if (selected.length > 1) {
+                return;
+            }
+
+            let cellId = selected.length === 0 ? getCellId(0, 0) : selected[0];
+            let row = getCellRow(cellId);
+            let col = getCellColumn(cellId);
+
+            let cellInfo = field_configuration.cells[getCellId(row, col)];
+            if (!cellInfo.components) {
+                cellInfo.components = [];
+            }
+            let newId = increaseCounter(field_configuration);
+            let config = {
+                type: TYPE_TEXT,
+                id: newId,
+                text: "Text",
+                textSize: "40",
+                textColor: defaultTextColor,
+                verticalAlign: "center",
+                horizontalAlign: "center",
+                left: 0,
+                top: 0,
+            };
+            cellInfo.components.push(config);
+
+            hideBlock(byId(cellId, SELECTED));
+            generateField();
+
+            configureOnSelect(cellId, getBlockId(cellId, TYPE_TEXT, newId), TYPE_TEXT, config);
+        }
+
+        function startDraggingTextElement(event, element, config) {
+            if (!isConfigurationVisible()) {
+                return;
+            }
+
+            let originalX = event.clientX;
+            let originalY = event.clientY;
+            function dragElement(e) {
+                let deltaX = e.clientX - originalX;
+                let deltaY = e.clientY - originalY;
+
+                let newLeft = element.offsetLeft + deltaX;
+                let newTop = element.offsetTop + deltaY;
+                element.style.left = `${newLeft}px`;
+                element.style.top = `${newTop}px`;
+
+                config.left = newLeft;
+                config.top = newTop;
+                byId('text-left-configuration').value = newLeft;
+                byId('text-top-configuration').value = newTop;
+
+                originalX = e.clientX;
+                originalY = e.clientY;
+            }
+            function stopDraggingElement() {
+                document.removeEventListener('mousemove', dragElement);
+                document.removeEventListener('mouseup', stopDraggingElement);
+            }
+
+            document.addEventListener('mousemove', dragElement);
+            document.addEventListener('mouseup', stopDraggingElement);
+        }
+
+        function createTextCell(cellId, config) {
+            let outerDiv = document.createElement('div');
+            outerDiv.id = getBlockId(cellId, TYPE_TEXT, config.id);
+            outerDiv.className = 'filler text';
+
+            let innerDiv = document.createElement('div');
+            innerDiv.id = getBlockId(cellId, TEXT_INNER, config.id);
+
+            innerDiv.addEventListener('mousedown', function(e) {
+                configureOnSelect(cellId, outerDiv.id, TYPE_TEXT, config);
+                startDraggingTextElement(e, outerDiv, config);
+            });
+
+            innerDiv.addEventListener('click', function(event) {
+                event.stopPropagation();
+            });
+
+            outerDiv.appendChild(innerDiv);
+
+            return outerDiv;
+        }
+
+        function replaceVariables(str) {
+            return str.replace(/\{(\w+)}/g, (match, key) => {
+                return field_configuration.variables[key] !== undefined ?
+                    field_configuration.variables[key] : match;
+            });
+        }
+
+        function textCellConfigureText(cellId, config) {
+            if (config.type === TYPE_TEXT) {
+                let block = getBlock(cellId, TEXT_INNER, config.id);
+                block.innerHTML = replaceVariables(config.text).replaceAll("\n", "<br>").replaceAll(" ", "&nbsp;");
+            }
+        }
+
+        function textCellConfigure(cellId, config) {
+            if (config.type === TYPE_TEXT) {
+                textCellConfigureText(cellId, config);
+
+                let filler = getBlock(cellId, TYPE_TEXT, config.id);
+                filler.style['color'] = config.textColor;
+                filler.style['font-size'] = config.textSize + "px";
+                filler.style['align-items'] = config.verticalAlign;
+                filler.style['justify-content'] = config.horizontalAlign;
+                filler.style['text-align'] = config.horizontalAlign;
+                filler.style['top'] = config.top + "px";
+                filler.style['left'] = config.left + "px";
+            }
+        }
+
+        function randomizerCellConfigureText(cellId, config) {
+            if (config.type === TYPE_RANDOMIZER) {
+                let text = getBlock(cellId, RANDOMIZER_TEXT);
+                text.innerText = replaceVariables(config.text);
+            }
+        }
+
+        function randomizerCellConfigure(cellId, config) {
+            if (config.type === TYPE_RANDOMIZER) {
+                randomizerCellConfigureText(cellId, config);
+
+                let text = getBlock(cellId, RANDOMIZER_TEXT);
+                let filler = getBlock(cellId, TYPE_RANDOMIZER);
+                text.style['font-size'] = config.textSize + "px";
+                filler.style['color'] = config.textColor;
+            }
+        }
+
+        function randomizerCellConfigureOptions(cellId, config) {
+            if (config.type === TYPE_RANDOMIZER) {
+                let optionsHtml = "";
+
+                function escapeHtml(unsafe) {
+                    return unsafe
+                        .replace(/&/g, "&amp;")
+                        .replace(/</g, "&lt;")
+                        .replace(/>/g, "&gt;")
+                        .replace(/"/g, "&quot;")
+                        .replace(/'/g, "&#039;");
+                }
+
+                let index = 0;
+                for (let option of config.options) {
+                    let optionText = escapeHtml(option.text);
+                    let optionCoeff = option.coeff;
+                    optionsHtml += `
+                        <div>
+                            <button style="width: 25px" onclick="randomizerCellRemoveOption(${index})">-</button>
+                            <label for="randomizer-option-${index}-text">Text</label>
+                            <input id="randomizer-option-${index}-text" type="text" value="${optionText}" style="width: 75px" oninput="randomizerCellChangeOptionText(this, ${index})">
+                            <label for="randomizer-option-${index}-percents">Percents</label>
+                            <input id="randomizer-option-${index}-percents" type="text" value="${optionCoeff}" style="width: 25px" oninput="randomizerCellChangeOptionPercents(this, ${index})">
+                            <span id="randomizer-option-${index}-percents-text"></span><span>%</span>
+                        </div>`;
+                    index++;
+                }
+
+                optionsHtml += `
+                    <div>
+                        <button style="width: 25px" onclick="randomizerCellAddOption()">+</button>
+                    </div>`;
+
+                byId('randomizer-options').innerHTML = optionsHtml;
+                randomizerCellConfigureOptionsPercents(cellId, config);
+            }
+        }
+
+        function randomizerCellConfigureOptionsPercents(cellId, config) {
+            if (config.type === TYPE_RANDOMIZER) {
+                let index = 0;
+
+                let sum = 0;
+
+                while (index < config.options.length) {
+                    let perc = byId(`randomizer-option-${index}-percents`);
+                    sum += perc.value | 0;
+                    index++;
+                }
+
+                index = 0;
+
+                while (index < config.options.length) {
+                    let percentsDiv = byId(`randomizer-option-${index}-percents`);
+                    let percentsDescDiv = byId(`randomizer-option-${index}-percents-text`);
+
+                    let actualPercents = (((percentsDiv.value | 0) / sum * 100) | 0);
+                    percentsDescDiv.innerHTML = actualPercents + '';
+                    index++;
+                }
+            }
+        }
+
+        function randomizeCellReroll(cellId, config) {
+            if (config.type === TYPE_RANDOMIZER) {
+                if (config.options.length === 0) {
+                    let div = byId(cellId, RANDOMIZER_TEXT);
+                    div.innerText = "";
+                    config.text = "";
+                    configureOnSelect();
+                    return;
+                }
+
+                let index = 0;
+                let percents = {};
+
+                let sum = 0;
+
+                while (index < config.options.length) {
+                    sum += config.options[index].coeff;
+                    index++;
+                }
+
+                index = 0;
+
+                while (index < config.options.length) {
+                    percents[index] = config.options[index].coeff / sum;
+                    index++;
+                }
+
+                while (true) {
+                    let randomOption = Math.random();
+
+                    for (let index in percents) {
+                        let currPercents = percents[index];
+                        randomOption -= currPercents;
+                        if (randomOption < 0) {
+                            let div = byId(cellId, RANDOMIZER_TEXT);
+                            div.innerText = "...";
+                            setTimeout(() => {
+                                div.innerText = replaceVariables(config.options[index].text);
+                                config.text = config.options[index].text;
+                                configureOnSelect();
+                            }, 1000);
+                            return;
+                        }
+                    }
+                }
+            }
+        }
+
+        function randomizerCellAddOption() {
+            if (!isConfigurationVisible()) {
+                return;
+            }
+            if (currentEditableComponent && currentEditableComponent.type === TYPE_RANDOMIZER) {
+                currentEditableComponent.config.options.push({
+                    text: "Option",
+                    coeff: 1
+                });
+                randomizerCellConfigureOptions(currentEditableComponent.cellId, currentEditableComponent.config);
+            }
+        }
+
+        function randomizerCellRemoveOption(index) {
+            if (!isConfigurationVisible()) {
+                return;
+            }
+            if (currentEditableComponent && currentEditableComponent.type === TYPE_RANDOMIZER) {
+                currentEditableComponent.config.options.splice(index, 1);
+                randomizerCellConfigureOptions(currentEditableComponent.cellId, currentEditableComponent.config);
+            }
+        }
+
+        function randomizerCellChangeOptionText(elem, index) {
+            if (!isConfigurationVisible()) {
+                return;
+            }
+            if (currentEditableComponent && currentEditableComponent.type === TYPE_RANDOMIZER) {
+                currentEditableComponent.config.options[index].text = elem.value;
+            }
+        }
+
+        function randomizerCellChangeOptionPercents(elem, index) {
+            if (!isConfigurationVisible()) {
+                return;
+            }
+            if (currentEditableComponent && currentEditableComponent.type === TYPE_RANDOMIZER) {
+                elem.value = elem.value.replace(/\D/g, '');
+                let int = parseInt(elem.value);
+                if (int || int === 0) {
+                    currentEditableComponent.config.options[index].coeff = elem.value;
+                    randomizerCellConfigureOptionsPercents(currentEditableComponent.cellId, currentEditableComponent.config);
+                }
+            }
+        }
+
+        function textCellChangeText(elem) {
+            if (!isConfigurationVisible()) {
+                return;
+            }
+            if (currentEditableComponent && currentEditableComponent.type === TYPE_TEXT) {
+                currentEditableComponent.config.text = elem.value;
+                textCellConfigureText(currentEditableComponent.cellId, currentEditableComponent.config);
+            }
+        }
+
+        function randomizerCellChangeText(elem) {
+            if (!isConfigurationVisible()) {
+                return;
+            }
+            if (currentEditableComponent && currentEditableComponent.type === TYPE_RANDOMIZER) {
+                currentEditableComponent.config.text = elem.value;
+                randomizerCellConfigureText(currentEditableComponent.cellId, currentEditableComponent.config);
+            }
+        }
+
+        function textCellChangeSize(elem) {
+            if (!isConfigurationVisible()) {
+                return;
+            }
+            if (currentEditableComponent && currentEditableComponent.type === TYPE_TEXT) {
+                elem.value = elem.value.replace(/\D/g, '');
+                let int = parseInt(elem.value);
+                if (int || int === 0) {
+                    currentEditableComponent.config.textSize = elem.value;
+                    textCellConfigure(currentEditableComponent.cellId, currentEditableComponent.config);
+                }
+            }
+        }
+
+        function randomizerCellChangeSize(elem) {
+            if (!isConfigurationVisible()) {
+                return;
+            }
+            if (currentEditableComponent && currentEditableComponent.type === TYPE_RANDOMIZER) {
+                elem.value = elem.value.replace(/\D/g, '');
+                let int = parseInt(elem.value);
+                if (int || int === 0) {
+                    currentEditableComponent.config.textSize = elem.value;
+                    randomizerCellConfigure(currentEditableComponent.cellId, currentEditableComponent.config);
+                }
+            }
+        }
+
+        function textCellChangeColor(elem) {
+            if (!isConfigurationVisible()) {
+                return;
+            }
+            if (currentEditableComponent && currentEditableComponent.type === TYPE_TEXT) {
+                currentEditableComponent.config.textColor = elem.value;
+                textCellConfigure(currentEditableComponent.cellId, currentEditableComponent.config);
+            }
+        }
+
+        function randomizerCellChangeColor(elem) {
+            if (!isConfigurationVisible()) {
+                return;
+            }
+            if (currentEditableComponent && currentEditableComponent.type === TYPE_RANDOMIZER) {
+                currentEditableComponent.config.textColor = elem.value;
+                randomizerCellConfigure(currentEditableComponent.cellId, currentEditableComponent.config);
+            }
+        }
+
+        function textCellHorizontalAlignLeft() {
+            if (!isConfigurationVisible()) {
+                return;
+            }
+            if (currentEditableComponent && currentEditableComponent.type === TYPE_TEXT) {
+                currentEditableComponent.config.horizontalAlign = 'start';
+                textCellConfigure(currentEditableComponent.cellId, currentEditableComponent.config);
+            }
+        }
+
+        function textCellHorizontalAlignCenter() {
+            if (!isConfigurationVisible()) {
+                return;
+            }
+            if (currentEditableComponent && currentEditableComponent.type === TYPE_TEXT) {
+                currentEditableComponent.config.horizontalAlign = 'center';
+                textCellConfigure(currentEditableComponent.cellId, currentEditableComponent.config);
+            }
+        }
+
+        function textCellHorizontalAlignRight() {
+            if (!isConfigurationVisible()) {
+                return;
+            }
+            if (currentEditableComponent && currentEditableComponent.type === TYPE_TEXT) {
+                currentEditableComponent.config.horizontalAlign = 'end';
+                textCellConfigure(currentEditableComponent.cellId, currentEditableComponent.config);
+            }
+        }
+
+        function textCellVerticalAlignUp() {
+            if (!isConfigurationVisible()) {
+                return;
+            }
+            if (currentEditableComponent && currentEditableComponent.type === TYPE_TEXT) {
+                currentEditableComponent.config.verticalAlign = 'start';
+                textCellConfigure(currentEditableComponent.cellId, currentEditableComponent.config);
+            }
+        }
+
+        function textCellVerticalAlignCenter() {
+            if (!isConfigurationVisible()) {
+                return;
+            }
+            if (currentEditableComponent && currentEditableComponent.type === TYPE_TEXT) {
+                currentEditableComponent.config.verticalAlign = 'center';
+                textCellConfigure(currentEditableComponent.cellId, currentEditableComponent.config);
+            }
+        }
+
+        function textCellVerticalAlignDown() {
+            if (!isConfigurationVisible()) {
+                return;
+            }
+            if (currentEditableComponent && currentEditableComponent.type === TYPE_TEXT) {
+                currentEditableComponent.config.verticalAlign = 'end';
+                textCellConfigure(currentEditableComponent.cellId, currentEditableComponent.config);
+            }
+        }
+
+        function textCellChangeLeft(elem) {
+            if (!isConfigurationVisible()) {
+                return;
+            }
+            if (currentEditableComponent && currentEditableComponent.type === TYPE_TEXT) {
+                if (elem.value === '-') {
+                    return;
+                }
+                let start = elem.value.startsWith('-') ? '-' : '';
+                elem.value = start + elem.value.replace(/\D/g, '');
+                let int = parseInt(elem.value);
+                if (int || int === 0) {
+                    currentEditableComponent.config.left = int;
+                    textCellConfigure(currentEditableComponent.cellId, currentEditableComponent.config);
+                }
+            }
+        }
+
+        function textCellChangeTop(elem) {
+            if (!isConfigurationVisible()) {
+                return;
+            }
+            if (currentEditableComponent && currentEditableComponent.type === TYPE_TEXT) {
+                if (elem.value === '-') {
+                    return;
+                }
+                let start = elem.value.startsWith('-') ? '-' : '';
+                elem.value = start + elem.value.replace(/\D/g, '');
+                let int = parseInt(elem.value);
+                if (int || int === 0) {
+                    currentEditableComponent.config.top = int;
+                    textCellConfigure(currentEditableComponent.cellId, currentEditableComponent.config);
+                }
+            }
+        }
+
+        function deleteComponent() {
+            if (!isConfigurationVisible()) {
+                return;
+            }
+            if (currentEditableComponent) {
+                let element = byId(currentEditableComponent.blockId);
+                if (element) {
+                    element.parentNode.removeChild(element);
+                }
+                let settings = field_configuration.cells[currentEditableComponent.cellId];
+                if (settings.components) {
+                    settings.components = settings.components.filter(e => e.id !== currentEditableComponent.config.id);
+                    if (settings.components.length === 0) {
+                        delete settings.components;
+                    }
+                }
+                configureOnSelect();
+            }
+            _normalizeFieldConfiguration(field_configuration);
+        }
+
+    </script>
+</div>

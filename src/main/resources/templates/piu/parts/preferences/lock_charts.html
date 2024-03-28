@@ -16,8 +16,14 @@
             update_lock_charts();
         });
 
+        function setLockCharts(value) {
+            byId('islockcharts').checked = value;
+            update_lock_charts();
+        }
+
         function update_lock_charts() {
             isLockCharts = document.getElementById("islockcharts").checked;
+            field_configuration.settings.lock_charts = isLockCharts;
 
             if (isLockCharts) {
                 lockIrrelevantCells();

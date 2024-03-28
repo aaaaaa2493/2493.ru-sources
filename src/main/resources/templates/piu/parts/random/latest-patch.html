@@ -1,0 +1,53 @@
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+
+
+<div th:fragment="latest-patch" th:remove="tag">
+    <div id="is-latest-patch-only-div" class="input-div">
+        <input id="latest-patch-only" type="checkbox" onclick="update_is_only_latest_patch()">
+        <label for="latest-patch-only">Latest patch only</label>
+    </div>
+
+    <script type="text/javascript" th:inline="javascript">
+        includeOnlyLatestPatch = true;
+
+        let isOnlyLatestPatch = false;
+        let hasLatestPatch = false;
+
+        function initOnlyLatestPatch() {
+            hasLatestPatch = false;
+            outer:
+            for (let song of songs) {
+                for (let chart of song.charts) {
+                    if (chart.latest_patch) {
+                        hasLatestPatch = true;
+                        break outer;
+                    }
+                }
+            }
+
+            if (hasLatestPatch) {
+                document.getElementById("is-latest-patch-only-div").style.display = 'block';
+            } else {
+                document.getElementById("is-latest-patch-only-div").style.display = 'none';
+            }
+        }
+
+        window.addEventListener('load', () => {
+            update_is_only_latest_patch();
+        });
+
+        initNewSongsFuncs.push(initOnlyLatestPatch);
+        function update_is_only_latest_patch() {
+            isOnlyLatestPatch = document.getElementById("latest-patch-only").checked;
+            settingsChanged();
+        }
+
+        function filter_only_latest_patch(song, chart) {
+            if (!hasLatestPatch) {
+                return true;
+            }
+            return !(isOnlyLatestPatch && !chart.latest_patch);
+        }
+        chartFilters.push(filter_only_latest_patch);
+    </script>
+</div>

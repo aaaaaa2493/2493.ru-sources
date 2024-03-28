@@ -1,3 +1,7 @@
+body {
+    font-family: 'PT Sans Narrow';
+}
+
 .field {
     display: inline-block;
     border: 2px solid #1C6EA4;
@@ -22,6 +26,8 @@
 .filler {
     position: absolute;
     display: none;
+    width: 100%;
+    height: 100%;
 }
 
 .settings_block {
@@ -53,8 +59,9 @@ input[type='text'] {
     color: red;
 }
 
-.cellinfo {
+.cellinfo, .song_background {
     height: 100%;
+    background-size: 100% 100%;
 }
 
 .p1 {
@@ -127,6 +134,10 @@ input[type='text'] {
     margin-left: 2px;
 }
 
+.selected {
+    pointer-events: none;
+}
+
 /* Chrome, Safari, Edge, Opera */
 input::-webkit-outer-spin-button,
 input::-webkit-inner-spin-button {
@@ -145,4 +156,37 @@ input {
 
 #settings {
     margin-top: -4px;
+}
+
+#configuration {
+    margin-top: -4px;
+}
+
+.randomizer_text, .randomizer_icon {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    display: flex;
+}
+
+.randomizer_text {
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+}
+
+.randomizer_icon {
+    align-items: end;
+    justify-content: end;
+    font-size: 30px;
+}
+
+.text {
+    pointer-events: none;
+    display: flex;
+}
+
+.text > div {
+    z-index: 11;
+    pointer-events: all;
 }

@@ -134,9 +134,11 @@
                 let perc = document.getElementById(currdiff + "perc");
                 let percDesc = document.getElementById(currdiff + "percdesc");
 
-                let actualPercents = (((perc.value | 0) / sum * 100) | 0);
-                percents[currdiff] = actualPercents / 100;
-                percDesc.innerHTML = actualPercents + "%"
+                let percentValue = perc.value | 0;
+                let mathematicalPercents = percentValue / sum;
+                let displayPercents = (mathematicalPercents * 100) | 0;
+                percents[currdiff] = mathematicalPercents;
+                percDesc.innerHTML = displayPercents + "%"
                 currdiff++;
             }
         }
